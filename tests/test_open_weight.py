@@ -22,3 +22,22 @@ def test_device_and_output_limit_rejected_before_import(monkeypatch):
         load_model('mps')
     with pytest.raises(ValueError, match='出力上限'):
         generate(None, None, 'test', max_new_tokens=129)
+
+
+@pytest.mark.parametrize('value', ['False', 0, 1, None])
+def test_download_requires_boolean_before_any_import(value):
+    with pytest.raises(ValueError, match='allow_download'):
+        load_model('cpu', value)
+
+
+@pytest.mark.parametrize('ids,text', [([], ''), ([9], ''), ([9], '  '), ([1], '途中'), ([1,2,3,9], '上限超過')])
+def test_unexpected_generation_is_an_error(ids, text):
+    from seminar_lab.open_weight import _generation_status
+    with pytest.raises(RuntimeError):
+        _generation_status(ids, text, [9], 3)
+
+
+def test_output_limit_and_eos_remain_distinct():
+    from seminar_lab.open_weight import _generation_status
+    assert _generation_status([1, 9], '回答', [9], 3) == 'completed'
+    assert _generation_status([1, 2, 3], '途中の回答', [9], 3) == 'output_limit'

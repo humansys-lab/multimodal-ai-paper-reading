@@ -30,6 +30,8 @@ def load_model(device: str, allow_download: bool = False):
     """指定した計算機だけで読み込む。失敗時の別モデル・CPUへの切替は行わない。"""
     if device not in {'cuda', 'mps', 'cpu'}:
         raise ValueError('deviceはcuda（Colab GPU）、mps（Mac）、cpuから明示してください。')
+    if type(allow_download) is not bool:
+        raise ValueError('allow_downloadはTrueまたはFalseで明示してください。')
     if os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK') == '1':
         raise ValueError('MPSからCPUへの自動フォールバックを無効にしてください。')
     import torch
@@ -110,6 +112,8 @@ def generate(tokenizer, model, prompt: str, max_new_tokens: int = 96, seed: int 
     ids = result[0, inputs.input_ids.shape[1]:].tolist()
     eos = model.generation_config.eos_token_id
     eos_ids = eos if isinstance(eos, list) else [eos]
+    response = tokenizer.decode(ids, skip_special_tokens=True)
+    status = _generation_status(ids, response, eos_ids, max_new_tokens)
     return {'run_id': str(uuid4()), 'timestamp': datetime.now(timezone.utc).isoformat(),
         'model': MODEL_ID, 'revision': REVISION, 'route': 'open_weight_local',
         'device': str(model.device), 'dtype': str(model.dtype), 'prompt': prompt,
@@ -117,7 +121,20 @@ def generate(tokenizer, model, prompt: str, max_new_tokens: int = 96, seed: int 
         'parameters': {'temperature': 0.7, 'top_p': 0.8, 'top_k': 20,
                        'max_new_tokens': max_new_tokens, 'enable_thinking': False},
         'input_tokens': int(inputs.input_ids.shape[1]), 'output_tokens': len(ids),
-        'response_raw': tokenizer.decode(ids, skip_special_tokens=True),
-        'status': 'completed' if ids and ids[-1] in eos_ids else 'output_limit',
+        'response_raw': response,
+        'status': status,
         'elapsed_seconds': round(monotonic() - start, 3), 'api_cost_usd': 0,
         'student_explanation': None, 'unresolved_point': None}
+
+
+def _generation_status(ids: list[int], response: str, eos_ids: list[int], limit: int) -> str:
+    """終了トークンか出力上限による終了だけを受け付ける。空の回答はエラー。"""
+    if not ids or not response.strip():
+        raise RuntimeError('モデルが空の回答を返しました。成功として保存せず、入力と出力上限を確認してください。')
+    if len(ids) > limit:
+        raise RuntimeError('指定した出力上限を超えています。モデルの設定を確認してください。')
+    if ids[-1] in eos_ids:
+        return 'completed'
+    if len(ids) == limit:
+        return 'output_limit'
+    raise RuntimeError('想定した終了条件に達せず停止しました。モデルの設定を確認してください。')

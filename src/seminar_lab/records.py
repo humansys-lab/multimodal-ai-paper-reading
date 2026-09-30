@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime, timezone
 import json
+from math import isfinite
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -36,7 +37,7 @@ def new_record(context: dict, session_id: str | None = None) -> dict[str, Any]:
 
 def validate_record(record: dict) -> None:
     """P01の段階とHomeworkの混在、費用の誤表示を防ぐ。"""
-    if any(k not in record for k in FIELDS):
+    if not isinstance(record, dict) or any(k not in record for k in FIELDS):
         raise ValidationError("記録の必須フィールドが不足しています。")
     aid, phase = record["activity_id"], record["phase"]
     if aid in PHASES and phase != PHASES[aid]:
@@ -49,17 +50,60 @@ def validate_record(record: dict) -> None:
         raise ValidationError("R0はAIなしの記録です。")
     if record["cost_kind"] == "unknown" and record["cost_value"] is not None:
         raise ValidationError("費用不明を数値で埋めないでください。")
-    if not record["session_id"] or not record["run_id"]:
+    if not all(isinstance(record[k], str) and record[k].strip() for k in ("session_id", "run_id")):
         raise ValidationError("記録IDが必要です。")
+    for key in ("cost_value", "elapsed_seconds"):
+        value = record[key]
+        if value is not None and (type(value) not in (int, float) or not isfinite(value) or value < 0):
+            raise ValidationError("費用・所要時間は非負の有限数またはnullにしてください。")
+
+
+def _unique_records(records: list[dict]) -> None:
+    """保存と再読込みの両方で、記録の配列とrunの一意性を確認する。"""
+    if not isinstance(records, list):
+        raise ValidationError("記録は配列として保存してください。")
+    for record in records:
+        validate_record(record)
+    ids = [(r["session_id"], r["run_id"]) for r in records]
+    if len(ids) != len(set(ids)):
+        raise ValidationError("同じrunが重複しています。")
+
+
+def _json_object(pairs: list[tuple]) -> dict:
+    """同名フィールドが二つあるJSONを、後勝ちで読まない。"""
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValidationError("JSONのフィールド名が重複しています。元の記録を確認してください。")
+        value[key] = item
+    return value
+
+
+def _reject_json_constant(value: str) -> None:
+    """NaNやInfinityはJSONの数値として受け付けない。"""
+    raise ValidationError("JSONに非標準の数値が含まれています。")
+
+
+def _finite_json_float(value: str) -> float:
+    """桁あふれをInfinityへ変換せず拒否する。"""
+    number = float(value)
+    if not isfinite(number):
+        raise ValidationError("JSONの数値が大きすぎます。")
+    return number
+
+
+def _read_json(content: str) -> Any:
+    """壊れたJSONを補修・欠落扱いせず、明示的に拒否する。"""
+    try:
+        return json.loads(content, object_pairs_hook=_json_object, parse_constant=_reject_json_constant,
+                          parse_float=_finite_json_float)
+    except json.JSONDecodeError:
+        raise ValidationError("JSONを読み込めません。元の記録ファイルを確認してください。") from None
 
 
 def save_records(records: list[dict], path: str | Path) -> None:
     """明示操作で新しいファイルへ保存。同名上書きで初期記録を失わない。"""
-    for r in records:
-        validate_record(r)
-    ids = [(r["session_id"], r["run_id"]) for r in records]
-    if len(ids) != len(set(ids)):
-        raise ValidationError("同じrunが重複しています。")
+    _unique_records(records)
     p = Path(path)
     if p.suffix not in {".jsonl", ".md"}:
         raise ValidationError("保存形式は.mdまたは.jsonlです。")
@@ -82,13 +126,14 @@ def load_records(path: str | Path) -> list[dict]:
     p = Path(path)
     content = p.read_text(encoding="utf-8")
     if p.suffix == ".jsonl":
-        records = [json.loads(s) for s in content.splitlines() if s.strip()]
+        records = [_read_json(s) for s in content.splitlines() if s.strip()]
     elif p.suffix == ".md":
         start = "<!-- SEMINAR_RECORDS -->\n```json\n"
         end = "\n```\n<!-- END_SEMINAR_RECORDS -->"
-        records = json.loads(content.rsplit(start, 1)[1].rsplit(end, 1)[0])
+        if start not in content or end not in content.rsplit(start, 1)[1]:
+            raise ValidationError("再読込み用の記録が見つかりません。元のMarkdownを確認してください。")
+        records = _read_json(content.rsplit(start, 1)[1].rsplit(end, 1)[0])
     else:
         raise ValidationError("読込み形式は.mdまたは.jsonlです。")
-    for r in records:
-        validate_record(r)
+    _unique_records(records)
     return records
