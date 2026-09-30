@@ -94,6 +94,44 @@ def test_permission_reserves_count_even_if_no_response(runtime):
     with pytest.raises(ValidationError): p.consume(runtime)
 
 
+def test_transport_accepts_explicit_output_limit_values_without_sending(runtime, monkeypatch):
+    from seminar_lab.client import OpenAITransport
+    import openai
+
+    runtime['capabilities']['parameters']['max_output_tokens'] = {'values': [128, 512]}
+    monkeypatch.setattr('seminar_lab.client.version', lambda _: 'fixture-sdk')
+    created = []
+
+    class OfflineClient:
+        def __init__(self, **kwargs):
+            created.append(kwargs)
+            self.http = kwargs['http_client']
+
+        def close(self):
+            self.http.close()
+
+    monkeypatch.setattr(openai, 'OpenAI', OfflineClient)
+    permission = LivePermission('fixture', 'no requests', runtime['route'], runtime['model'], 'fixture', 1, 1)
+    transport = OpenAITransport(runtime, 'fixture-key', permission)
+    transport.close()
+    assert permission.used == 0 and len(created) == 1
+    assert created[0]['max_retries'] == 0
+    assert runtime['capabilities']['parameters']['max_output_tokens'] == {'values': [128, 512]}
+
+
+@pytest.mark.parametrize('rule', [None, {}, {'values': []}])
+def test_transport_rejects_missing_output_limit_before_client_creation(runtime, monkeypatch, rule):
+    from seminar_lab.client import OpenAITransport
+    import openai
+
+    runtime['capabilities']['parameters']['max_output_tokens'] = rule
+    monkeypatch.setattr(openai, 'OpenAI', lambda **_: pytest.fail('不正な設定でクライアントを作成した'))
+    permission = LivePermission('fixture', 'no requests', runtime['route'], runtime['model'], 'fixture', 1, 1)
+    with pytest.raises(ValidationError, match='出力上限の対応表'):
+        OpenAITransport(runtime, 'fixture-key', permission)
+    assert permission.used == 0
+
+
 @pytest.mark.parametrize("suffix", [".md", ".jsonl"])
 def test_lossless_unicode_null_raw_and_revision(tmp_path, adopted, suffix):
     r = new_record(material_context(*adopted,"P0"))

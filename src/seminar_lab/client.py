@@ -69,7 +69,13 @@ class LivePermission:
 class OpenAITransport:
     """キーはメモリ内だけに置き、SDKの再試行を0回にする。"""
     def __init__(self, runtime: dict, api_key: str, permission: LivePermission):
-        validate_runtime(runtime, {"text"}, {"max_output_tokens": runtime.get("capabilities", {}).get("parameters", {}).get("max_output_tokens", {}).get("min", 1)})
+        try:
+            rule = runtime["capabilities"]["parameters"]["max_output_tokens"]
+            # 接続設定の検査用。実送信値はSession.previewで毎回別に検査する。
+            validation_limit = rule["min"] if "min" in rule else rule["values"][0]
+        except (KeyError, TypeError, IndexError):
+            raise ValidationError("出力上限の対応表をmin/maxまたは空でないvaluesで設定してください。") from None
+        validate_runtime(runtime, {"text"}, {"max_output_tokens": validation_limit})
         if not api_key or version("openai") != runtime["sdk_version"]:
             raise ValidationError("キーまたはSDKの固定版を確認してください。")
         from openai import OpenAI
