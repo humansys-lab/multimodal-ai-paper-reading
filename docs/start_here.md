@@ -20,4 +20,6 @@ P01はPaper2AgentのNature掲載版を採用済み。共通指定範囲はAbstra
 
 ## Notebookを開く
 
+[準備・質問・確認・保存の操作ガイド](notebook_guide.md)に、変更する欄と保存の手順をまとめています。
+
 [READMEのColabリンク](../README.md#colabで開く)から、目的に合うNotebookを開いてください。冒頭セルのPREPARE_COLABをTrueにすると、固定版の取得と依存のインストールだけを行います。送信は後のセルで自分が明示したときだけです。

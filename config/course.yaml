@@ -1,7 +1,9 @@
 schema_version: 1
 title: マルチモーダルAIの活用方法と限界を知る
 version: 0.2.0-draft
-publication: not_approved
+# 学生向け文章・コードのGitHub公開は許可済み。原図・解答付きPPTX・教材ライセンスは別管理。
+publication: student_text_and_code_approved
+public_repository: https://github.com/humansys-lab/multimodal-ai-paper-reading
 participants:
   status: confirmed
   learner_count: 10
@@ -510,7 +512,8 @@ readiness:
   proxy_budget_db_stop: not_run
   concurrent_access: not_run
   latency_and_cost: not_run
-  pptx_visual_and_powerpoint: not_run
+  # v14: PDFとPowerPointスライドショーの全54ページをエージェントが確認。教員試読は別項目。
+  pptx_visual_and_powerpoint: pass
   hw2_requirement_decided: pass
   report_requirements_decided: pass
   # 提出方法・形式の設計決定。Slackへの実アップロード試験とは区別する。

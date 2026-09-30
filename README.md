@@ -4,7 +4,7 @@
 
 ## 学生向けの入口
 
-- [最初に読む案内](docs/start_here.md)・[事前学習](docs/prework.md)・[GUIの操作](docs/gui_guide.md)
+- [最初に読む案内](docs/start_here.md)・[事前学習](docs/prework.md)・[GUIの操作](docs/gui_guide.md)・[Notebookの操作](docs/notebook_guide.md)
 - [当日の演習](activities/day1.md)・[読解の記録](worksheets/reading_record.md)
 - [課題](assignments/homework.md)・[発表](assignments/presentation.md)・[最終レポート](assignments/report.md)
 - Notebook：[00 準備](notebooks/00_setup.ipynb)、[01 対話](notebooks/01_dialogue_lab.ipynb)、[02 画像とPDF](notebooks/02_document_lab.ipynb)、[03 公開重みモデル](notebooks/03_open_weight_lab.ipynb)
