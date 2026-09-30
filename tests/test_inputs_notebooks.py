@@ -5,7 +5,7 @@ import importlib.util
 import pytest
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
-from seminar_lab.inputs import pdf_input, image_input
+from seminar_lab.inputs import PreparedInput, pdf_input, image_input
 from seminar_lab.config import ValidationError
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -65,3 +65,44 @@ def test_damaged_pdf_is_rejected_without_automatic_repair(tmp_path):
     with pytest.raises(ValidationError, match='自動補修せず'):
         pdf_input(path, [1])
     assert path.read_bytes() == damaged
+
+
+def test_truncated_jpeg_body_is_rejected_without_conversion(tmp_path):
+    path = tmp_path / 'incomplete.jpg'
+    buffer = BytesIO()
+    Image.new('RGB', (64, 64), 'blue').save(buffer, format='JPEG')
+    damaged = buffer.getvalue()[:-20]
+    # JPEGのヘッダ検査は成功するが、本体の展開で欠損が分かる例。
+    Image.open(BytesIO(damaged)).verify()
+    path.write_bytes(damaged)
+    with pytest.raises(ValidationError, match='本体を読み込めません'):
+        image_input(path, 'test fixture')
+    assert path.read_bytes() == damaged
+
+
+def test_prepared_image_requires_matching_mime_and_decodable_body(tmp_path):
+    path = tmp_path / 'valid.png'
+    Image.new('RGB', (12, 16), 'green').save(path)
+    valid = image_input(path, 'test fixture')
+    valid.validate()
+    mislabeled = {**valid.content, 'image_url': valid.content['image_url'].replace('image/png', 'image/jpeg')}
+    with pytest.raises(ValidationError, match='形式名が一致しません'):
+        PreparedInput('image', mislabeled, valid.provenance).validate()
+    not_image = {'type': 'input_image', 'image_url': 'data:image/png;base64,' + base64.b64encode(b'not an image').decode()}
+    with pytest.raises(ValidationError, match='本体を読み込めません'):
+        PreparedInput('image', not_image, {}).validate()
+
+
+def test_prepared_pdf_requires_valid_body_and_safe_filename(tmp_path):
+    path = tmp_path / 'valid.pdf'
+    writer = PdfWriter()
+    writer.add_blank_page(width=100, height=100)
+    writer.write(path)
+    valid = pdf_input(path, [1])
+    valid.validate()
+    for filename in ['/private/document.pdf', 'private\\document.pdf', 'file.pdf\n', None]:
+        with pytest.raises(ValidationError, match='ファイル名が不正'):
+            PreparedInput('pdf', {**valid.content, 'filename': filename}, valid.provenance).validate()
+    corrupted = {**valid.content, 'file_data': 'data:application/pdf;base64,' + base64.b64encode(b'%PDF-1.7\ninvalid\n%%EOF').decode()}
+    with pytest.raises(ValidationError, match='自動補修せず'):
+        PreparedInput('pdf', corrupted, valid.provenance).validate()
