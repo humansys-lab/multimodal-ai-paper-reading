@@ -5,7 +5,7 @@
 第1日は本編を17:30までに終える。17:30–18:00の相談・予備枠は任意参加（希望者のみ）で、新しい必修内容は扱わない。
 
 1. 通知済みの[事前学習](prework.md)を確認する。共通の[GUIガイド](gui_guide.md)でログインと保存方法を確認。
-2. 当日は[第1日カード](../activities/day1.md)と[個人記録](../worksheets/reading_record.md)を開く。最初は全員が同じP01をAIなしで読む。
+2. 当日は[第1日カード](../activities/day1.md)と[個人記録](../worksheets/reading_record.md)を開く。最初は全員が同じPaper2Agent論文の指定範囲をAIなしで読む。
 3. 共通課題の後は[HW1・HW2](../assignments/homework.md)へ。どちらも必須。HW1ではNature／Science本誌2誌からP01と別の掲載済み原著・Open Access論文を選び、研究内容と理解の過程を説明する。HW2では日常業務・学業・研究から選んだ用途でのAI活用を説明する。第2日の発表は各5分＋質疑5分、合計10枚以下。
 
 発表スライド・最終レポートはPDFにして、参加済みの指定Slackチャンネルへ提出する。期限はそれぞれ10/30 23:59、11/14 23:59（日本時間）。
@@ -17,3 +17,7 @@ P01はPaper2AgentのNature掲載版を採用済み。共通指定範囲はAbstra
 ## 仕組みを手元で観察する補助教材
 
 [公開重みのモデルを使うNotebook](../notebooks/03_open_weight_lab.ipynb)で、トークン分割・数値表現・次の候補を観察できる。共通の初回読解後に扱う。ColabはT4 GPUを想定し、実機検証は未完了。Macでの実測と設定は[案内](open_weight.md)を参照。
+
+## Notebookを開く
+
+[READMEのColabリンク](../README.md#colabで開く)から、目的に合うNotebookを開いてください。冒頭セルのPREPARE_COLABをTrueにすると、固定版の取得と依存のインストールだけを行います。送信は後のセルで自分が明示したときだけです。

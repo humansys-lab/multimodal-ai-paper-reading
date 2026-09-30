@@ -9,7 +9,22 @@
 - [課題](assignments/homework.md)・[発表](assignments/presentation.md)・[最終レポート](assignments/report.md)
 - Notebook：[00 準備](notebooks/00_setup.ipynb)、[01 対話](notebooks/01_dialogue_lab.ipynb)、[02 画像とPDF](notebooks/02_document_lab.ipynb)、[03 公開重みモデル](notebooks/03_open_weight_lab.ipynb)
 
-Colabへの固定版リンクは、公開した教材ZIPのハッシュを確認してから次の変更で追加します。
+## Colabで開く
+
+| Notebook | 固定版へのリンク |
+|---|---|
+| 00 接続と記録の準備 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/311d8d33ed3eda41e473e21197cea4e5b2b536ce/notebooks/00_setup.ipynb) |
+| 01 質問と対話 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/311d8d33ed3eda41e473e21197cea4e5b2b536ce/notebooks/01_dialogue_lab.ipynb) |
+| 02 画像・PDFの入力 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/311d8d33ed3eda41e473e21197cea4e5b2b536ce/notebooks/02_document_lab.ipynb) |
+| 03 公開重みモデルの観察 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/311d8d33ed3eda41e473e21197cea4e5b2b536ce/notebooks/03_open_weight_lab.ipynb) |
+
+1. 00〜02はCPUで開きます。03だけは「ランタイムのタイプを変更」でT4 GPUを選びます。
+2. 冒頭セルの `PREPARE_COLAB` をTrueにして実行します。ハッシュを検査して固定版の教材と依存関係を取得します。APIは呼びません。
+3. 質問・送信する資料・新規/継続を自分で設定します。API接続情報と利用許可は教員の案内に従います。公開の空設定では送信できません。
+4. 保存セルを実行し、JSONL/MarkdownをColabのファイル欄からダウンロードします。再起動するとランタイム内のファイルは失われます。
+
+Notebookと教材コードは検査したコミットに固定しています。mainの更新を自動では追いません。実際のColab/T4での起動はログイン待ちで未検証です。ローカルの新規環境では、同じ依存の取得と4冊の既定セルを確認しています。
+
 
 ## 実行状態
 
