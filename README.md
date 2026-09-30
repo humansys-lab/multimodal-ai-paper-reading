@@ -13,10 +13,10 @@
 
 | Notebook | 固定版へのリンク |
 |---|---|
-| 00 接続と記録の準備 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/64124e9f7d6e2c388edd2b85180acd9947567b32/notebooks/00_setup.ipynb) |
-| 01 質問と対話 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/64124e9f7d6e2c388edd2b85180acd9947567b32/notebooks/01_dialogue_lab.ipynb) |
-| 02 画像・PDFの入力 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/64124e9f7d6e2c388edd2b85180acd9947567b32/notebooks/02_document_lab.ipynb) |
-| 03 公開重みモデルの観察 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/64124e9f7d6e2c388edd2b85180acd9947567b32/notebooks/03_open_weight_lab.ipynb) |
+| 00 接続と記録の準備 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1db1ae0f92f32d947e860e266f314187f504aeca/notebooks/00_setup.ipynb) |
+| 01 質問と対話 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1db1ae0f92f32d947e860e266f314187f504aeca/notebooks/01_dialogue_lab.ipynb) |
+| 02 画像・PDFの入力 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1db1ae0f92f32d947e860e266f314187f504aeca/notebooks/02_document_lab.ipynb) |
+| 03 公開重みモデルの観察 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1db1ae0f92f32d947e860e266f314187f504aeca/notebooks/03_open_weight_lab.ipynb) |
 
 1. 00〜02はCPUで開きます。03だけは「ランタイムのタイプを変更」でT4 GPUを選びます。
 2. 冒頭セルの `PREPARE_COLAB` をTrueにして実行します。ハッシュを検査して固定版の教材と依存関係を取得します。APIは呼びません。
