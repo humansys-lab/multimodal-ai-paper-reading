@@ -1,6 +1,6 @@
 # エージェントとMCPを図1から理解する
 
-授業での利用：P1の記録後、11:45以降の補助説明。第1日の追加読解論文ではない。
+授業での利用：最初にAIを使って読んだ記録を残した後、11:45以降の補助説明。第1日の追加読解論文ではない。
 
 - **LLM**：入力された文章や資料などに応じて出力を生成するモデル。
 - **エージェント**：モデルの判断を道具の操作へつなぎ、結果を受けて次の行動を選ぶ仕組み。人間が目的や権限を決め、結果の根拠を確認する。
@@ -13,4 +13,10 @@
 
 問い：論文PDFをGUIへ添付する操作と、論文のコードを呼び出す操作では、何が異なるか。図のどこにその違いが表れているか。
 
-出典：[P01](../materials/papers/P01.md) Fig.1、Overview、Methods。[MCP公式の概念説明](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)は教員が用語を確認する参照先。通信方式の実装やサーバ設定はこの授業の必須範囲にしない。
+出典：[共通論文の素材票](../materials/papers/P01.md) Fig.1、Overview、Methods。[MCP公式の概念説明](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)は教員が用語を確認する参照先。通信方式の実装やサーバ設定はこの授業の必須範囲にしない。
+
+## 接続の役割を分ける
+
+AIアプリを「ホスト」と呼ぶ。ホスト内の「クライアント」が、外部機能を提供する「サーバ」とやり取りする。モデルが使う道具を選んだ後、アプリ側が機能名や引数を送り、実行結果を受け取る。サーバが同じ計算機にある場合と、ネットワーク上にある場合がある。
+
+[MCP公式のArchitecture overview](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)（2026-10-01確認）の概念を説明したもので、共通論文の実装が同じ仕様版を使うという意味ではない。エージェントと決められた手順の区別は[Anthropic, Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)のWhat are agents?も参照できる。
