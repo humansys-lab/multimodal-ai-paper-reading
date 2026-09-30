@@ -1,0 +1,16 @@
+.env
+.env.*
+.venv/
+.uv-cache/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+outputs/
+build/
+tmp/
+private/
+local_inputs/
+config/runtime.local.yaml
+*.log
+*.sqlite*
+.DS_Store
