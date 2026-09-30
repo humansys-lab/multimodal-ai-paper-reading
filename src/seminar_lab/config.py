@@ -18,9 +18,30 @@ class ValidationError(ValueError):
     """送信・配布前に修正が必要な設定。"""
 
 
+class _UniqueKeyLoader(yaml.SafeLoader):
+    """同じ設定の二重指定を、後に書いた値で上書きしない。"""
+
+    def construct_mapping(self, node: yaml.MappingNode, deep: bool = False) -> dict:
+        seen = set()
+        for key_node, _ in node.value:
+            if key_node.tag == "tag:yaml.org,2002:merge":
+                raise ValidationError("YAMLの設定結合は未対応です。各項目を一度ずつ明示してください。")
+            key = self.construct_object(key_node, deep=deep)
+            if not isinstance(key, (str, int, float, bool, type(None))):
+                raise ValidationError("YAMLの設定名は単一の値にしてください。")
+            if key in seen:
+                raise ValidationError("YAMLの同じ設定名が重複しています。上書きせず読込みを中止しました。")
+            seen.add(key)
+        return super().construct_mapping(node, deep=deep)
+
+
 def load_yaml(path: str | Path) -> dict[str, Any]:
     """実行や環境変数展開を行わずYAMLを読む。"""
-    value = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    try:
+        value = yaml.load(Path(path).read_text(encoding="utf-8"), Loader=_UniqueKeyLoader)
+    except yaml.YAMLError:
+        # YAMLの例外本文は設定値を含み得るため、秘密設定の内容を表示しない。
+        raise ValidationError("YAMLの形式が不正です。設定内容を公開せず、元ファイルを確認してください。") from None
     if not isinstance(value, dict):
         raise ValidationError("設定はキーと値の形式で記入してください。")
     return value
@@ -302,7 +323,7 @@ def validate_runtime(runtime: dict, kinds: set[str], parameters: dict) -> None:
     allowed = {"schema_version", "route", "api", "model", "base_url", "allowed_base_urls", "sdk_version", "proxy_version", "timeout_seconds", "max_retries", "capabilities", "audit"}
     if not isinstance(runtime, dict) or set(runtime) - allowed:
         raise ValidationError("不明な実行設定があります。黙って無視しません。")
-    if runtime.get("schema_version", 1) != 1:
+    if type(runtime.get("schema_version", 1)) is not int or runtime.get("schema_version", 1) != 1:
         raise ValidationError("未対応の実行設定版です。")
     if runtime.get("route") not in {"course_proxy", "direct_openai"} or runtime.get("api") != "responses":
         raise ValidationError("経路とResponses APIを明示してください。")
