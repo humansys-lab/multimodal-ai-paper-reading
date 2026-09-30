@@ -42,3 +42,24 @@ def test_invalid_cost_does_not_create_file(tmp_path, adopted, value):
     with pytest.raises(ValidationError):
         save_records([record], path)
     assert not path.exists()
+
+
+def test_concatenated_markdown_does_not_discard_first_document(tmp_path, adopted):
+    record = new_record(material_context(*adopted, 'P0'))
+    path = tmp_path / 'record.md'
+    save_records([record], path)
+    combined = path.read_text() * 2
+    path.write_text(combined)
+    with pytest.raises(ValidationError, match='重複'):
+        load_records(path)
+    assert path.read_text() == combined
+
+
+def test_student_text_with_machine_markers_roundtrips(tmp_path, adopted):
+    record = new_record(material_context(*adopted, 'P0'))
+    marker_text = '<!-- SEMINAR_RECORDS -->\n```json\n[]\n```\n<!-- END_SEMINAR_RECORDS -->'
+    record.update(student_explanation=marker_text, evidence_location=marker_text)
+    path = tmp_path / 'record.md'
+    save_records([record], path)
+    assert load_records(path) == [record]
+    assert path.read_text().count('<!-- SEMINAR_RECORDS -->\n```json\n') == 1

@@ -182,8 +182,10 @@ class Session:
                 record.update(response_raw=safe_raw, reported_model=raw.get("model"), usage=raw.get("usage"))
                 if raw.get("status") == "failed" or raw.get("error"):
                     record.update(status="failed", error_type="unknown", error_message=ERRORS["unknown"])
-                elif raw.get("status") != "completed":
+                elif raw.get("status") == "incomplete":
                     record.update(status="incomplete", error_type="incomplete", error_message=ERRORS["incomplete"])
+                elif raw.get("status") != "completed":
+                    raise TransportError("invalid_response")
                 else:
                     validate_response(raw, runtime["model"])
                     record["status"] = "success"
@@ -203,12 +205,27 @@ class Session:
 
 def output_text(record: dict) -> str:
     """生応答は保存したまま、画面用テキストだけを取り出す。"""
-    raw = record.get("response_raw") or {}
+    raw = record.get("response_raw")
+    if raw is None:
+        return ""
+    if not isinstance(raw, dict):
+        raise ValidationError("生応答が辞書形式ではありません。元の記録を確認してください。")
     output = raw.get("output", [])
     if not isinstance(output, list):
         raise ValidationError("応答のoutputが配列ではありません。生応答とエラー分類を確認してください。")
-    return "\n".join(c["text"] for item in output if isinstance(item, dict) and item.get("type") == "message"
-                     for c in item.get("content", []) if isinstance(c, dict) and c.get("type") == "output_text" and isinstance(c.get("text"), str))
+    texts = []
+    for item in output:
+        if not isinstance(item, dict) or item.get("type") != "message":
+            continue
+        content = item.get("content")
+        if not isinstance(content, list):
+            raise ValidationError("応答本文の構造が不正です。生応答とエラー分類を確認してください。")
+        for part in content:
+            if isinstance(part, dict) and part.get("type") == "output_text":
+                if not isinstance(part.get("text"), str):
+                    raise ValidationError("応答本文が文字列ではありません。元の記録を確認してください。")
+                texts.append(part["text"])
+    return "\n".join(texts)
 
 
 def validate_response(raw: dict, requested_model: str) -> None:
@@ -225,7 +242,7 @@ def validate_response(raw: dict, requested_model: str) -> None:
         if item.get("type") == "reasoning":
             # 公開された応答メタデータだけを保持し、内部思考の取得は要求しない。
             continue
-        if item.get("type") != "message" or item.get("role") != "assistant" or item.get("status", "completed") != "completed":
+        if item.get("type") != "message" or item.get("role") != "assistant" or item.get("status") != "completed":
             raise TransportError("invalid_response")
         content = item.get("content")
         if not isinstance(content, list) or not content:

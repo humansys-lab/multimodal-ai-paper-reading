@@ -9,6 +9,7 @@ from typing import Any
 
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
+from pypdf.errors import PdfReadError
 from .config import ValidationError
 
 
@@ -77,7 +78,10 @@ def pdf_input(path: str | Path, pages: list[int], page_labels: dict[int, str] | 
     data = Path(path).read_bytes()
     if len(data) > 20_000_000:
         raise ValidationError("演習用の元PDF上限20MBを超えています。")
-    reader = PdfReader(BytesIO(data))
+    try:
+        reader = PdfReader(BytesIO(data), strict=True)
+    except PdfReadError:
+        raise ValidationError("PDFの構造を読み込めません。自動補修せず停止しました。元ファイルを確認してください。") from None
     if reader.is_encrypted:
         raise ValidationError("暗号化PDFは入力できません。教員へ相談してください。")
     if not pages or any(type(p) is not int or not 1 <= p <= len(reader.pages) for p in pages) or pages != sorted(set(pages)):

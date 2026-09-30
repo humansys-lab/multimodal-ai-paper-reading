@@ -2,6 +2,7 @@
 from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime, timezone
+from html import escape
 import json
 from math import isfinite
 from pathlib import Path
@@ -112,8 +113,8 @@ def save_records(records: list[dict], path: str | Path) -> None:
     else:
         lines = ["# 個人の読解記録", "", "生出力と本人の説明を区別。共有前に内容を確認してください。", ""]
         for r in records:
-            lines += [f"## {r['activity_id']} / {r['phase'] or '演習'}", "", f"- 本人の説明: {r['student_explanation'] or '未記入'}",
-                      f"- 根拠: {r['evidence_location'] or '未記入'}", f"- 費用: {r['cost_value'] if r['cost_value'] is not None else '不明'}", ""]
+            lines += [f"## {escape(str(r['activity_id']))} / {escape(str(r['phase'] or '演習'))}", "", f"- 本人の説明: {escape(str(r['student_explanation'] or '未記入'))}",
+                      f"- 根拠: {escape(str(r['evidence_location'] or '未記入'))}", f"- 費用: {r['cost_value'] if r['cost_value'] is not None else '不明'}", ""]
         lines += ["## 再読込み用の全項目", "", "<!-- SEMINAR_RECORDS -->", "```json", json.dumps(records, ensure_ascii=False, indent=2, allow_nan=False), "```", "<!-- END_SEMINAR_RECORDS -->", ""]
         content = "\n".join(lines)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -130,9 +131,11 @@ def load_records(path: str | Path) -> list[dict]:
     elif p.suffix == ".md":
         start = "<!-- SEMINAR_RECORDS -->\n```json\n"
         end = "\n```\n<!-- END_SEMINAR_RECORDS -->"
-        if start not in content or end not in content.rsplit(start, 1)[1]:
+        if content.count(start) != 1 or content.count(end) != 1:
+            raise ValidationError("再読込み用の記録は1か所にまとめてください。欠落・重複した範囲を無視して読みません。")
+        if end not in content.split(start, 1)[1]:
             raise ValidationError("再読込み用の記録が見つかりません。元のMarkdownを確認してください。")
-        records = _read_json(content.rsplit(start, 1)[1].rsplit(end, 1)[0])
+        records = _read_json(content.split(start, 1)[1].split(end, 1)[0])
     else:
         raise ValidationError("読込み形式は.mdまたは.jsonlです。")
     _unique_records(records)

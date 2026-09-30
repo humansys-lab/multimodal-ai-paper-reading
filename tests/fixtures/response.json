@@ -1,1 +1,1 @@
-{"id":"fixture-response","object":"response","status":"completed","model":"fixture-model","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"試験用の人工出力。教材の実測ではありません。"}]}],"usage":{"input_tokens":4,"output_tokens":8},"max_output_tokens":100}
+{"id":"fixture-response","object":"response","status":"completed","model":"fixture-model","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"試験用の人工出力。教材の実測ではありません。"}],"status":"completed"}],"usage":{"input_tokens":4,"output_tokens":8},"max_output_tokens":100}

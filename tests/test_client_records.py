@@ -165,9 +165,9 @@ def test_simultaneous_same_session_request_is_rejected(runtime, adopted):
     ({"model": "unrequested-model"}, "model_mismatch"),
     ({"output": []}, "invalid_response"),
     ({"output": [{"type": "function_call", "name": "unexpected_tool"}]}, "invalid_response"),
-    ({"output": [{"type": "message", "role": "assistant", "content": [{"type": "refusal", "refusal": "declined"}]}]}, "refusal"),
-    ({"output": [{"type": "message", "role": "assistant", "content": [{"type": "output_text", "text": "  "}]}]}, "invalid_response"),
-    ({"output": [{"type": "message", "role": "assistant", "content": "malformed"}]}, "invalid_response"),
+    ({"output": [{"type": "message", "role": "assistant", "status": "completed", "content": [{"type": "refusal", "refusal": "declined"}]}]}, "refusal"),
+    ({"output": [{"type": "message", "role": "assistant", "status": "completed", "content": [{"type": "output_text", "text": "  "}]}]}, "invalid_response"),
+    ({"output": [{"type": "message", "role": "assistant", "status": "completed", "content": "malformed"}]}, "invalid_response"),
     ({"output": [{"type": "reasoning", "summary": []}]}, "invalid_response"),
 ])
 def test_unexpected_response_is_not_success_or_history(runtime, adopted, change, kind):
@@ -208,3 +208,30 @@ def test_input_kind_cannot_hide_an_unsupported_attachment(runtime):
     spoof = PreparedInput("text", {"type": "input_file", "file_data": "data:application/pdf;base64,YQ==", "filename": "x.pdf"}, {})
     with pytest.raises(ValidationError):
         Session().preview(runtime, "question", [spoof], "new", {"max_output_tokens": 100})
+
+
+@pytest.mark.parametrize('status', [None, 'queued', 'unexpected-state'])
+def test_unexpected_synchronous_status_is_error(runtime, adopted, status):
+    session = Session()
+    raw = deepcopy(RESPONSE)
+    raw['status'] = status
+    record = run(session, runtime, adopted, FakeTransport(response=raw))
+    assert record['status'] == 'failed' and record['error_type'] == 'invalid_response'
+    assert session.history == [] and record['response_raw'] == raw
+
+
+def test_missing_message_status_is_not_assumed_completed(runtime, adopted):
+    session = Session()
+    raw = deepcopy(RESPONSE)
+    raw['output'][0].pop('status')
+    record = run(session, runtime, adopted, FakeTransport(response=raw))
+    assert record['status'] == 'failed' and record['error_type'] == 'invalid_response'
+    assert session.history == []
+
+
+@pytest.mark.parametrize('raw', [[], {'output': [{'type': 'message', 'content': None}]},
+                               {'output': [{'type': 'message', 'content': [{'type': 'output_text', 'text': 10}]}]}])
+def test_malformed_display_output_is_explicit_error(raw):
+    from seminar_lab.client import output_text
+    with pytest.raises(ValidationError):
+        output_text({'response_raw': raw})

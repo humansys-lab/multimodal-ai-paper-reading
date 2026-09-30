@@ -50,3 +50,18 @@ def test_public_scan_and_secret_detection(tmp_path):
     secret=tmp_path/'leak.txt';secret.write_text('sk-'+'a'*30)
     result=checker.check([secret])
     assert result and 'a'*30 not in str(result)
+
+
+def test_damaged_pdf_is_rejected_without_automatic_repair(tmp_path):
+    import re
+    writer = PdfWriter()
+    writer.add_blank_page(width=100, height=100)
+    buffer = BytesIO()
+    writer.write(buffer)
+    # 人工PDFの索引位置を1バイトずらし、既定の寛容な読込みなら補修される破損を作る。
+    damaged = re.sub(rb'(startxref\s+)(\d+)', lambda m: m[1] + str(int(m[2]) + 1).encode(), buffer.getvalue())
+    path = tmp_path / 'damaged.pdf'
+    path.write_bytes(damaged)
+    with pytest.raises(ValidationError, match='自動補修せず'):
+        pdf_input(path, [1])
+    assert path.read_bytes() == damaged
