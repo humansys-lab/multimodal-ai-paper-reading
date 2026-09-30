@@ -1,0 +1,586 @@
+schema_version: 1
+title: マルチモーダルAIの活用方法と限界を知る
+version: 0.2.0-draft
+publication: not_approved
+participants:
+  status: confirmed
+  learner_count: 10
+  presenter_count: 10
+staffing:
+  ta_count_status: confirmed
+  ta_count: 1
+# 学生向け運用方針。実キーやサーバ設定・実測の完了を表すものではない。
+course_api_policy:
+  status: confirmed
+  available_until_date: '2026-11-14'
+  available_until_time: '23:59'
+  timezone: Asia/Tokyo
+  budget_per_learner_usd: 10
+  budget_period: whole_course
+  budget_secured: instructor_confirmed
+  total_usage_limit: instructor_confirmed_fixed
+  # 全体上限の実値は非公開運営設定で確認する。
+  recurring_budget_reset: false
+  credential_upload_allowed: false
+  student_guide: docs/api_usage.md
+common_paper_id: P01
+common_reading:
+  material_id: P01
+  source_version: Nature VoR 2026-09-16; publisher PDF retrieved 2026-09-30
+  assigned_scope:
+    pdf_pages:
+    - 1
+    - 3
+    printed_pages:
+    - 1
+    - 3
+    text_sections:
+    - Abstract (p1)
+    figures:
+    - Fig.1a
+    - Fig.1b
+    captions:
+    - Fig.1 caption (p3)
+    scope_id: P01_COMMON_v1
+  question_set_id: Q_COMMON_3
+  scope_status: confirmed
+question_sets:
+  Q_COMMON_3:
+  - この研究の主要な主張は何か。
+  - それを支える根拠は何か。指定した本文・図と対応付けて説明する。
+  - まだ理解できていない点、追加で確認したい点は何か。
+activities:
+  P0:
+    day: 1
+    kind: reading_without_ai
+    duration_minutes: 10
+    segments_minutes: null
+    material_choice: false
+    phase: R0
+    reading_ref: common_reading
+  P1:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: R1
+    reading_ref: common_reading
+  L1:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: null
+    reading_ref: common_reading
+  L2:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: null
+    reading_ref: common_reading
+  V1:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: null
+    material_id: V01
+  V2:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: null
+    material_id: V02
+  V3:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: null
+    material_id: V01
+  V4:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: null
+    material_id: V02
+  P2a:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: R2
+    reading_ref: common_reading
+  P2b:
+    day: 1
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    phase: R3
+    reading_ref: common_reading
+  P3:
+    day: 1
+    kind: peer_explanation
+    duration_minutes: 20
+    segments_minutes:
+    - 10
+    - 10
+    material_choice: false
+    phase: R3
+    reading_ref: common_reading
+  D2T1:
+    day: 2
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    material_id: T01
+    phase: transfer
+  D2T2:
+    day: 2
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    material_id: T01
+    phase: transfer
+  D2W1:
+    day: 2
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    material_id: null
+    phase: null
+  D2W2:
+    day: 2
+    kind: exercise
+    duration_minutes: 15
+    segments_minutes:
+    - 5
+    - 5
+    - 5
+    material_choice: false
+    material_id: null
+    phase: null
+  HW1:
+    day: null
+    kind: homework
+    duration_minutes: null
+    material_choice: true
+    phase: homework
+  P01_REVIEW:
+    day: null
+    kind: reflection
+    duration_minutes: null
+    material_choice: false
+    phase: homework
+    reading_ref: common_reading
+days:
+- day: 1
+  date: '2026-10-03'
+  start: '10:00'
+  end: '18:00'
+  teaching_minutes: 360
+  blocks:
+  - start: '10:00'
+    end: '10:15'
+    title: 導入・接続確認
+    kind: teaching
+  - start: '10:15'
+    end: '11:00'
+    title: 最初の論文読解・AI利用・共有
+    kind: teaching
+  - start: '11:00'
+    end: '11:10'
+    title: 休憩
+    kind: break
+  - start: '11:10'
+    end: '12:30'
+    title: LLMの仕組みを学ぶ
+    kind: teaching
+  - start: '12:30'
+    end: '13:30'
+    title: 昼休憩
+    kind: lunch
+  - start: '13:30'
+    end: '14:30'
+    title: Paper2Agentの図をVLMで読む
+    kind: teaching
+  - start: '14:30'
+    end: '14:40'
+    title: 休憩
+    kind: break
+  - start: '14:40'
+    end: '15:50'
+    title: VLM・PDF処理を学ぶ
+    kind: teaching
+  - start: '15:50'
+    end: '16:00'
+    title: 休憩
+    kind: break
+  - start: '16:00'
+    end: '16:30'
+    title: 朝の論文を読み直す
+    kind: teaching
+  - start: '16:30'
+    end: '16:50'
+    title: 理解した内容を説明し合う
+    kind: teaching
+  - start: '16:50'
+    end: '17:20'
+    title: 全体の振り返り
+    kind: teaching
+  - start: '17:20'
+    end: '17:30'
+    title: Homework説明・まとめ
+    kind: teaching
+  - start: '17:30'
+    end: '18:00'
+    title: 相談・予備枠
+    kind: consultation
+    attendance: optional
+  timeline:
+  - start: '10:00'
+    end: '10:15'
+    activity_id: null
+  - start: '10:15'
+    end: '10:25'
+    activity_id: P0
+  - start: '10:25'
+    end: '10:40'
+    activity_id: P1
+  - start: '10:40'
+    end: '11:00'
+    activity_id: null
+  - start: '11:00'
+    end: '11:10'
+    activity_id: null
+  - start: '11:10'
+    end: '11:30'
+    activity_id: null
+  - start: '11:30'
+    end: '11:45'
+    activity_id: L1
+  - start: '11:45'
+    end: '12:05'
+    activity_id: null
+  - start: '12:05'
+    end: '12:20'
+    activity_id: L2
+  - start: '12:20'
+    end: '12:30'
+    activity_id: null
+  - start: '12:30'
+    end: '13:30'
+    activity_id: null
+  - start: '13:30'
+    end: '13:45'
+    activity_id: V1
+  - start: '13:45'
+    end: '14:00'
+    activity_id: null
+  - start: '14:00'
+    end: '14:15'
+    activity_id: V2
+  - start: '14:15'
+    end: '14:30'
+    activity_id: null
+  - start: '14:30'
+    end: '14:40'
+    activity_id: null
+  - start: '14:40'
+    end: '15:00'
+    activity_id: null
+  - start: '15:00'
+    end: '15:15'
+    activity_id: V3
+  - start: '15:15'
+    end: '15:35'
+    activity_id: null
+  - start: '15:35'
+    end: '15:50'
+    activity_id: V4
+  - start: '15:50'
+    end: '16:00'
+    activity_id: null
+  - start: '16:00'
+    end: '16:15'
+    activity_id: P2a
+  - start: '16:15'
+    end: '16:30'
+    activity_id: P2b
+  - start: '16:30'
+    end: '16:50'
+    activity_id: P3
+  - start: '16:50'
+    end: '17:20'
+    activity_id: null
+  - start: '17:20'
+    end: '17:30'
+    activity_id: null
+  - start: '17:30'
+    end: '18:00'
+    activity_id: null
+- day: 2
+  date: '2026-10-31'
+  start: '10:00'
+  end: '17:00'
+  teaching_minutes: 340
+  blocks:
+  - start: '10:00'
+    end: '10:10'
+    title: 発表の観点を確認
+    kind: teaching
+  - start: '10:10'
+    end: '11:25'
+    title: 発表1～5
+    kind: teaching
+  - start: '11:25'
+    end: '11:35'
+    title: 休憩
+    kind: break
+  - start: '11:35'
+    end: '12:50'
+    title: 発表6～10
+    kind: teaching
+  - start: '12:50'
+    end: '13:50'
+    title: 昼休憩
+    kind: lunch
+  - start: '13:50'
+    end: '14:20'
+    title: 発表から全体で整理
+    kind: teaching
+  - start: '14:20'
+    end: '14:35'
+    title: 別の資料で試す①
+    kind: teaching
+  - start: '14:35'
+    end: '14:50'
+    title: インタラクティブな検討
+    kind: teaching
+  - start: '14:50'
+    end: '15:05'
+    title: 別の資料で試す②
+    kind: teaching
+  - start: '15:05'
+    end: '15:20'
+    title: 全体共有
+    kind: teaching
+  - start: '15:20'
+    end: '15:30'
+    title: 休憩
+    kind: break
+  - start: '15:30'
+    end: '15:45'
+    title: 読解手順を設計する
+    kind: teaching
+  - start: '15:45'
+    end: '16:10'
+    title: 全体で検討
+    kind: teaching
+  - start: '16:10'
+    end: '16:25'
+    title: 手順を修正する
+    kind: teaching
+  - start: '16:25'
+    end: '16:40'
+    title: 相互確認
+    kind: teaching
+  - start: '16:40'
+    end: '17:00'
+    title: まとめ・最終レポート案内
+    kind: teaching
+  timeline:
+  - start: '10:00'
+    end: '10:10'
+    activity_id: null
+  - start: '10:10'
+    end: '11:25'
+    activity_id: null
+  - start: '11:25'
+    end: '11:35'
+    activity_id: null
+  - start: '11:35'
+    end: '12:50'
+    activity_id: null
+  - start: '12:50'
+    end: '13:50'
+    activity_id: null
+  - start: '13:50'
+    end: '14:20'
+    activity_id: null
+  - start: '14:20'
+    end: '14:35'
+    activity_id: D2T1
+  - start: '14:35'
+    end: '14:50'
+    activity_id: null
+  - start: '14:50'
+    end: '15:05'
+    activity_id: D2T2
+  - start: '15:05'
+    end: '15:20'
+    activity_id: null
+  - start: '15:20'
+    end: '15:30'
+    activity_id: null
+  - start: '15:30'
+    end: '15:45'
+    activity_id: D2W1
+  - start: '15:45'
+    end: '16:10'
+    activity_id: null
+  - start: '16:10'
+    end: '16:25'
+    activity_id: D2W2
+  - start: '16:25'
+    end: '16:40'
+    activity_id: null
+  - start: '16:40'
+    end: '17:00'
+    activity_id: null
+entry_files:
+- docs/start_here.md
+- docs/gui_guide.md
+- activities/day1.md
+- worksheets/reading_record.md
+- assignments/homework.md
+- assignments/presentation.md
+- assignments/report.md
+- worksheets/application_record.md
+- slides/day1_outline.md
+- notebooks/00_setup.ipynb
+- notebooks/01_dialogue_lab.ipynb
+- notebooks/02_document_lab.ipynb
+readiness:
+  teacher_trial_reading: not_run
+  gemini_university_account: not_run
+  colab_fresh_cpu: not_run
+  api_text_image_pdf: not_run
+  proxy_budget_db_stop: not_run
+  concurrent_access: not_run
+  latency_and_cost: not_run
+  pptx_visual_and_powerpoint: not_run
+  hw2_requirement_decided: pass
+  report_requirements_decided: pass
+  # 提出方法・形式の設計決定。Slackへの実アップロード試験とは区別する。
+  submission_details_decided: pass
+  consultation_attendance_decided: pass
+  # 利用期限の設計決定。実キーの期限設定・停止試験とは区別する。
+  key_expiry_decided: pass
+  common_scope_decided: pass
+  figure_learning_scope_decided: pass
+  homework_journals_decided: pass
+day1_source_paper_id: P01
+# 論文選定条件はHW1に適用する。HW2は下の独立した課題設定を参照。
+homework_policy:
+  status: confirmed
+  common_doi: 10.1038/s41586-026-11044-y
+  journal_titles:
+  - Nature
+  - Science
+  publication_status: published
+  article_type: research
+  open_access_required: true
+  different_from_common: true
+  selection_required: true
+  reviewer: student
+homework_assignments:
+  HW1:
+    required: true
+    topic: 別の原著論文の研究内容と理解の過程
+    material_policy_ref: homework_policy
+    record_template: worksheets/reading_record.md
+  HW2:
+    required: true
+    topic: 日常業務・学業・研究でのAI活用
+    domains:
+    - 日常業務
+    - 学業
+    - 研究
+    domain_selection: choose_one
+    material_policy_ref: null
+    record_template: worksheets/application_record.md
+presentation_policy:
+  status: confirmed
+  total_minutes: 15
+  max_slides_total: 10
+  due_date: '2026-10-30'
+  deadline_time: '23:59'
+  timezone: Asia/Tokyo
+  submission_destination: course_slack_channel
+  segments:
+  - topic: HW1
+    minutes: 5
+  - topic: HW2
+    minutes: 5
+  - topic: 質疑・フィードバック
+    minutes: 5
+report_policy:
+  status: confirmed
+  paper_size: A4
+  body_max_pages: 4
+  references_separate: true
+  necessary_logs_separate: true
+  due_date: '2026-11-14'
+  deadline_time: '23:59'
+  timezone: Asia/Tokyo
+  submission_destination: course_slack_channel
+submission_policy:
+  status: confirmed
+  destination_id: course_slack_channel
+  service: Slack
+  destination_type: channel
+  channel_reference: 受講者が参加済みの教員指定チャンネル
+  file_format: PDF
+  # 実際のチャンネル名・URL・IDは公開設定に含めない。

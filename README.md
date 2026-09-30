@@ -1,7 +1,34 @@
 # マルチモーダルAIの活用方法と限界を知る
 
-京都大学 2026年度 機械システム学セミナーの教材リポジトリです。
+京都大学 2026年度 機械システム学セミナーの教材。共通論文Paper2Agentの図1・2を使い、自分の説明とAIの説明を比べ、根拠を確かめます。
 
-科学論文の図を根拠に、AIとの対話を通して自分の理解を確かめます。学生向けNotebookと案内を、確認済みの変更ごとに追加します。
+## 学生向けの入口
 
-講義資料の準備中です。APIキー、接続先、個人記録、原論文PDF、教員用解答は公開しません。
+- [最初に読む案内](docs/start_here.md)・[事前学習](docs/prework.md)・[GUIの操作](docs/gui_guide.md)
+- [当日の演習](activities/day1.md)・[読解の記録](worksheets/reading_record.md)
+- [課題](assignments/homework.md)・[発表](assignments/presentation.md)・[最終レポート](assignments/report.md)
+- Notebook：[00 準備](notebooks/00_setup.ipynb)、[01 対話](notebooks/01_dialogue_lab.ipynb)、[02 画像とPDF](notebooks/02_document_lab.ipynb)、[03 公開重みモデル](notebooks/03_open_weight_lab.ipynb)
+
+Colabへの固定版リンクは、公開した教材ZIPのハッシュを確認してから次の変更で追加します。
+
+## 実行状態
+
+授業用APIの接続設定は教員が個別に案内します。公開の空設定では送信できません。既定のNotebookは有料API・モデル取得・推論を実行しません。[検査の範囲](docs/verification.md)を確認してください。
+
+GPUは必須ではありません。公開重みモデルの観察だけはColab T4を対象にしています。講義用APIは1人10 USD分を確保し、学生全体にも利用量上限があります。キーと接続情報は共有・アップロードしないでください。
+
+発表とレポートは指定SlackチャンネルへPDFを提出します。個人の対話は手元へ保存し、自動収集や自動採点は行いません。
+
+## 開発時の確認
+
+```bash
+uv sync --frozen
+uv run pytest -q -m "not live"
+uv run python scripts/check_course.py --mode structure
+uv run python scripts/check_notebooks.py --execute-offline
+uv run python scripts/check_public_release.py
+```
+
+配布準備は別に `uv run python scripts/check_course.py --mode readiness` で確認します。未検証項目があれば終了コード1です。
+
+[授業の仕様](PLAN.md)は教員の正本から学生向けの節を抜粋しています。原資料、解答付きスライド、内部運用履歴、秘密設定は公開対象外です。[利用条件](LICENSES.md)を確認してください。

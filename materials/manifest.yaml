@@ -1,0 +1,180 @@
+schema_version: 1
+materials:
+- id: P01
+  role: common_paper
+  bibliography:
+    authors:
+    - Jiacheng Miao
+    - Joe R. Davis
+    - Yaohui Zhang
+    - Jonathan K. Pritchard
+    - James Zou
+    title: Reimagining research papers as interactive and reliable AI agents
+    journal: Nature
+    year: 2026
+    article_type: Article
+  doi: 10.1038/s41586-026-11044-y
+  source_url: https://www.nature.com/articles/s41586-026-11044-y
+  first_public_date: '2025-09-08'
+  preprint_first_public_date: '2025-09-08'
+  retrieved_at: '2026-09-30'
+  file_hash: 6727ef9ca72cfffb1e032a2f07c7b9a4a2b235154bdd779b135c3518433677bf
+  pdf_to_printed_pages:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 6
+    7: 7
+    8: 8
+    9: 9
+  figures:
+  - id: Fig.1
+    pdf_page: 3
+    printed_page: 3
+    visual_check: agent_checked
+  - id: Fig.2
+    pdf_page: 4
+    printed_page: 4
+    visual_check: agent_checked
+  - id: Fig.3
+    pdf_page: 6
+    printed_page: 6
+    visual_check: agent_checked
+  - id: Fig.4
+    pdf_page: 8
+    printed_page: 8
+    visual_check: agent_checked
+  adoption: adopted
+  evidence_status: human_verified
+  evidence_review:
+    rows:
+    - C1
+    - C2
+    - C3
+    decision_id: Q4_C1_C3_2026_09_30
+    reviewer: teacher
+    result: pass
+    reviewed_at: '2026-09-30T15:34:30.779186+09:00'
+    report_id: common_questions_review_2026-09-30
+    source_file_hash: 6727ef9ca72cfffb1e032a2f07c7b9a4a2b235154bdd779b135c3518433677bf
+    source_version: Nature VoR 2026-09-16; publisher PDF retrieved 2026-09-30
+  route_test: not_run
+  trial_reading: not_run
+  publication: not_approved
+  guide: materials/papers/P01.md
+  rights:
+    view: confirmed
+    classroom: unconfirmed
+    ai_input: unconfirmed
+    redistribution: unconfirmed
+    slide_reproduction: unconfirmed
+  reading_ref: common_reading
+  pdf_url: https://www.nature.com/articles/s41586-026-11044-y.pdf
+  preprint_url: https://arxiv.org/abs/2509.06917
+  journal_publication_date: '2026-09-16'
+  version_of_record_date: '2026-09-16'
+  pdf_page_count: 18
+  adoption_evidence: user_instruction_2026-09-30_Paper2Agent
+  open_access: true
+  publication_status: published
+  article_type: research
+  license:
+    id: CC-BY-NC-ND-4.0
+    url: https://creativecommons.org/licenses/by-nc-nd/4.0/
+    verified_from: publisher webpage Rights and permissions; PDF p9
+  pdf_note: 表紙のPublished online欄はxx xx xxxx。日付は公式HTMLのPublished/Version of record欄から確認。ページ・ハッシュを固定し、プレプリントへ置換しない。
+- id: V01
+  role: vlm_case
+  source_ref: P01
+  guide: materials/cases/V01.md
+  scope_status: confirmed
+  assigned_scope:
+    scope_id: P01_FIG2_v2
+    pdf_pages:
+    - 3
+    - 4
+    - 5
+    figures:
+    - Fig.2a
+    - Fig.2b
+    - Fig.2c
+    - Fig.2d
+    captions:
+    - Fig.2 caption (p4)
+    text_sections:
+    - 'AlphaGenome agent: example and benchmark (p3 right column to p5 opening)'
+  evidence_status: agent_verified_user_delegated
+  evidence_review:
+    rows:
+    - F2
+    decision_id: Q4_F1_F2_2026_09_30
+    reviewer: agent
+    result: pass
+    reviewed_at: '2026-09-30T15:44:16.093330+09:00'
+    report_id: figure12_source_review_2026-09-30
+    source_file_hash: 6727ef9ca72cfffb1e032a2f07c7b9a4a2b235154bdd779b135c3518433677bf
+    source_version: Nature VoR 2026-09-16; publisher PDF retrieved 2026-09-30
+- id: V02
+  role: vlm_case
+  source_ref: P01
+  guide: materials/cases/V02.md
+  scope_status: confirmed
+  assigned_scope:
+    scope_id: P01_FIG12_CONTEXT_v1
+    pdf_pages:
+    - 2
+    - 3
+    - 4
+    - 5
+    figures:
+    - Fig.1a
+    - Fig.1b
+    - Fig.2a
+    - Fig.2b
+    - Fig.2c
+    - Fig.2d
+    captions:
+    - Fig.1 caption (p3)
+    - Fig.2 caption (p4)
+    text_sections:
+    - 'Overview and MCP components and testing (p2)'
+    - 'AlphaGenome agent: example and benchmark (p3 right column to p5 opening)'
+  evidence_status: agent_verified_user_delegated
+  evidence_review:
+    rows:
+    - F1
+    - F2
+    decision_id: Q4_F1_F2_2026_09_30
+    reviewer: agent
+    result: pass
+    reviewed_at: '2026-09-30T15:44:16.093330+09:00'
+    report_id: figure12_source_review_2026-09-30
+    source_file_hash: 6727ef9ca72cfffb1e032a2f07c7b9a4a2b235154bdd779b135c3518433677bf
+    source_version: Nature VoR 2026-09-16; publisher PDF retrieved 2026-09-30
+- id: T01
+  role: transfer_case
+  bibliography: null
+  doi: null
+  source_url: null
+  first_public_date: null
+  preprint_first_public_date: null
+  retrieved_at: null
+  file_hash: null
+  pdf_to_printed_pages: null
+  figures: []
+  adoption: pending
+  evidence_status: agent_draft
+  route_test: not_run
+  trial_reading: not_run
+  publication: not_approved
+  guide: materials/cases/T01.md
+  rights:
+    view: unconfirmed
+    classroom: unconfirmed
+    ai_input: unconfirmed
+    redistribution: unconfirmed
+    slide_reproduction: unconfirmed
+  source_version: null
+  assigned_scope: null
