@@ -45,3 +45,14 @@ def test_minimal_profiles_exclude_unneeded_libraries():
     dialogue = dependencies('requirements-dialogue.txt')
     assert {'openai', 'pyyaml'} <= dialogue
     assert not {'pillow', 'pypdf', 'torch', 'transformers'} & dialogue
+@pytest.mark.parametrize('filename', ['00_setup.ipynb', '01_dialogue_lab.ipynb', '02_document_lab.ipynb', '03_open_weight_lab.ipynb'])
+def test_setup_rejects_shared_code_from_another_checkout(filename, tmp_path, monkeypatch):
+    """新しい固定版を開いたときに、旧版のimportを黙って再利用しない。"""
+    import sys
+    from types import SimpleNamespace
+    foreign = SimpleNamespace(__file__=str(tmp_path / 'previous-course/src/seminar_lab/config.py'))
+    monkeypatch.setitem(sys.modules, 'seminar_lab.previous_version_fixture', foreign)
+    notebook = json.loads((ROOT / 'notebooks' / filename).read_text())
+    first = next(c for c in notebook['cells'] if c['cell_type'] == 'code')
+    with pytest.raises(RuntimeError, match='再起動'):
+        exec(''.join(first['source']), {'ROOT': ROOT})
