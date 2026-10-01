@@ -13,6 +13,19 @@ if TYPE_CHECKING:
 from .config import ValidationError
 
 
+def _read_file(path: str | Path, limit: int, label: str) -> bytes:
+    """大きすぎるファイルを全読込みする前に止め、操作を日本語で案内する。"""
+    source = Path(path)
+    if not source.is_file():
+        raise ValidationError(f'{label}ファイルが見つかりません。ColabのFiles欄でパスをコピーしてください。')
+    if source.stat().st_size > limit:
+        raise ValidationError(f'演習用の{label}上限{limit // 1_000_000}MBを超えています。入力する範囲を見直してください。')
+    try:
+        return source.read_bytes()
+    except OSError:
+        raise ValidationError(f'{label}ファイルを読み込めません。ファイルの状態と読込み権限を確認してください。') from None
+
+
 def _image_metadata(data: bytes) -> tuple[str, tuple[int, int]]:
     """画像の本体まで検査する。JPEGのverifyだけでは欠損を検出できない。"""
     from PIL import Image, UnidentifiedImageError
@@ -21,6 +34,8 @@ def _image_metadata(data: bytes) -> tuple[str, tuple[int, int]]:
     try:
         with Image.open(BytesIO(data)) as im:
             kind, size = im.format, im.size
+            if size[0] * size[1] > 32_000_000:
+                raise ValidationError('演習用の画像上限3200万画素を超えています。入力画像を明示的に見直してください。')
             if kind not in {"PNG", "JPEG"}:
                 raise ValidationError("この実装はPNG/JPEGのみ対応します。自動変換は行いません。")
             im.verify()
@@ -28,6 +43,8 @@ def _image_metadata(data: bytes) -> tuple[str, tuple[int, int]]:
             im.load()
     except (UnidentifiedImageError, OSError, SyntaxError):
         raise ValidationError("画像の本体を読み込めません。変換・補修せず停止しました。元ファイルを確認してください。") from None
+    except Image.DecompressionBombError:
+        raise ValidationError('画像の画素数が大きすぎます。入力画像を明示的に見直してください。') from None
     return kind, size
 
 
@@ -104,7 +121,7 @@ def image_input(path: str | Path, source_location: str, crop_description: str | 
     """PNG/JPEGを再変換せず入力する。切り出しの元位置は学生が記入する。"""
     if not source_location.strip():
         raise ValidationError("画像の元ページ・図を記入してください。")
-    data = Path(path).read_bytes()
+    data = _read_file(path, 10_000_000, '画像')
     kind, size = _image_metadata(data)
     mime = {"PNG": "image/png", "JPEG": "image/jpeg"}[kind]
     return PreparedInput("image", {"type": "input_image", "image_url": f"data:{mime};base64," + base64.b64encode(data).decode()},
@@ -115,7 +132,7 @@ def image_input(path: str | Path, source_location: str, crop_description: str | 
 def pdf_input(path: str | Path, pages: list[int], page_labels: dict[int, str] | None = None) -> PreparedInput:
     """選んだ物理ページをPDFとして抽出する。OCR・画像化・本文のみへの変換はしない。"""
     from pypdf import PdfWriter
-    data = Path(path).read_bytes()
+    data = _read_file(path, 20_000_000, 'PDF')
     reader = _pdf_reader(data)
     if not pages or any(type(p) is not int or not 1 <= p <= len(reader.pages) for p in pages) or pages != sorted(set(pages)):
         raise ValidationError("PDFの実ページを1始まり、重複なしの昇順で指定してください。")

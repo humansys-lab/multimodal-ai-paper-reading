@@ -30,13 +30,16 @@ def test_save_without_execution_reports_missing_record(tmp_path):
         exec(source, {'session': SimpleNamespace(records=[]), 'ROOT': tmp_path})
 
 
-def test_open_weight_save_refuses_to_overwrite_previous_record(tmp_path):
-    source = code_cell('03_open_weight_lab.ipynb', 'destination.open').replace('SAVE = False', 'SAVE = True')
+def test_open_weight_annotation_revision_keeps_previous_record(tmp_path):
+    source = code_cell('03_open_weight_lab.ipynb', 'from seminar_lab.open_weight import save_result').replace('SAVE = False', 'SAVE = True')
     namespace = {'ROOT': tmp_path, 'json': json, 'result': {'run_id': 'synthetic', 'response_raw': 'fixture'}}
     exec(source, namespace)
-    target = tmp_path / 'outputs/open-weight/synthetic.json'
+    target, = (tmp_path / 'outputs/open-weight').glob('*.json')
     before = target.read_bytes()
-    namespace['result']['response_raw'] = 'changed'
-    with pytest.raises(FileExistsError):
-        exec(source, namespace)
+    source = source.replace("'student_explanation': None", "'student_explanation': '追記した説明'")
+    exec(source, namespace)
     assert target.read_bytes() == before
+    saved = sorted((tmp_path / 'outputs/open-weight').glob('*.json'))
+    assert len(saved) == 2
+    assert {json.loads(p.read_text())['response_raw'] for p in saved} == {'fixture'}
+    assert namespace['result']['student_explanation'] == '追記した説明'

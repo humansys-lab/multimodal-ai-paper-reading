@@ -63,3 +63,35 @@ def test_student_text_with_machine_markers_roundtrips(tmp_path, adopted):
     save_records([record], path)
     assert load_records(path) == [record]
     assert path.read_text().count('<!-- SEMINAR_RECORDS -->\n```json\n') == 1
+
+
+def test_markdown_shows_prompt_raw_answer_and_student_explanation(tmp_path, adopted):
+    record = new_record(material_context(*adopted, 'P1'))
+    record.update(prompt='原文の根拠は？', student_explanation='私の理解', evidence_location='図1a',
+                  response_raw={'output': [{'type': 'message', 'content': [{'type': 'output_text', 'text': 'AIの回答'}]}]},
+                  status='success')
+    path = tmp_path / 'readable.md'
+    save_records([record], path)
+    visible = path.read_text().split('<details>', 1)[0]
+    assert all(text in visible for text in ['原文の根拠は？', '私の理解', '図1a', 'AIの回答', '不明（0 USD'])
+    assert load_records(path) == [record]
+
+
+@pytest.mark.parametrize('raw', [{'output': 'invalid'}, ['unexpected'], {'output': [None, {'content': [None]}]}])
+def test_failed_unexpected_response_can_still_be_saved(tmp_path, adopted, raw):
+    record = new_record(material_context(*adopted, 'P1'))
+    record.update(status='failed', response_raw=raw, error_message='応答形式を確認してください。')
+    path = tmp_path / 'failed.md'
+    save_records([record], path)
+    assert load_records(path) == [record]
+    assert '文章として表示できる応答がありません' in path.read_text()
+
+
+def test_ai_free_cost_is_not_reported_as_unknown(tmp_path, adopted):
+    record = new_record(material_context(*adopted, 'P0'))
+    record.update(cost_kind='not_applicable', service='none')
+    path = tmp_path / 'without-ai.md'
+    save_records([record], path)
+    assert '費用: 外部APIなし' in path.read_text()
+    assert '記録 1: 最初の読解（AIなし）' in path.read_text()
+    assert load_records(path) == [record]

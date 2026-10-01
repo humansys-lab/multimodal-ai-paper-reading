@@ -165,3 +165,39 @@ def reading_record(result: dict, context: dict, source_location: str) -> dict:
     record['cost_note'] = '外部API呼出しなし。計算機・Colabの利用料金を推定していない。'
     validate_record(record)
     return record
+
+
+def save_result(result: dict, annotations: dict, root: Path) -> tuple[dict, list[Path]]:
+    """生の生成結果と本人の説明を一度で保存する。既存ファイルは上書きしない。"""
+    import json
+    from copy import deepcopy
+    from .records import validate_record
+    from .ui import save_pair
+
+    if not isinstance(result, dict) or not isinstance(result.get('run_id'), str):
+        raise ValueError('保存する生成結果がありません。')
+    allowed = {'student_explanation', 'evidence_location', 'unresolved_point'}
+    if (not isinstance(annotations, dict) or set(annotations) - allowed
+            or any(v is not None and not isinstance(v, str) for v in annotations.values())):
+        raise ValueError('記入欄は本人の説明・根拠・不明点の文字列かNoneにしてください。')
+    saved = {**deepcopy(result), **{k: v for k, v in annotations.items() if v is not None}}
+    record = None
+    if saved.get('reading_context') is not None:
+        record = reading_record(saved, saved['reading_context'], saved.get('source_location', ''))
+        record.update({k: saved[k] for k in allowed if k in saved})
+        validate_record(record)
+    root = root.resolve()
+    folder = root / 'outputs/open-weight'
+    if not folder.resolve().is_relative_to(root):
+        raise ValueError('保存先は教材フォルダ内にしてください。')
+    destination = folder / (saved['run_id'] + '-' + uuid4().hex[:8] + '.json')
+    if destination.resolve().parent != folder.resolve():
+        raise ValueError('保存する実行番号に不正なパスが含まれています。')
+    content = json.dumps(saved, ensure_ascii=False, indent=2, allow_nan=False)
+    folder.mkdir(parents=True, exist_ok=True)
+    with destination.open('x', encoding='utf-8') as handle:
+        handle.write(content)
+    paths = [destination]
+    if record is not None:
+        paths.extend(save_pair([record], root / 'outputs'))
+    return saved, paths

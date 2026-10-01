@@ -1,6 +1,6 @@
 # HW1の論文を探す・出典を確認する
 
-第1日の題材はPaper2Agentだけです。以下は授業後のHW1用。対象誌は**Nature／Scienceの本誌2誌**に確定しました。この2誌から共通論文Paper2Agent以外の原著1報を探します。
+第1日はPaper2Agentで読み方を学び、The AI Scientistへ応用します。以下は授業後のHW1用。対象誌は**Nature／Scienceの本誌2誌**に確定しました。この2誌から共通論文Paper2Agent以外の原著1報を探します。
 
 ## 探し方
 

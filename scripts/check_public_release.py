@@ -23,7 +23,7 @@ def check(paths: list[Path]) -> list[str]:
         if path.is_symlink():
             errors.append(f"{name}: シンボリックリンクを公開候補に含めないでください。")
             continue
-        if path.name.startswith(".env") or "runtime.local" in path.name or path.suffix in {".log", ".sqlite3", ".jsonl", ".pdf", ".pptx"} or set(path.parts) & {"outputs", "local_inputs", "private"}:
+        if path.name.startswith(".env") or any(x in path.name for x in ("runtime.local", "connection.local")) or path.suffix in {".log", ".sqlite3", ".jsonl", ".pdf", ".pptx"} or set(path.parts) & {"outputs", "local_inputs", "private"}:
             errors.append(f"{name}: 私的資料・未承認バイナリが公開候補にあります。")
             continue
         if path.is_file():

@@ -1,20 +1,17 @@
-# 機能・経路の確認記録
+# APIとモデルの対応確認
 
-確認日：2026-09-30〜2026-10-01。公式説明と、この教材で通した処理を分ける。費用・応答時間・失敗の詳細は[検査結果](verification.md)を参照。
+更新：2026-10-02。公式資料で確認した仕様と、経路を通した実測を区別します。[検証記録](verification.md)に試験条件・費用・残項目をまとめています。
 
-| 機能・モデル | 一次資料で確認した仕様 | 今回の実測 | 授業経路の状態 |
+| 対象 | 公式の仕様・一次資料 | この教材での実測 | 未確認 |
 |---|---|---|---|
-| OpenAI gpt-4.1-mini | [モデル資料](https://developers.openai.com/api/docs/models/gpt-4.1-mini)：Responses対応、画像入力、固定版2025-04-14、入力0.40・出力1.60 USD/100万トークン | SDK 2.54.0、直接OpenAI。短文・履歴・PNGとNotebook送信/保存を確認。計30回の内訳は検査結果参照 | Colab→LiteLLMはnot_run |
-| PDF入力 | [公式ガイド](https://developers.openai.com/api/docs/guides/file-inputs)：テキストと各ページ画像が入力になる | ラベル付き2条件pass、図読取・形式違反4条件fail。ラベルなしPNGはpass。HTTP成功や文字ラベルの回答だけで図の理解を認定しない | PDF対応を実測済みにしない。原因未特定 |
-| 保存・保持 | [公式資料](https://developers.openai.com/api/docs/guides/your-data)：store=Falseでも不正利用監視ログ等の保持は別 | 全30回store=False。自作PDF 1件をFiles APIへ作成し、そのIDだけ削除して確認 | 講義用中継のログ・保持は未確認 |
-| Qwen3-0.6B | [公開元](https://huggingface.co/Qwen/Qwen3-0.6B)：公開重み、テキストモデル、Apache 2.0 | revision c1899de289a04d12100db370d81485cdf75e47ca、torch 2.8.0、transformers 4.57.6。Mac MPSでトークン・埋め込み・候補・生成・保存pass。明示したCPUでも観察・生成pass | Colab T4（16 GB）は対象確定、実機not_run |
-| 10セッションの同時利用 | 公式説明から授業中継の性能は仮定しない | 直接APIの独立した10セッションで10/10 pass、最大3.117秒。1回の限定試験 | 講義中継・DB停止・個人別予算はnot_run |
-| Colab GPU | [Google公式FAQ](https://research.google.com/colaboratory/faq.html)：利用可能量と割当て機種は変動 | 今回はMacだけで実測 | T4の利用可能性・ピーク使用量・10名同時割当ては未確認 |
+| GPT-4.1 mini / GPT-4.1 | [mini](https://developers.openai.com/api/docs/models/gpt-4.1-mini)、[4.1](https://developers.openai.com/api/docs/models/gpt-4.1)：Responses、テキスト・画像入力、2025-04-14固定版 | OpenAI SDK 2.54.0から直接接続。新規・継続対話、2モデルの同じ質問、保存 | Colab→講義用LiteLLM |
+| 画像・PDF | [画像入力](https://developers.openai.com/api/docs/guides/images-vision)、[PDF入力](https://developers.openai.com/api/docs/guides/file-inputs)：PDFは本文とページ画像を扱う | 元PNG・明示した縮小PNG・選択ページPDFで応答取得。縮小画像とPDFで数値の誤読も観察 | 論文全体の精度、講義用中継での対応 |
+| データの保持 | [OpenAIのデータ管理](https://developers.openai.com/api/docs/guides/your-data)：APIデータを既定で学習しない。`store=False`でも不正利用監視用の保持等は別 | 今回は全送信で`store=False`、Files APIを使わずインライン入力 | 中継のログ・保持・削除条件 |
+| Qwen3-0.6B | [固定版モデルカード](https://huggingface.co/Qwen/Qwen3-0.6B/blob/c1899de289a04d12100db370d81485cdf75e47ca/README.md)：公開重み、テキストモデル、Apache 2.0 | torch 2.8.0、transformers 4.57.6。Mac MPS、通信禁止で観察・生成・保存 | Colab T4の実行・ピークメモリ |
+| 複数人の利用 | [Colab FAQ](https://research.google.com/colaboratory/faq.html)：GPU割当て・利用可能量は変動 | 2026-10-01に直接APIの独立10セッションが成功した記録あり | 学生10名のT4割当て、中継の同時利用・予算停止・DB停止 |
 
-試験用の直接接続設定はGit対象外。配布用のモデルID・機能・中継版・予算停止を、今回の結果から自動確定しない。別モデル・固定回答・別入力方式への自動フォールバックは実装していない。
+モデル・経路・入力方式を自動で切り替える処理はありません。公開の接続様式は未設定で、送信できません。直接APIの成功から、授業用中継の対応や予算制限の成功を推定しません。
 
-## 新時間割の2モデル比較に向けた限定試験（2026-10-01）
+## 単価と実費の区別
 
-[GPT-4.1公式資料](https://developers.openai.com/api/docs/models/gpt-4.1)と[mini公式資料](https://developers.openai.com/api/docs/models/gpt-4.1-mini)でResponses・画像入力・固定版・単価を確認。`gpt-4.1-2025-04-14`と`gpt-4.1-mini-2025-04-14`を直接OpenAIへ各2回、同じ自作短文とPNGで実測し、4/4成功。出力上限512、再試行0。返却トークンによる概算計0.0032468 USD。請求画面は未確認。
-
-授業中継、Colab、論文入力、PDF、長いMethodsの正確性の成功には読み替えない。`second_api_model`の授業配布判定はnot_runのまま。最初の出力上限200の設定は送信前に拒否され、APIを呼んでいない。確認済み512へ明示的に修正して上の試験を行った。
+上記公式モデル資料の単価は、100万トークンあたりminiが入力0.40・出力1.60 USD、GPT-4.1が入力2・出力8 USDです。返却された利用量から試験費用を概算し、請求画面で確認した金額とは区別します。

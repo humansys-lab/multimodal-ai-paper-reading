@@ -1,40 +1,42 @@
 # マルチモーダルAIの活用方法と限界を知る
 
-京都大学 2026年度 機械システム学セミナーの教材。Paper2Agentの図1・2とMethodsで読み方を学び、The AI Scientistへ応用します。共通初読・再読は同じPaper2Agentの版・範囲・3問です。
+京都大学 2026年度 機械システム学セミナー No.16。担当：加藤祥太。Paper2Agentの図1・2とMethodsで論文の読み方を学び、The AI Scientistへ応用します。共通の初読・再読は、全員が同じPaper2Agentの版・範囲・3問を使います。
 
-## 学生向けの入口
+第1日：2026年10月3日 10:00–17:30（17:30–18:00は任意相談）。第2日：10月31日 10:00–17:00。
 
-- [最初に読む案内](docs/start_here.md)・[事前学習](docs/prework.md)・[GUIの操作](docs/gui_guide.md)・[Notebookの操作](docs/notebook_guide.md)
-- [当日の演習](activities/day1.md)・[読解の記録](worksheets/reading_record.md)
+## 最初に開くもの
+
+- [事前学習](docs/prework.md) → [当日の進め方](docs/start_here.md) → [演習カード](activities/day1.md)
+- [GUIの使い方](docs/gui_guide.md)・[Notebookの操作とFAQ](docs/notebook_guide.md)・[困ったとき](docs/troubleshooting.md)
+- [読解の記録](worksheets/reading_record.md)・[Methodsと別論文の記録](worksheets/methods_and_transfer.md)
 - [課題](assignments/homework.md)・[発表](assignments/presentation.md)・[最終レポート](assignments/report.md)
-- Notebook：[00 準備](notebooks/00_setup.ipynb)、[01 対話](notebooks/01_dialogue_lab.ipynb)、[02 画像とPDF](notebooks/02_document_lab.ipynb)、[03 公開重みモデル](notebooks/03_open_weight_lab.ipynb)
+- [用語集](docs/glossary.md)・[説明と原著論文の対応](docs/lecture_references.md)
 
 ## Colabで開く
 
-[Notebookの操作とFAQ](docs/notebook_guide.md)・[2026-10-02の動作確認](docs/notebook_verification.md)。
+授業では**00 → 03 → 01 → 02 → 01**の順に使います。番号はファイルの識別用です。
 
-| Notebook | 固定版へのリンク |
-|---|---|
-| 00 準備とAIなしの記録 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/00_setup.ipynb) |
-| 01 質問と対話 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/01_dialogue_lab.ipynb) |
-| 02 画像・PDFの入力 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/02_document_lab.ipynb) |
-| 03 公開重みモデルの観察 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/03_open_weight_lab.ipynb) |
+| 使う時間・目的 | Notebook | 固定版へのリンク |
+|---|---|---|
+| 10:15：AIを使わない最初の説明を保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/00_setup.ipynb) |
+| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/03_open_weight_lab.ipynb) |
+| 11:57：質問と例示を比較。15:10以降も再利用 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/01_dialogue_lab.ipynb) |
+| 13:30・14:20：図2、元画像と縮小画像を比較 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/02_document_lab.ipynb) |
 
-1. 00〜02はCPUで開きます。03だけは「ランタイムのタイプを変更」でT4 GPUを選びます。
-2. 冒頭セルの `PREPARE_COLAB` をTrueにして実行します。ハッシュを検査して固定版の教材と依存関係を取得します。APIは呼びません。
-3. 質問・送信する資料・新規/継続を自分で設定します。API接続情報と利用許可は教員の案内に従います。公開の空設定では送信できません。
-4. 保存セルを実行し、00〜02はJSONLとMarkdown、03は生のJSON（読解記録を作る場合はJSONL/Markdownも）をColabのファイル欄からダウンロードします。再起動するとランタイム内のファイルは失われます。
+1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
+2. 冒頭の準備セルで`PREPARE_COLAB`をONにして実行します。固定版の教材と必要なライブラリを取得します。APIは呼びません。
+3. 01・02は教員が配布する設定ファイルを読み込みます。質問と入力を確認してから送信し、キーは専用の入力欄で扱います。
+4. 保存セルを実行し、Files欄から`outputs/`の記録をダウンロードします。Colabの再起動でファイルが消える場合があります。
 
-Notebookと教材コードは検査したコミットに固定しています。mainの更新を自動では追いません。実際のColab/T4での起動はログイン待ちで未検証です。今回GitHubから再取得した版を、ローカルの準備済み環境で検査しています。
+朝の最初のAI利用は教員が案内するGUIです。03は初回のモデル取得に時間がかかるため、教員の案内に合わせて演習前に準備します。操作の詳細は[Notebookガイド](docs/notebook_guide.md)にあります。
 
+## 実行状態・費用・提出
 
-## 実行状態
+教材とNotebookは検査したコミットに固定し、mainの未検証更新を自動では取り込みません。公開の接続見本は空で、送信できません。直接APIとMacでの実測、新規Colab・講義用中継の未確認項目は[検証記録](docs/verification.md)に示します。
 
-授業用APIの接続設定は教員が個別に案内します。公開の空設定では送信できません。既定のNotebookは有料API・モデル取得・推論を実行しません。[検査の範囲](docs/verification.md)を確認してください。
+共通GUIはGemini for Education。個人の有料契約は必須ではありません。講義用APIは期間全体で1人10 USD分を確保し、学生全体にも使用量上限があります。利用期限は11月14日23:59（日本時間）。キーと接続情報は共有・アップロードせず、[利用案内](docs/api_usage.md)を確認してください。
 
-GPUは必須ではありません。公開重みモデルの観察だけはColab T4を対象にしています。講義用APIは1人10 USD分を確保し、学生全体にも利用量上限があります。キーと接続情報は共有・アップロードしないでください。
-
-発表とレポートは指定SlackチャンネルへPDFを提出します。個人の対話は手元へ保存し、自動収集や自動採点は行いません。
+HW1とHW2は両方必須。第2日は各5分の発表と5分の質疑、合わせて10枚以下です。発表資料は10月30日23:59、最終レポートは11月14日23:59までに、指定SlackチャンネルへPDFを提出します。個人記録は手元に保存し、自動収集・自動採点は行いません。
 
 ## 開発時の確認
 
@@ -46,10 +48,6 @@ uv run python scripts/check_notebooks.py --execute-offline
 uv run python scripts/check_public_release.py
 ```
 
-配布準備は別に `uv run python scripts/check_course.py --mode readiness` で確認します。未検証項目があれば終了コード1です。
+配布準備は別に`uv run python scripts/check_course.py --mode readiness`で確認します。未検証・未確認項目があれば終了コード1です。[実装状況](IMPLEMENTATION_STATUS.md)・[確認事項](DECISIONS.md)を参照してください。
 
-[授業の仕様](PLAN.md)は教員の正本から学生向けの節を抜粋しています。原資料、解答付きスライド、内部運用履歴、秘密設定は公開対象外です。[利用条件](LICENSES.md)を確認してください。
-
-## 2報版への改訂
-
-[演習カード](activities/day1.md)、[Methods](materials/papers/paper2agent_methods.md)、[別論文への応用](materials/papers/ai_scientist.md)、[説明と原著論文の対応](docs/lecture_references.md)。新しい範囲・設問は教員確認前。固定Colabリンクは2報版へ更新済みです。
+[授業仕様](PLAN.md)・[自習ガイド](docs/self_study.md)・[利用条件](LICENSES.md)。原論文PDF、元PPTX、解答付き資料、秘密設定、個人記録は公開対象に含めません。

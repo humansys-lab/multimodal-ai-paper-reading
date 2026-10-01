@@ -1,0 +1,34 @@
+# 教員・TA用の空様式。実際の設定は非公開で配布する。
+# APIキーはこのファイルにも書かず、Notebookの専用入力欄に入力する。
+# 未確認の項目をpassへ変更して試験を省略しない。
+runtime:
+  schema_version: 1
+  route: course_proxy
+  api: responses
+  model: null
+  base_url: null
+  allowed_base_urls: []
+  sdk_version: null
+  proxy_version: null
+  timeout_seconds: 30
+  max_retries: 0
+  capabilities:
+    input_kinds: []
+    parameters: {}
+    manual_history: false
+  audit:
+    verified_at: null
+    evidence_id: null
+    route_test: not_run
+    budget_fail_closed: not_run
+    retention_review: not_run
+permission:
+  id: null
+  approved_by: null
+  scope: null
+  route: course_proxy
+  model: null
+  authentication_route: null
+  usd_limit: 0
+  request_limit: 0
+# permissionは教員の許可内容を記録する。金額の強制停止は中継側で別途検証する。

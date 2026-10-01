@@ -14,6 +14,16 @@ COMMON = {"P0", "P1", "P2a", "P2b", "P3", "L1", "L2"}
 PHASES = {"P0": "R0", "P1": "R1", "P2a": "R2", "P2b": "R3", "P3": "R3"}
 
 
+ACTIVITY_NAMES = {
+    'P0': '最初の読解（AIなし）', 'P1': '最初のAI読解',
+    'L1': '言語モデルの仕組みを観察', 'L2': '質問方法の比較',
+    'V1': '図2を画像で読む', 'V2': '画像の大きさを比べる',
+    'P2a': '同じ3問への再回答', 'P3': '相互説明後の記録',
+    'METHODS': 'Methodsの追加課題', 'TRANSFER': 'The AI Scientistへの応用',
+    'HW1': 'Homework：別の原著論文', 'P01_REVIEW': 'Paper2Agentの追加読解',
+}
+
+
 class ValidationError(ValueError):
     """送信・配布前に修正が必要な設定。"""
 

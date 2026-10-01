@@ -52,6 +52,12 @@ def test_public_scan_and_secret_detection(tmp_path):
     assert result and 'a'*30 not in str(result)
 
 
+def test_local_connection_file_is_not_public_even_without_a_key(tmp_path):
+    private = tmp_path / 'connection.local.yaml'
+    private.write_text('runtime: {}\npermission: {}\n')
+    assert module('check_public_release').check([private])
+
+
 def test_damaged_pdf_is_rejected_without_automatic_repair(tmp_path):
     import re
     writer = PdfWriter()
@@ -106,3 +112,37 @@ def test_prepared_pdf_requires_valid_body_and_safe_filename(tmp_path):
     corrupted = {**valid.content, 'file_data': 'data:application/pdf;base64,' + base64.b64encode(b'%PDF-1.7\ninvalid\n%%EOF').decode()}
     with pytest.raises(ValidationError, match='自動補修せず'):
         PreparedInput('pdf', corrupted, valid.provenance).validate()
+
+
+@pytest.mark.parametrize('kind,limit', [('image', 10_000_000), ('pdf', 20_000_000)])
+def test_oversized_source_is_rejected_before_reading_bytes(tmp_path, monkeypatch, kind, limit):
+    path = tmp_path / ('large.' + kind)
+    with path.open('wb') as handle:
+        handle.truncate(limit + 1)
+    def forbidden_read(*args, **kwargs):
+        raise AssertionError('Oversized source must not be read into memory')
+    monkeypatch.setattr(Path, 'read_bytes', forbidden_read)
+    with pytest.raises(ValidationError, match='上限'):
+        image_input(path, 'test fixture') if kind == 'image' else pdf_input(path, [1])
+
+
+@pytest.mark.parametrize('name', ['', 'missing.png'])
+def test_missing_input_file_has_classroom_instruction(tmp_path, name):
+    with pytest.raises(ValidationError, match='Files欄'):
+        image_input(tmp_path / name, 'test fixture')
+
+
+@pytest.mark.parametrize('width,height', [(8000, 5000), (20000, 20000)])
+def test_huge_pixel_dimensions_stop_before_image_decode(tmp_path, width, height):
+    import struct
+    import zlib
+    path = tmp_path / 'huge.png'
+    buffer = BytesIO()
+    Image.new('RGB', (1, 1)).save(buffer, format='PNG')
+    data = bytearray(buffer.getvalue())
+    # Small artificial PNG with a valid header CRC but excessive declared dimensions.
+    data[16:24] = struct.pack('>II', width, height)
+    data[29:33] = struct.pack('>I', zlib.crc32(data[12:29]))
+    path.write_bytes(data)
+    with pytest.raises(ValidationError, match='画素'):
+        image_input(path, 'test fixture')

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from .config import PHASES, ValidationError
+from .config import ACTIVITY_NAMES, PHASES, ValidationError
 
 FIELDS = """session_id run_id activity_id phase timestamp material_id material_role selection_origin
 source_version file_hash assigned_scope input_scope page_or_figure service access_route requested_model
@@ -105,6 +105,29 @@ def _read_json(content: str) -> Any:
         raise ValidationError("JSONを読み込めません。元の記録ファイルを確認してください。") from None
 
 
+def _readable_response(raw: Any) -> str:
+    """壊れた応答も保存できるよう、表示可能な文章だけを一覧へ取り出す。"""
+    if isinstance(raw, str):
+        return raw
+    if raw is None:
+        return 'AIの応答なし'
+    texts = []
+    if isinstance(raw, dict) and isinstance(raw.get('output'), list):
+        for item in raw['output']:
+            if not isinstance(item, dict) or not isinstance(item.get('content'), list):
+                continue
+            for part in item['content']:
+                if isinstance(part, dict) and part.get('type') == 'output_text' and isinstance(part.get('text'), str):
+                    texts.append(part['text'])
+    return '\n'.join(texts) if texts else '文章として表示できる応答がありません。状態と下の全項目を確認してください。'
+
+
+def _text_block(value: Any) -> str:
+    """質問・回答にMarkdownやHTMLがあっても、記録の構造を変えず原文として表示する。"""
+    text = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, indent=2)
+    return '<pre>' + escape(text) + '</pre>'
+
+
 def save_records(records: list[dict], path: str | Path) -> None:
     """明示操作で新しいファイルへ保存。同名上書きで初期記録を失わない。"""
     _unique_records(records)
@@ -115,10 +138,35 @@ def save_records(records: list[dict], path: str | Path) -> None:
         content = "".join(json.dumps(r, ensure_ascii=False, allow_nan=False) + "\n" for r in records)
     else:
         lines = ["# 個人の読解記録", "", "生出力と本人の説明を区別。共有前に内容を確認してください。", ""]
-        for r in records:
-            lines += [f"## {escape(str(r['activity_id']))} / {escape(str(r['phase'] or '演習'))}", "", f"- 本人の説明: {escape(str(r['student_explanation'] or '未記入'))}",
-                      f"- 根拠: {escape(str(r['evidence_location'] or '未記入'))}", f"- 費用: {r['cost_value'] if r['cost_value'] is not None else '不明'}", ""]
-        lines += ["## 再読込み用の全項目", "", "<!-- SEMINAR_RECORDS -->", "```json", json.dumps(records, ensure_ascii=False, indent=2, allow_nan=False), "```", "<!-- END_SEMINAR_RECORDS -->", ""]
+        for number, r in enumerate(records, 1):
+            cost = ('外部APIなし' if r['cost_kind'] == 'not_applicable' else
+                    str(r['cost_value']) + ' USD' if r['cost_value'] is not None else '不明（0 USDとは扱わない）')
+            # 記録の内部IDと、学生が読む活動名を分ける。
+            activity = ACTIVITY_NAMES.get(r['activity_id'], str(r['activity_id']))
+            model = r['reported_model'] or r['requested_model'] or ('AIなし' if r['service'] in {None, 'none'} else '不明')
+            status = {'manual': '本人が記入', 'success': '応答完了', 'failed': '失敗',
+                      'incomplete': '未完了', 'draft': '記入途中', 'pending': '処理中'}.get(r['status'], str(r['status']))
+            mode = {'new': '新規', 'continue': '履歴を継続', None: '該当なし'}.get(r['conversation_mode'], str(r['conversation_mode']))
+            lines += [f"## 記録 {number}: {escape(activity)}", "",
+                      f"- 状態: {escape(status)}",
+                      f"- モデル: {escape(str(model))}",
+                      f"- 会話: {escape(mode)} / 過去の対話 {r['prior_turn_count'] or 0} 回",
+                      f"- 費用: {cost}", ""]
+            bibliography = r.get('bibliography')
+            if isinstance(bibliography, dict) and bibliography.get('title'):
+                lines += ['資料: ' + escape(str(bibliography['title'])), '']
+            if r.get('error_message'):
+                lines += ['### エラー・未完了の理由', '', _text_block(r['error_message']), '']
+            for field, label in [('prompt', '送った質問'), ('input_scope', '送った資料の範囲'),
+                                 ('student_explanation', '本人の説明'), ('evidence_location', '根拠の場所'),
+                                 ('student_revision', '修正した説明'), ('unresolved_point', '残る疑問'),
+                                 ('next_change', '次に変えること'), ('change_reason', '変更した理由')]:
+                if r.get(field) is not None:
+                    lines += ['### ' + label, '', _text_block(r[field]), '']
+            lines += ['### AIの生回答', '', _text_block(_readable_response(r['response_raw'])), '']
+        lines += ["## 再読込み用の全項目", "", '<details>', '<summary>入力・履歴・添付を含む全項目（再読込み時はこの部分を変更しない）</summary>', '',
+                  "<!-- SEMINAR_RECORDS -->", "```json", json.dumps(records, ensure_ascii=False, indent=2, allow_nan=False),
+                  "```", "<!-- END_SEMINAR_RECORDS -->", '', '</details>', '']
         content = "\n".join(lines)
     p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("x", encoding="utf-8") as f:
