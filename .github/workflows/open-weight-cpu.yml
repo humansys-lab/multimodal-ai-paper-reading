@@ -28,7 +28,8 @@ jobs:
           mkdir -p build/tmp
           python3.12 -m venv build/model-venv
           build/model-venv/bin/python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
-          build/model-venv/bin/python -m pip install -r requirements-open-weight.txt -r requirements-records.txt
+          build/model-venv/bin/python -m pip install -r requirements-open-weight.txt
+          build/model-venv/bin/python -m pip install --require-hashes -r requirements-records.txt
       - name: Run the actual notebook cells with an artificial input
         run: build/model-venv/bin/python scripts/check_open_weight_notebook.py --device cpu --allow-download
       - uses: actions/upload-artifact@v4
