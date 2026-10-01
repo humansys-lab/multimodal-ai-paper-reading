@@ -14,14 +14,14 @@
 
 ## Colabで開く
 
-授業では**00 → 03 → 01 → 02 → 01**の順に使います。番号はファイルの識別用です。
+最初に使う順に並べています。00は相互説明後、01は再読と別論文への応用でも再利用します。番号はファイルの識別用です。
 
 | 使う時間・目的 | Notebook | 固定版へのリンク |
 |---|---|---|
-| 10:15：AIを使わない最初の説明を保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/00_setup.ipynb) |
-| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/03_open_weight_lab.ipynb) |
-| 11:57：質問と例示を比較。15:10以降も再利用 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/01_dialogue_lab.ipynb) |
-| 13:30・14:20：図2、元画像と縮小画像を比較 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/25cfb8ba2d831dd0af9e91ac97652bff90d8cb96/notebooks/02_document_lab.ipynb) |
+| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/fc9904dd7275f240017875d5d0f7f257065e0257/notebooks/00_setup.ipynb) |
+| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/fc9904dd7275f240017875d5d0f7f257065e0257/notebooks/03_open_weight_lab.ipynb) |
+| 11:57・15:10・16:15：質問の比較、再読、別論文 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/fc9904dd7275f240017875d5d0f7f257065e0257/notebooks/01_dialogue_lab.ipynb) |
+| 13:30・14:20：図2、元画像と縮小画像を比較 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/fc9904dd7275f240017875d5d0f7f257065e0257/notebooks/02_document_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
 2. 冒頭の準備セルで`PREPARE_COLAB`をONにして実行します。固定版の教材と必要なライブラリを取得します。APIは呼びません。
