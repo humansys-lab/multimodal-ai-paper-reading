@@ -20,6 +20,8 @@ def test_every_notebook_pins_same_archive_and_bootstrap():
         assert len(cell.splitlines()) <= 32
         commit = re.search(r'^RELEASE_COMMIT = (.+)$', cell, re.M).group(1).split(' #')[0]
         archive = re.search(r'^RELEASE_SHA256 = (.+)$', cell, re.M).group(1)
+        assert re.fullmatch(r'"[0-9a-f]{40}"', commit)
+        assert re.fullmatch(r'"[0-9a-f]{64}"', archive)
         pins.add((commit, archive))
         assert 'PREPARE_COLAB = False' in cell
     assert len(pins) == 1
