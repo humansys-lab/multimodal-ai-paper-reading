@@ -31,3 +31,18 @@ def test_runtime_version_requires_integer(runtime, version):
     runtime["schema_version"] = version
     with pytest.raises(ValidationError):
         validate_runtime(runtime, {"text"}, {"max_output_tokens": 100})
+
+
+@pytest.mark.parametrize("name", ["temperature", "top_p"])
+@pytest.mark.parametrize("value", [True, False, "1", float("nan"), float("inf")])
+def test_numeric_parameters_reject_bool_text_and_nonfinite(runtime, name, value):
+    # values方式でもPythonのTrue == 1、False == 0を許可しない。
+    runtime["capabilities"]["parameters"][name] = {"values": [0, 1, value]}
+    with pytest.raises(ValidationError):
+        validate_runtime(runtime, {"text"}, {"max_output_tokens": 100, name: value})
+
+
+@pytest.mark.parametrize("name", ["temperature", "top_p"])
+def test_confirmed_finite_numeric_parameter_is_accepted(runtime, name):
+    runtime["capabilities"]["parameters"][name] = {"values": [0, 0.7, 1]}
+    validate_runtime(runtime, {"text"}, {"max_output_tokens": 100, name: 0.7})

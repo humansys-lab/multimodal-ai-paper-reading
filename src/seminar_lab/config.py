@@ -400,6 +400,8 @@ def validate_runtime(runtime: dict, kinds: set[str], parameters: dict) -> None:
         raise ValidationError("正の出力token上限を設定してください。")
     for key, val in parameters.items():
         rule = supported[key]
+        if key in {"temperature", "top_p"} and (type(val) not in (int, float) or not isfinite(val)):
+            raise ValidationError("temperatureとtop_pは有限の数値で指定してください。真偽値や文字列は使えません。")
         if "values" in rule and val not in rule["values"]:
             raise ValidationError("設定値が確認済みの範囲外です。")
         if "min" in rule and (type(val) not in (float, int) or not rule["min"] <= val <= rule["max"]):
