@@ -18,7 +18,7 @@
 |---|---|---|
 | Colab T4（16 GB） | `DEVICE='cuda'`、float16 | 対象環境。実機試験は未実施 |
 | 教員のMac | `DEVICE='mps'`、float16 | キャッシュから読込み、観察・生成・保存を実測 |
-| CPU | `DEVICE='cpu'`、float32 | 今回も短い入力5件を明示的に実測。GPU障害時に自動選択しない |
+| CPU | `DEVICE='cpu'`、float32 | Macで短い入力5件、Linuxで実Notebookの9セルを確認。GPU障害時に自動選択しない |
 
 入力は2,048、出力は128トークン以下。重みだけで約1.2 GBあり、計算用メモリは別に必要です。[Colab公式FAQ](https://research.google.com/colaboratory/faq.html)のとおり、GPU機種・利用枠・割当ては変動します。
 

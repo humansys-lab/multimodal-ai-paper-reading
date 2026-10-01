@@ -19,14 +19,15 @@
 | 小型モデルの論文記録 | pass：9セル | 同じMethods抜粋で推論し、生成時の資料・範囲をJSON／JSONL／Markdownへ保持。内容確認は教員確認と別 |
 | モデルの初回取得 | pass：Mac | 新規キャッシュへ固定重みを取得して読込みまで119.34秒。観察・生成・保存も実行 |
 | 講義の質問比較 | pass：API 10回・小型モデル5回 | 分類と短い足し算。同じ指示の有無をそろえた修正条件も別記録で保持。改善しなかった出力を改変しない |
+| モデルの入力上限 | pass：実モデル | Mac MPSで2,048トークンの人工入力を生成・保存し、2,049トークンは実行前に拒否。自動切捨てなし |
 | モデル用依存の版確認 | pass | 未導入・異なる版・更新前の版がメモリに残る場合を拒否。正しい版でMacの9セルを再実行し、版を生成結果へ保存 |
 | 長時間保持した会話 | in_progress | 休憩を挟む利用を想定。最初の送信・保存を済ませ、同じセッションを保持中 |
-| Linux用モデル依存 | pass：解決のみ | Python 3.12、torch 2.8.0、transformers 4.57.6、40パッケージの配布物を確認。Linuxへの導入・T4実行は未実施 |
+| Linux CPUの実セル | pass：9セル | GitHub Ubuntu 24.04、Python 3.12.3、torch 2.8.0+cpu、transformers 4.57.6。固定重みの取得・観察・生成・保存。Colab T4とは別 |
 | Colab CPU/T4 | blocked | Google未ログイン。ローカル実行をColabの成功とは扱わない |
 | 講義用LiteLLM | not_run | 接続先・学生キー・予算基盤の確認が必要 |
 | 配布準備全体 | fail | 下記の未確認項目を残して停止することを確認 |
 
-今回作成した新規環境は、記録用がPyYAMLだけ、対話用がOpenAI SDK＋PyYAMLの計17パッケージ、モデル用がPyTorch＋Transformers＋PyYAMLの計25パッケージです。モデル用にaccelerateは入っていません。記録・対話の既定セルと、モデルの観察・生成・保存をそれぞれ実行しました。公開ランタイムの固定コミットは再取得して91ファイルの一致を確認しています。GitHubのREADMEは、そのランタイムに対応したNotebookの固定版を開きます。
+今回作成した新規環境は、記録用がPyYAMLだけ、対話用がOpenAI SDK＋PyYAMLの計17パッケージ、モデル用がPyTorch＋Transformers＋PyYAMLの計25パッケージです。モデル用にaccelerateは入っていません。記録・対話の既定セルと、モデルの観察・生成・保存をそれぞれ実行しました。公開ランタイムの固定コミットは再取得してファイルの一致を確認しています。GitHubのREADMEは、そのランタイムに対応したNotebookの固定版を開きます。
 
 ## 回答内容の確認
 
@@ -61,3 +62,11 @@ Methodsを小型モデルで扱った実測で、ページ対応表の整数キ�
 オフライン閲覧HTMLは22ページ・ローカルリンク90件を静的検査し、外部の画像・CSS・JavaScriptへの依存はありません。確認用ブラウザのURL制限によりfileページの表示はblockedです。別経路でこの制限を回避していません。
 
 過去の直接API試験にはPDF図の読取り失敗もあります。過去結果はGit履歴と教員用のローカル証跡へ保持し、今回の試験日時・結果とは混ぜていません。
+
+## 公開モデル試験の再現
+
+モデル用依存と記録用依存を導入した環境で、`python scripts/check_open_weight_notebook.py --device cpu --allow-download`を実行します。出力は`build/open-weight-notebook-check/`。既存の試験結果は上書きしません。新しい出力先を`--output build/<別名>`で指定できます。装置・モデルを自動で切り替えません。
+
+[Linux CPUの実行ログ](https://github.com/humansys-lab/multimodal-ai-paper-reading/actions/runs/36906419852)では、取得を含む9セルが19.19秒、短い生成が2.20秒でした。人工例の計算結果は5本でしたが、「数字だけ」の出力指定には従っていません。教室回線やColabの所要時間を保証する値ではありません。
+
+CPUのfloat32では候補確率の合計が1.00007程度になる例がありました。[PyTorchの数値精度の説明](https://docs.pytorch.org/docs/2.8/notes/numerical_accuracy.html)に沿い、試験側でCPUのfloat64計算とも分布を照合しました。Notebookの生の表示は変えていません。初回の試験で厳しすぎた合計値の判定と、CIの依存導入手順の失敗は記録を保持しています。
