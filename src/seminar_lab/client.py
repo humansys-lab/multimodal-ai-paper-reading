@@ -134,6 +134,11 @@ class Session:
         """外部から内部の履歴を書換えないようコピーを返す。"""
         return deepcopy(self._history)
 
+    def check_run_id(self, run_id: str) -> None:
+        """キー入力前にも、実行済み番号や空の番号を拒否できるようにする。"""
+        if not isinstance(run_id, str) or not run_id.strip() or run_id in self._runs:
+            raise ValidationError("この実行番号は空か実行済みです。保存後に『次の実行番号』を実行してください。")
+
     def preview(self, runtime: dict, prompt: str, inputs: list[PreparedInput], mode: str, parameters: dict) -> dict:
         """送信する全履歴を構築する。通信しない。"""
         if mode not in {"new", "continue"} or not isinstance(prompt, str) or not prompt.strip():
@@ -155,8 +160,7 @@ class Session:
         if not self._lock.acquire(blocking=False):
             raise ValidationError("この会話で送信中です。終了を待ってください。")
         try:
-            if run_id in self._runs or not run_id:
-                raise ValidationError("このrunは実行済みです。意図した再試行には新しいrun_idが必要です。")
+            self.check_run_id(run_id)
             if context.get("phase") == "R0":
                 raise ValidationError("R0ではAIを呼び出せません。")
             if context.get("selection_origin") == "student":

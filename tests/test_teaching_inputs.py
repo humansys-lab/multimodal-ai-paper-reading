@@ -24,7 +24,7 @@ def test_explicit_resize_preserves_original_and_records_sent_hash(tmp_path):
 
 
 def test_open_weight_common_record_roundtrip_and_phase_boundary(adopted, tmp_path):
-    result = dict(model=MODEL_ID, revision=REVISION, status='output_limit', response_raw='TEST FIXTURE ONLY',
+    result = dict(model=MODEL_ID, revision=REVISION, route='open_weight_local', status='output_limit', response_raw='TEST FIXTURE ONLY',
         run_id='test-only', timestamp='2026-10-01T00:00:00Z', prompt='人工例', visible_template='人工例',
         parameters={'max_new_tokens': 1}, elapsed_seconds=1, input_tokens=1, output_tokens=1)
     c,m = adopted
@@ -43,7 +43,7 @@ def test_open_weight_common_record_roundtrip_and_phase_boundary(adopted, tmp_pat
 def test_model_save_uses_generation_context_and_one_annotation_for_all_formats(adopted, tmp_path):
     import json
     from seminar_lab.open_weight import save_result
-    result = dict(model=MODEL_ID, revision=REVISION, status='output_limit', response_raw='TEST FIXTURE ONLY',
+    result = dict(model=MODEL_ID, revision=REVISION, route='open_weight_local', status='output_limit', response_raw='TEST FIXTURE ONLY',
         run_id='test-only', timestamp='2026-10-01T00:00:00Z', prompt='人工例', visible_template='人工例',
         parameters={'max_new_tokens': 1}, elapsed_seconds=1, input_tokens=1, output_tokens=1,
         reading_context=material_context(*adopted, 'TRANSFER', for_input=False), source_location='TEST FIXTURE')
@@ -62,3 +62,14 @@ def test_model_save_uses_generation_context_and_one_annotation_for_all_formats(a
     assert all(path.read_bytes() == content for path, content in before.items())
     assert revised['unresolved_point'] == '未確認' and revised['student_explanation'] == '改訂'
     assert not set(paths) & set(later)
+
+
+@pytest.mark.parametrize('changed', [
+    {'model': 'other-model'}, {'revision': 'other-version'}, {'route': 'direct_openai'},
+    {'status': 'failed'}, {'response_raw': {'output': []}}, {'response_raw': '  '}, {'run_id': '  '},
+])
+def test_model_save_rejects_other_or_missing_generation(tmp_path, model_result, changed):
+    from seminar_lab.open_weight import save_result
+    with pytest.raises(ValueError):
+        save_result({**model_result, **changed}, {}, tmp_path)
+    assert not (tmp_path / 'outputs').exists()

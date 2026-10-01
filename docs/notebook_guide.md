@@ -6,7 +6,7 @@
 
 | Notebook | 使う場面 | 追加する直接の依存 |
 |---|---|---|
-| [00 準備と記録](../notebooks/00_setup.ipynb) | AIなしの説明を保存 | PyYAMLだけ（講義設定を読む） |
+| [00 準備と記録](../notebooks/00_setup.ipynb) | 朝と相互説明後の自分の説明を保存 | PyYAMLだけ（講義設定を読む） |
 | [01 対話](../notebooks/01_dialogue_lab.ipynb) | 質問方法の比較・再読・Methods・別論文 | PyYAML、OpenAI SDK |
 | [02 画像・PDF](../notebooks/02_document_lab.ipynb) | 元画像と縮小画像の比較、選択ページのPDF | 01にPillow、pypdfを追加 |
 | [03 小型モデルの観察](../notebooks/03_open_weight_lab.ipynb) | トークン→数値→候補確率→生成 | PyYAML、PyTorch、Transformers |
@@ -21,9 +21,11 @@ SDK等が内部で使う依存は一緒に入ります。例えば01の新規Mac
 
 Macの取得済み教材では`PREPARE_COLAB=False`を維持し、教材用のPython環境を使います。Colab T4実機・10名のGPU割当て・講義用中継の動作は未確認です。公開の空設定は送信を拒否します。
 
-## 00：AIを使わない記録
+## 00：朝と相互説明後の記録
 
-共通の論文・版・範囲・3問を確認し、`annotations`へ自分の説明・根拠・不明点を記入します。`None`は前の記入を保持。`SAVE=True`でJSONLとMarkdownを保存します。APIは呼びません。
+朝は`record_stage='朝：AIなしで読む'`。共通の論文・版・範囲・3問を確認し、`annotations`へ自分の説明・根拠・不明点を記入します。`None`は前の記入を保持。`SAVE=True`でJSONLとMarkdownを保存します。APIは呼びません。
+
+15:40の相互説明後は`'午後：説明し直す'`へ変更して範囲の確認セルを実行し、説明を記入して保存します。朝と午後は別々の記録で、同じファイルへ保存できます。再起動する前にダウンロードしてください。
 
 ## 01・02：毎回の操作は5段階
 

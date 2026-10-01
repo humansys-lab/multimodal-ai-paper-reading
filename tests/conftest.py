@@ -8,6 +8,16 @@ from seminar_lab.config import load_yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 
+@pytest.fixture
+def model_result():
+    """保存試験だけに使う人工の生成記録。実機の出力ではない。"""
+    from seminar_lab.open_weight import MODEL_ID, REVISION
+    return dict(model=MODEL_ID, revision=REVISION, route='open_weight_local', status='completed',
+                run_id='synthetic', timestamp='2026-10-01T00:00:00Z', prompt='人工例',
+                visible_template='人工例', response_raw='TEST FIXTURE ONLY',
+                parameters={'max_new_tokens': 1}, elapsed_seconds=1, input_tokens=1, output_tokens=1)
+
+
 def pytest_configure(config):
     """新しいチェックアウトでも、試験用ファイルは教材フォルダ内へ作る。"""
     temporary = Path(config.option.basetemp).resolve()

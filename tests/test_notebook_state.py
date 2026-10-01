@@ -30,9 +30,9 @@ def test_save_without_execution_reports_missing_record(tmp_path):
         exec(source, {'session': SimpleNamespace(records=[]), 'ROOT': tmp_path})
 
 
-def test_open_weight_annotation_revision_keeps_previous_record(tmp_path):
+def test_open_weight_annotation_revision_keeps_previous_record(tmp_path, model_result):
     source = code_cell('03_open_weight_lab.ipynb', 'from seminar_lab.open_weight import save_result').replace('SAVE = False', 'SAVE = True')
-    namespace = {'ROOT': tmp_path, 'json': json, 'result': {'run_id': 'synthetic', 'response_raw': 'fixture'}}
+    namespace = {'ROOT': tmp_path, 'json': json, 'result': {**model_result, 'response_raw': 'fixture'}}
     exec(source, namespace)
     target, = (tmp_path / 'outputs/open-weight').glob('*.json')
     before = target.read_bytes()

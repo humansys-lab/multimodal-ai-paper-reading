@@ -174,8 +174,15 @@ def save_result(result: dict, annotations: dict, root: Path) -> tuple[dict, list
     from .records import validate_record
     from .ui import save_pair
 
-    if not isinstance(result, dict) or not isinstance(result.get('run_id'), str):
+    if (not isinstance(result, dict) or not isinstance(result.get('run_id'), str)
+            or not result['run_id'].strip()):
         raise ValueError('保存する生成結果がありません。')
+    if (result.get('model') != MODEL_ID or result.get('revision') != REVISION
+            or result.get('route') != 'open_weight_local'):
+        raise ValueError('このNotebookの固定モデルで生成した結果だけを保存してください。')
+    if (result.get('status') not in {'completed', 'output_limit'}
+            or not isinstance(result.get('response_raw'), str) or not result['response_raw'].strip()):
+        raise ValueError('保存する生成結果がありません。終了状態と生回答を確認してください。')
     allowed = {'student_explanation', 'evidence_location', 'unresolved_point'}
     if (not isinstance(annotations, dict) or set(annotations) - allowed
             or any(v is not None and not isinstance(v, str) for v in annotations.values())):
