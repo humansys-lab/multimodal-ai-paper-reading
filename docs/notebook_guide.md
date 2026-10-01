@@ -57,7 +57,7 @@ Homeworkは01末尾の任意の切替セルを使います。以前の記録を�
 
 ## 03：中の計算を観察する
 
-1. `INSTALL=True`でモデル用依存を一度導入。`DEVICE='cuda'`はColab、`'mps'`はMac。初回取得は`ALLOW_DOWNLOAD=True`。`LOAD_MODEL=True`で読み込む。機種が使えなければ停止する。
+1. `INSTALL=True`でモデル用依存を一度導入。`DEVICE='cuda'`はColab、`'mps'`はMac。初回取得は`ALLOW_DOWNLOAD=True`。`LOAD_MODEL=True`で、確認済みのライブラリ版を検査してから読み込む。機種や版が合わなければ停止する。
 2. `OBSERVE=True`で、トークン→埋込み→softmaxによる次の候補確率を順に見る。計算コードは各セルにある。
 3. `PROMPT`へ自分の問いを書き、`PREVIEW=True`で会話テンプレートを確認。`RUN=True`で生成する。問いを変えたら再プレビューする。
 4. 本人の説明を`annotations`に記入し、`SAVE=True`で生回答と一緒にJSONへ保存する。保存OFFでは書き換わらず、同じ実行のファイルは上書きしない。
@@ -79,6 +79,7 @@ Homeworkは01末尾の任意の切替セルを使います。以前の記録を�
 | なぜ費用が「不明」？ | 応答だけでは請求額を確認できない。0 USDと断定しない |
 | 確率が高いなら正解？ | 表示は次トークンの予測確率。事実が正しい確率ではない |
 | 03の答えが間違う | 実行成功と正答を分ける。原文・図・他の根拠で確認し、生回答を直さず自分の説明を別欄に書く |
+| 03でライブラリの版のエラー | `INSTALL=True`で導入する。導入前の版がメモリに残る場合は、記録をダウンロードしてからランタイムを再起動し、冒頭から準備する。使用した版は生成結果にも保存する |
 | 共通コードは何をする？ | `client.py`は検証とAPI送信・履歴、`inputs.py`は添付の準備、`records.py`は保存。SDKの実呼出しは`OpenAITransport.send()`の`responses.create()`。自動再送・別モデルへの切替なし |
 
 質問方法の考え方と原著論文は[講義の参考文献](lecture_references.md)、今回の確認範囲は[Notebook検証記録](verification.md)を参照してください。

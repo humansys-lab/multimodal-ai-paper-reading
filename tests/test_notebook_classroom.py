@@ -102,6 +102,33 @@ def test_local_prompt_preview_explains_missing_model():
         exec(code_cell('03_open_weight_lab.ipynb', 'PREVIEW =').replace('PREVIEW = False', 'PREVIEW = True'), {})
 
 
+@pytest.mark.parametrize('case', ['missing', 'different_version', 'old_module_in_memory'])
+def test_model_load_rejects_unverified_dependencies_before_loading(monkeypatch, case):
+    """INSTALL忘れと、pip更新後に旧版がメモリへ残る状況を、重みの取得前に止める。"""
+    import importlib.metadata
+    import sys
+    import seminar_lab.open_weight as local
+
+    def installed_version(name):
+        if case == 'missing':
+            raise importlib.metadata.PackageNotFoundError(name)
+        if case == 'different_version' and name == 'torch':
+            return '2.9.0'
+        return {'torch': '2.8.0', 'transformers': '4.57.6'}[name]
+
+    monkeypatch.setattr(importlib.metadata, 'version', installed_version)
+    monkeypatch.setattr(local, 'load_model', lambda *a, **kw: pytest.fail('未検証の依存ではモデルを取得・読込みしない'))
+    if case == 'old_module_in_memory':
+        monkeypatch.setitem(sys.modules, 'torch', SimpleNamespace(__version__='2.7.0'))
+        monkeypatch.setitem(sys.modules, 'transformers', SimpleNamespace(__version__='4.57.6'))
+    source = code_cell('03_open_weight_lab.ipynb', 'LOAD_MODEL =').replace('LOAD_MODEL = False', 'LOAD_MODEL = True')
+    ns = {'model': 'previous', 'tokenizer': 'previous'}
+    expected = 'INSTALL' if case != 'old_module_in_memory' else '再起動'
+    with pytest.raises(ValueError, match=expected):
+        exec(source, ns)
+    assert ns['model'] is None and ns['tokenizer'] is None
+
+
 def test_homework_blank_form_never_replaces_common_state(adopted):
     ns = dict(course=adopted[0], manifest=adopted[1], material_context=material_context, activity_id='P2a', run_id='keep')
     with pytest.raises(ValueError, match='素材を明示'):
