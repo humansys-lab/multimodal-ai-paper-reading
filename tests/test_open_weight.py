@@ -41,3 +41,27 @@ def test_output_limit_and_eos_remain_distinct():
     from seminar_lab.open_weight import _generation_status
     assert _generation_status([1, 9], '回答', [9], 3) == 'completed'
     assert _generation_status([1, 2, 3], '途中の回答', [9], 3) == 'output_limit'
+
+
+def test_loading_uses_local_snapshot_for_tokenizer_and_weights(monkeypatch, tmp_path):
+    """依存側がモデル名からネット照会しないよう、必ず解決済みパスを渡す。"""
+    import sys
+    from types import SimpleNamespace
+    from seminar_lab.open_weight import REVISION
+    calls = []
+    snapshot = str(tmp_path / 'fixed-snapshot')
+    def resolve(model, **kwargs):
+        assert kwargs['revision'] == REVISION and kwargs['local_files_only'] is True
+        return snapshot
+    model = SimpleNamespace(to=lambda device: SimpleNamespace(eval=lambda: 'loaded'))
+    def pretrained(path, **kwargs):
+        calls.append(path)
+        assert path == snapshot and kwargs['local_files_only'] is True
+        return model
+    monkeypatch.delenv('PYTORCH_ENABLE_MPS_FALLBACK', raising=False)
+    monkeypatch.setitem(sys.modules, 'torch', SimpleNamespace(float32='float32'))
+    monkeypatch.setitem(sys.modules, 'transformers', SimpleNamespace(
+        AutoTokenizer=SimpleNamespace(from_pretrained=pretrained), AutoModelForCausalLM=SimpleNamespace(from_pretrained=pretrained)))
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(snapshot_download=resolve))
+    load_model('cpu', allow_download=False)
+    assert calls == [snapshot, snapshot]

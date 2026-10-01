@@ -5,16 +5,17 @@ from dataclasses import dataclass
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from PIL import Image, UnidentifiedImageError
-from pypdf import PdfReader, PdfWriter
-from pypdf.errors import PdfReadError
+if TYPE_CHECKING:
+    from pypdf import PdfReader
+
 from .config import ValidationError
 
 
 def _image_metadata(data: bytes) -> tuple[str, tuple[int, int]]:
     """画像の本体まで検査する。JPEGのverifyだけでは欠損を検出できない。"""
+    from PIL import Image, UnidentifiedImageError
     if len(data) > 10_000_000:
         raise ValidationError("演習用の画像上限10MBを超えています。明示的に入力を見直してください。")
     try:
@@ -32,6 +33,8 @@ def _image_metadata(data: bytes) -> tuple[str, tuple[int, int]]:
 
 def _pdf_reader(data: bytes) -> PdfReader:
     """送るPDFを構造・暗号化・ページまで確認し、暗黙に補修しない。"""
+    from pypdf import PdfReader
+    from pypdf.errors import PdfReadError
     if len(data) > 20_000_000:
         raise ValidationError("演習用のPDF上限20MBを超えています。")
     try:
@@ -111,6 +114,7 @@ def image_input(path: str | Path, source_location: str, crop_description: str | 
 
 def pdf_input(path: str | Path, pages: list[int], page_labels: dict[int, str] | None = None) -> PreparedInput:
     """選んだ物理ページをPDFとして抽出する。OCR・画像化・本文のみへの変換はしない。"""
+    from pypdf import PdfWriter
     data = Path(path).read_bytes()
     reader = _pdf_reader(data)
     if not pages or any(type(p) is not int or not 1 <= p <= len(reader.pages) for p in pages) or pages != sorted(set(pages)):
@@ -127,3 +131,24 @@ def pdf_input(path: str | Path, pages: list[int], page_labels: dict[int, str] | 
                           "input_scope": {"pdf_pages": pages}, "page_mapping": [
                               {"sent_page": i + 1, "source_pdf_page": p, "printed_label": (page_labels or {}).get(p)} for i, p in enumerate(pages)],
                           "transformation": "selected_pages_as_pdf", "byte_count": len(selected)})
+
+
+def resized_image_input(path: str | Path, source_location: str, width: int) -> PreparedInput:
+    """明示した幅へ縮小したPNGを準備。元画像・送信画像・画素数を記録する。"""
+    from PIL import Image
+    original = image_input(path, source_location)
+    old_width, old_height = original.provenance['pixels']
+    if type(width) is not int or not 1 <= width < old_width:
+        raise ValidationError('縮小後の幅は元画像より小さい正の整数を指定してください。')
+    height = max(1, round(old_height * width / old_width))
+    original_bytes = base64.b64decode(original.content['image_url'].split(',', 1)[1])
+    with Image.open(BytesIO(original_bytes)) as image:
+        buffer = BytesIO()
+        image.resize((width, height), Image.Resampling.LANCZOS).save(buffer, format='PNG')
+    data = buffer.getvalue()
+    result = PreparedInput('image', {'type': 'input_image', 'image_url': 'data:image/png;base64,' + base64.b64encode(data).decode()},
+        {**original.provenance, 'source_file_hash': original.provenance['file_hash'],
+         'file_hash': sha256(data).hexdigest(), 'original_pixels': [old_width, old_height],
+         'pixels': [width, height], 'byte_count': len(data), 'transformation': 'explicit_resize_lanczos_png'})
+    result.validate()
+    return result

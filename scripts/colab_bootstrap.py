@@ -67,3 +67,17 @@ def unpack_course(archive: bytes, destination: Path, commit: str) -> None:
             target.parent.mkdir(parents=True, exist_ok=True)
             with target.open('xb') as handle:
                 handle.write(bundle.read(entry))
+
+
+def prepare_notebook(commit: str, expected_sha256: str, install_api: bool = True) -> Path:
+    """Colabで固定教材を取得。学習用セルから取得・導入処理を分離する。"""
+    import subprocess
+    import sys
+    if not Path('/content').is_dir():
+        raise RuntimeError('この取得セルはColab専用です。ローカルではPREPARE_COLAB=Falseにしてください。')
+    root = fetch_course(Path('/content') / ('seminar-' + commit[:12]), commit, expected_sha256)
+    if install_api:
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '--require-hashes',
+                        '--cache-dir', str(root / 'build/pip-cache'),
+                        '-r', str(root / 'requirements-colab.txt')], check=True)
+    return root

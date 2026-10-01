@@ -19,7 +19,7 @@ def code_cell(name: str, marker: str) -> str:
 def test_save_off_reexecution_preserves_student_explanation(name):
     record = {'student_explanation': '学生が記入した説明', 'unresolved_point': 'まだ残る問い'}
     original = record.copy()
-    namespace = {'session': SimpleNamespace(records=[record])}
+    namespace = {'session': SimpleNamespace(records=[record]), 'offline_record': record}
     exec(code_cell(name, 'annotations ='), namespace)
     assert record == original
 

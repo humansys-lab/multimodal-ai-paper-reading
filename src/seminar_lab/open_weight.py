@@ -9,7 +9,7 @@ import os
 
 MODEL_ID = 'Qwen/Qwen3-0.6B'
 REVISION = 'c1899de289a04d12100db370d81485cdf75e47ca'
-MAX_INPUT_TOKENS = 512
+MAX_INPUT_TOKENS = 2048
 MAX_NEW_TOKENS = 128
 
 
@@ -36,15 +36,19 @@ def load_model(device: str, allow_download: bool = False):
         raise ValueError('MPSからCPUへの自動フォールバックを無効にしてください。')
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
+    from huggingface_hub import snapshot_download
     if device == 'cuda' and not torch.cuda.is_available():
         raise RuntimeError('GPUを利用できません。Colabのランタイムを確認してください。')
     if device == 'mps' and not torch.backends.mps.is_available():
         raise RuntimeError('この実行環境ではMac GPUを利用できません。')
-    options = dict(revision=REVISION, local_files_only=not allow_download,
-                   trust_remote_code=False, token=False)
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, **options)
+    # local_files_onlyでもTransformersのモデル名判定が通信する版がある。
+    # 固定snapshotを先に解決し、読込みにはローカルのパスだけを渡す。
+    snapshot = snapshot_download(MODEL_ID, revision=REVISION, local_files_only=not allow_download,
+        token=False, allow_patterns=['*.json', '*.safetensors', 'merges.txt', 'vocab.*', 'tokenizer.model'])
+    options = dict(local_files_only=True, trust_remote_code=False, token=False)
+    tokenizer = AutoTokenizer.from_pretrained(snapshot, **options)
     model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID, **options, use_safetensors=True,
+        snapshot, **options, use_safetensors=True,
         dtype=torch.float32 if device == 'cpu' else torch.float16,
         attn_implementation='eager').to(device).eval()
     return tokenizer, model
@@ -138,3 +142,26 @@ def _generation_status(ids: list[int], response: str, eos_ids: list[int], limit:
     if len(ids) == limit:
         return 'output_limit'
     raise RuntimeError('想定した終了条件に達せず停止しました。モデルの設定を確認してください。')
+
+
+def reading_record(result: dict, context: dict, source_location: str) -> dict:
+    """公開重みの実行をAPIと同じ読解記録へ変換。生の結果と追加項目も保持する。"""
+    from copy import deepcopy
+    from .records import new_record, validate_record
+    if result.get('model') != MODEL_ID or result.get('revision') != REVISION:
+        raise ValueError('記録するモデルと固定版が一致しません。')
+    if result.get('status') not in {'completed', 'output_limit'} or not result.get('response_raw'):
+        raise ValueError('保存する生成結果がありません。')
+    record = new_record(context)
+    record.update(run_id=result['run_id'], timestamp=result['timestamp'],
+        service='Transformers', access_route='open_weight_local', requested_model=MODEL_ID,
+        reported_model=MODEL_ID, conversation_mode='new', prior_turn_count=0,
+        prompt=result['prompt'], input_kind=['text'], input_scope=source_location,
+        request_input=result['visible_template'], visible_system_instructions=[],
+        parameters_requested=deepcopy(result['parameters']), parameters_confirmed=deepcopy(result['parameters']),
+        response_raw=result['response_raw'], status=result['status'], elapsed_seconds=result['elapsed_seconds'],
+        usage={'input_tokens': result['input_tokens'], 'output_tokens': result['output_tokens']},
+        cost_kind='not_applicable', cost_value=None, open_weight_result=deepcopy(result))
+    record['cost_note'] = '外部API呼出しなし。計算機・Colabの利用料金を推定していない。'
+    validate_record(record)
+    return record
