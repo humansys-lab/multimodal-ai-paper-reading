@@ -13,17 +13,17 @@
 
 | Notebook | 固定版へのリンク |
 |---|---|
-| 00 接続と記録の準備 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/6663163a6b56b14e9febae46b9b8a0cfd0516cce/notebooks/00_setup.ipynb) |
-| 01 質問と対話 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/6663163a6b56b14e9febae46b9b8a0cfd0516cce/notebooks/01_dialogue_lab.ipynb) |
-| 02 画像・PDFの入力 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/6663163a6b56b14e9febae46b9b8a0cfd0516cce/notebooks/02_document_lab.ipynb) |
-| 03 公開重みモデルの観察 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/6663163a6b56b14e9febae46b9b8a0cfd0516cce/notebooks/03_open_weight_lab.ipynb) |
+| 00 準備とAIなしの記録 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/8c6cc3a118e7616b01b504e56642253271ab5202/notebooks/00_setup.ipynb) |
+| 01 質問と対話 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/8c6cc3a118e7616b01b504e56642253271ab5202/notebooks/01_dialogue_lab.ipynb) |
+| 02 画像・PDFの入力 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/8c6cc3a118e7616b01b504e56642253271ab5202/notebooks/02_document_lab.ipynb) |
+| 03 公開重みモデルの観察 | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/8c6cc3a118e7616b01b504e56642253271ab5202/notebooks/03_open_weight_lab.ipynb) |
 
 1. 00〜02はCPUで開きます。03だけは「ランタイムのタイプを変更」でT4 GPUを選びます。
 2. 冒頭セルの `PREPARE_COLAB` をTrueにして実行します。ハッシュを検査して固定版の教材と依存関係を取得します。APIは呼びません。
 3. 質問・送信する資料・新規/継続を自分で設定します。API接続情報と利用許可は教員の案内に従います。公開の空設定では送信できません。
-4. 保存セルを実行し、00〜02はJSONLとMarkdown、03はJSONをColabのファイル欄からダウンロードします。再起動するとランタイム内のファイルは失われます。
+4. 保存セルを実行し、00〜02はJSONLとMarkdown、03は生のJSON（読解記録を作る場合はJSONL/Markdownも）をColabのファイル欄からダウンロードします。再起動するとランタイム内のファイルは失われます。
 
-Notebookと教材コードは検査したコミットに固定しています。mainの更新を自動では追いません。実際のColab/T4での起動はログイン待ちで未検証です。ローカルの新規環境では、同じ依存の取得と4冊の既定セルを確認しています。
+Notebookと教材コードは検査したコミットに固定しています。mainの更新を自動では追いません。実際のColab/T4での起動はログイン待ちで未検証です。今回GitHubから再取得した版を、ローカルの準備済み環境で検査しています。
 
 
 ## 実行状態
@@ -50,4 +50,4 @@ uv run python scripts/check_public_release.py
 
 ## 2報版への改訂
 
-[演習カード](activities/day1.md)、[Methods](materials/papers/paper2agent_methods.md)、[別論文への応用](materials/papers/ai_scientist.md)、[説明と原著論文の対応](docs/lecture_references.md)。新しい範囲・設問は教員確認前。現在の固定Colabリンクは旧Notebookです。Notebookの改訂と固定版取得は次の変更で更新します。
+[演習カード](activities/day1.md)、[Methods](materials/papers/paper2agent_methods.md)、[別論文への応用](materials/papers/ai_scientist.md)、[説明と原著論文の対応](docs/lecture_references.md)。新しい範囲・設問は教員確認前。固定Colabリンクは2報版へ更新済みです。
