@@ -54,15 +54,19 @@ class LivePermission:
     used: int = 0
     _lock: Any = field(default_factory=Lock, repr=False, compare=False)
 
-    def consume(self, runtime: dict) -> None:
-        """送信回数を先に予約する。失敗時も戻さない。金額制限はサーバ側で別途確認。"""
+    def validate(self, runtime: dict) -> None:
+        """通信・回数の消費なしで許可対象と残り枠を確認する。"""
         if not all(isinstance(v, str) and v.strip() for v in (self.approved_by, self.scope, self.authentication_route)) or self.route != runtime["route"] or self.model != runtime["model"]:
             raise ValidationError("明示的な許可の対象・認証経路が一致しません。")
+        if (type(self.usd_limit) not in (int, float) or not isfinite(self.usd_limit) or self.usd_limit <= 0
+                or type(self.request_limit) is not int or self.request_limit < 1
+                or type(self.used) is not int or not 0 <= self.used < self.request_limit):
+            raise ValidationError("許可された呼出し枠がありません。")
+
+    def consume(self, runtime: dict) -> None:
+        """送信回数を先に予約する。失敗時も戻さない。金額制限はサーバ側で別途確認。"""
         with self._lock:
-            if (type(self.usd_limit) not in (int, float) or not isfinite(self.usd_limit) or self.usd_limit <= 0
-                    or type(self.request_limit) is not int or self.request_limit < 1
-                    or type(self.used) is not int or not 0 <= self.used < self.request_limit):
-                raise ValidationError("許可された呼出し枠がありません。")
+            self.validate(runtime)
             self.used += 1
 
 

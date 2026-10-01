@@ -1,53 +1,85 @@
 # Notebookの操作：準備・質問・確認・保存
 
-説明文の下にPythonの実行欄（セル）が並びます。上から順に実行します。`True`は実行、`False`は実行しない指定です。質問は自分で書き、資料・履歴を送信前に確認します。
+説明文の下にPythonの実行欄（セル）が並びます。セル左側の実行ボタンで、上から順に進めます。`True`は実行、`False`は実行しない指定です。配布時は質問が空欄で、送信・モデル取得はOFFです。
 
-| Notebook | 使う場面 | 必要なライブラリ |
+## どれを使うか
+
+| Notebook | 使う場面 | 追加する直接の依存 |
 |---|---|---|
-| 00 準備と記録 | 朝のAIなしの説明を保存 | 設定と保存の補助。API送信なし |
-| 01 対話 | 質問・例示・根拠の比較、再読、Methods、別論文 | OpenAI SDKと設定・記録の補助 |
-| 02 画像・PDF | 元画像と縮小画像の比較、明示したPDFページ | 画像を使うセルでPillow、PDFを使うセルでpypdf |
-| 03 公開重みモデル | パラメータ数、トークン、埋込み、確率、短い生成 | PyTorchとTransformers。accelerateや量子化ライブラリは使わない |
+| [00 準備と記録](../notebooks/00_setup.ipynb) | AIなしの説明を保存 | PyYAMLだけ（講義設定を読む） |
+| [01 対話](../notebooks/01_dialogue_lab.ipynb) | 質問方法の比較・再読・Methods・別論文 | PyYAML、OpenAI SDK |
+| [02 画像・PDF](../notebooks/02_document_lab.ipynb) | 元画像と縮小画像の比較、選択ページのPDF | 01にPillow、pypdfを追加 |
+| [03 小型モデルの観察](../notebooks/03_open_weight_lab.ipynb) | トークン→数値→候補確率→生成 | PyYAML、PyTorch、Transformers |
 
-## 最初の準備
+SDK等が内部で使う依存は一緒に入ります。例えば01の新規Mac環境には計17パッケージが入りました。Pillow・pypdf・PyTorch・Transformersは01には入りません。03にはaccelerate・量子化・エージェントのライブラリを追加していません。
 
-Colabは[README](../README.md#colabで開く)の固定版を開き、`PREPARE_COLAB=True`で取得します。準備コードと教材ZIPはハッシュを照合します。Macでは教材フォルダの仮想環境を使い、Falseのまま実行します。公開準備が未完了の版は、Colab取得をエラーで止めます。
+## 最初の準備（各Notebookで1回）
 
-00〜02はCPU。03はColab T4を指定します。Colab実機の動作・10名のGPU割当ては未確認です。
+1. [READMEのColabリンク](../README.md#colabで開く)から固定版を開く。00〜02はCPU、03はT4 GPUを指定する。
+2. 冒頭の`PREPARE_COLAB=True`で、固定版の教材とそのNotebookに必要な依存を取得する。質問や論文は送信されない。準備コードとZIPのハッシュが違う場合は停止する。
+3. 01・02は教員の設定ファイルをFiles欄へ置き、`runtime_path`へパスを入力。「送信許可」セルも教員の案内どおりに一度設定する。キーは送信時の専用入力欄へ入れる。
+
+Macの取得済み教材では`PREPARE_COLAB=False`を維持し、教材用のPython環境を使います。Colab T4実機・10名のGPU割当て・講義用中継の動作は未確認です。公開の空設定は送信を拒否します。
 
 ## 00：AIを使わない記録
 
 共通の論文・版・範囲・3問を確認し、`annotations`へ自分の説明・根拠・不明点を記入します。`None`は前の記入を保持。`SAVE=True`でJSONLとMarkdownを保存します。APIは呼びません。
 
-## 01・02：明示した条件で1回送る
+## 01・02：毎回の操作は5段階
 
-1. 教員が配布する検証済み`runtime_path`と活動を指定。質問は`question`へ記入。
-2. 01は`source_excerpt`と元位置。02は`PREPARE_IMAGE=True`で画像表示、必要なときだけ`RESIZE=True`で指定幅へ縮小。PDFは別セルの`PREPARE_PDF=True`と物理ページ番号を使う。
-3. プレビューで送信する質問・全履歴・入力の由来を確認。比較時は`conversation_mode='new'`にする。
-4. 教員が案内した送信許可を設定し、`SEND=True`で1回送信。キーは専用入力欄に入れる。公開の空設定では停止する。
-5. `annotations`へ本人の説明・根拠・修正を書く。`SAVE=True`で保存。次の質問は`START_NEXT_RUN=True`で新しい番号を作る。
+**質問と入力 → プレビュー → 送信 → 自分の説明・保存 → 次の実行番号**
 
-モデルを比べる場合は、モデルごとの検証済み設定ファイルを明示して新規会話にします。失敗しても別モデルに自動変更しません。同じ実行番号を再送できません。
+1. `question`へ自分の問いを書く。`conversation_mode='new'`は履歴なし、`'continue'`は成功した全対話を送る。比較は`new`にする。
+2. 01は`source_excerpt`へ原文、`source_location`へページ・節・図を書く。抜粋なしの比較では原文を空にする。02は下表の入力方式を1つ選んで準備する。
+3. プレビューで質問・全履歴・入力の由来を確認する。条件を変えたら再度プレビューする。
+4. `SEND=True`で1回送信。回答・状態を確認し、`annotations`へ本人の説明と根拠を書く。`SAVE=True`で保存する。
+5. 次の試行は末尾の`START_NEXT_RUN=True`で番号を新しくし、質問欄へ戻る。接続準備からやり直す必要はない。同じ番号の再送は拒否される。
 
-### 教員が案内する送信許可の書式
+### 02の入力方式
 
-実際の承認者・対象・認証経路・回数・上限を教員が埋めて案内します。空欄や対象不一致のままでは送信できません。金額停止はサーバで別に検証する必要があります。
+ファイルをColabのFiles欄にアップロードし、パスを`local_path`へ入れます。`PREPARE_INPUT=True`で準備します。
 
-```python
-permission = LivePermission(
-    approved_by='', scope='', route=runtime['route'], model=runtime['model'],
-    authentication_route='', usd_limit=0, request_limit=0,
-)
-```
+| `input_kind` | 記入する欄 | 確認すること |
+|---|---|---|
+| `image` | `local_path`, `source_location` | 表示された元画像と画素数 |
+| `resized_image` | 上記と`width` | 指定幅に縮小された送信画像・元の画素数 |
+| `pdf`（発展） | `local_path`, `pdf_pages` | 送信ページと原本の物理ページの対応。1始まり |
+
+準備が失敗したら以前の入力を消して停止します。元画像の結果を保存してから、次の番号・新規会話で縮小画像に切り替えます。PDFが読めない場合も別形式へ自動変更しません。
+
+### 活動を切り替えるとき
+
+接続設定セルの`activity_id`を変え、保存後に新しい番号を作り、`new`で始めます。`L2`＝質問方法の比較、`P2a`＝再読、`METHODS`＝Methods、`TRANSFER`＝The AI Scientist、`V1`＝元画像、`V2`＝縮小画像です。画面に論文・版・範囲を表示します。共通読解に論文選択欄はありません。
+
+Homeworkは01末尾の任意の切替セルを使います。以前の記録を保持し、新規会話・別段階として保存します。素材の出典・対象誌・入力条件の確認が必要です。
 
 ## 03：中の計算を観察する
 
-`INSTALL=True`は依存取得時だけ。`DEVICE='cuda'`はColab、`'mps'`はMac。初回取得だけ`ALLOW_DOWNLOAD=True`。`LOAD_MODEL=True`で読みます。GPUが使えない場合は停止します。
+1. `INSTALL=True`でモデル用依存を一度導入。`DEVICE='cuda'`はColab、`'mps'`はMac。初回取得は`ALLOW_DOWNLOAD=True`。`LOAD_MODEL=True`で読み込む。機種が使えなければ停止する。
+2. `OBSERVE=True`で、トークン→埋込み→softmaxによる次の候補確率を順に見る。計算コードは各セルにある。
+3. `PROMPT`へ自分の問いを書き、`PREVIEW=True`で会話テンプレートを確認。`RUN=True`で生成する。問いを変えたら再プレビューする。
+4. 本人の説明を`annotations`に記入し、`SAVE=True`で生回答と一緒にJSONへ保存する。保存OFFでは書き換わらず、同じ実行のファイルは上書きしない。
 
-`OBSERVE=True`で、実パラメータ数→トークン→埋込み→softmaxによる次トークン確率の順に見ます。`PROMPT`を記入し`PREVIEW=True`でテンプレートを確認。`RUN=True`で生成します。出力が`output_limit`なら未完了です。
+`output_limit`は出力上限で止まった途中の回答です。入力は2,048、出力は128トークン以下。失敗時に以前の回答を今回の結果として保存できません。
 
-`SAVE=True`は生結果のJSON保存。論文比較は`SAVE_READING=True`でJSONL/Markdownも保存できます。MethodsとThe AI Scientistは、朝と再読の記録から分離されます。入力上限2,048、出力上限128トークン。長い論文全体は送らず、必要な段落を明示的に選びます。
+論文の読解記録も必要なら、**生成前に**`activity_id`を指定します。末尾の`SAVE_READING=True`でJSONLとMarkdownへ保存します。生成時の活動・資料・入力位置を保存し、後から違う活動へ付け替えません。観察だけなら`activity_id=None`で構いません。
+
+## 教員・TA向け：よくある質問
+
+| 質問 | 短い説明／確認先 |
+|---|---|
+| プロンプトはどこ？ | 01・02は`question`、03は`PROMPT`。01の抜粋と02の添付も入力。隠れた完成プロンプトは足さない |
+| `new`で記録も消える？ | 会話に送る履歴を外す。保存用の過去の記録は保持する |
+| もう一度送れない | 二重課金を避けるため同じ番号は拒否。保存後に「次の実行番号」。タイムアウト時は課金が不明なので先に教員へ相談 |
+| ファイルを置いたのに見つからない | ColabのFiles欄でパスをコピー。自分のPCのパスはColabでは使えない |
+| 許可・設定エラーが出る | 配布設定のパス、活動、モデル、送信許可を確認。公開見本は空。設定確認前にキーを貼らない |
+| なぜ費用が「不明」？ | 応答だけでは請求額を確認できない。0 USDと断定しない |
+| 確率が高いなら正解？ | 表示は次トークンの予測確率。事実が正しい確率ではない |
+| 03の答えが間違う | 実行成功と正答を分ける。原文・図・他の根拠で確認し、生回答を直さず自分の説明を別欄に書く |
+| 共通コードは何をする？ | `client.py`は検証とAPI送信・履歴、`inputs.py`は添付の準備、`records.py`は保存。SDKの実呼出しは`OpenAITransport.send()`の`responses.create()`。自動再送・別モデルへの切替なし |
+
+質問方法の考え方と原著論文は[講義の参考文献](lecture_references.md)、今回の確認範囲は[Notebook検証記録](notebook_verification.md)を参照してください。
 
 ## 閉じる前に
 
-ColabのFiles欄から、教材フォルダ内の`outputs/`の保存ファイルをダウンロードします。再起動で消える場合があります。個人の記録・キー・接続情報を公開共有しません。課題の提出は指定SlackへのPDFです。
+Files欄から教材フォルダ内の`outputs/`の保存ファイルをダウンロードします。Colabの再起動で消える場合があります。キー・接続情報・個人記録を公開共有しません。課題提出は指定SlackへのPDFです。

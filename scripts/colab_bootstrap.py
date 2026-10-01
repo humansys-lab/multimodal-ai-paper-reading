@@ -69,15 +69,19 @@ def unpack_course(archive: bytes, destination: Path, commit: str) -> None:
                 handle.write(bundle.read(entry))
 
 
-def prepare_notebook(commit: str, expected_sha256: str, install_api: bool = True) -> Path:
+def prepare_notebook(commit: str, expected_sha256: str, profile: str = 'documents') -> Path:
     """Colabで固定教材を取得。学習用セルから取得・導入処理を分離する。"""
     import subprocess
     import sys
+    requirements = {'records': 'requirements-records.txt',
+                    'dialogue': 'requirements-dialogue.txt',
+                    'documents': 'requirements-colab.txt'}
+    if profile not in requirements:
+        raise ValueError('導入する用途をrecords / dialogue / documentsから指定してください。')
     if not Path('/content').is_dir():
         raise RuntimeError('この取得セルはColab専用です。ローカルではPREPARE_COLAB=Falseにしてください。')
     root = fetch_course(Path('/content') / ('seminar-' + commit[:12]), commit, expected_sha256)
-    if install_api:
-        subprocess.run([sys.executable, '-m', 'pip', 'install', '--require-hashes',
-                        '--cache-dir', str(root / 'build/pip-cache'),
-                        '-r', str(root / 'requirements-colab.txt')], check=True)
+    subprocess.run([sys.executable, '-m', 'pip', 'install', '--require-hashes',
+                    '--cache-dir', str(root / 'build/pip-cache'),
+                    '-r', str(root / requirements[profile])], check=True)
     return root

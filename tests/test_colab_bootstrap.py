@@ -49,3 +49,21 @@ def test_rejects_symlink(tmp_path):
     link.external_attr = (stat.S_IFLNK | 0o777) << 16
     with pytest.raises(ValueError, match='リンク'):
         bootstrap.unpack_course(archive(link), tmp_path / 'course', COMMIT)
+
+
+@pytest.mark.parametrize('profile,filename', [('records','requirements-records.txt'), ('dialogue','requirements-dialogue.txt'), ('documents','requirements-colab.txt')])
+def test_profile_installs_only_selected_requirements(tmp_path, monkeypatch, profile, filename):
+    import subprocess
+    calls = []
+    original = Path.is_dir
+    monkeypatch.setattr(Path, 'is_dir', lambda p: True if p == Path('/content') else original(p))
+    monkeypatch.setattr(bootstrap, 'fetch_course', lambda *args: tmp_path)
+    monkeypatch.setattr(subprocess, 'run', lambda command, **kwargs: calls.append(command))
+    assert bootstrap.prepare_notebook(COMMIT, 'b'*64, profile) == tmp_path
+    assert calls[0][-1] == str(tmp_path / filename)
+    assert '--require-hashes' in calls[0]
+
+
+def test_unknown_profile_stops_before_download():
+    with pytest.raises(ValueError, match='用途'):
+        bootstrap.prepare_notebook(COMMIT, 'b'*64, 'automatic')

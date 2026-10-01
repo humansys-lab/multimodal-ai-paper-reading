@@ -36,3 +36,12 @@ def test_changed_download_never_executes():
     with patch('urllib.request.urlopen', return_value=BytesIO(b'raise AssertionError("must not execute")')):
         with pytest.raises(RuntimeError, match='ハッシュ'):
             exec(cell, {})
+
+
+def test_minimal_profiles_exclude_unneeded_libraries():
+    def dependencies(filename):
+        return set(re.findall(r'^([a-z][a-z0-9-]*)==', (ROOT / filename).read_text(), re.M))
+    assert dependencies('requirements-records.txt') == {'pyyaml'}
+    dialogue = dependencies('requirements-dialogue.txt')
+    assert {'openai', 'pyyaml'} <= dialogue
+    assert not {'pillow', 'pypdf', 'torch', 'transformers'} & dialogue
