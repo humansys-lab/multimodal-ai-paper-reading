@@ -120,3 +120,59 @@ def test_homework_without_selection_explains_setup_before_preview(runtime):
     ns = dict(question='問い', runtime=runtime, permission=object(), activity_id='HW1')
     with pytest.raises(ValueError, match='Homeworkの論文情報'):
         exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+
+
+def test_repeated_run_is_rejected_before_asking_for_key(adopted, runtime, monkeypatch):
+    from test_client_records import FakeTransport
+    course, manifest = adopted
+    permission = LivePermission('teacher', 'synthetic', runtime['route'], runtime['model'], 'test', 1, 2)
+    session = Session()
+    context = material_context(course, manifest, 'L2')
+    session.run(runtime=runtime, context=context, prompt='問い', inputs=[], mode='new',
+                parameters={'max_output_tokens':100}, run_id='used', transport=FakeTransport())
+    ns = dict(course=course, manifest=manifest, runtime=runtime, activity_id='L2', session=session,
+              question='問い', inputs=[], conversation_mode='new', parameters={'max_output_tokens':100},
+              permission=permission, material_context=material_context,
+              preview_text=preview_text, deepcopy=deepcopy, run_id='used')
+    exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+    monkeypatch.setattr('getpass.getpass', lambda *_: pytest.fail('実行済みならキー入力へ進まない'))
+    with pytest.raises(ValueError, match='実行済み'):
+        exec(code_cell('01_dialogue_lab.ipynb', 'SEND =').replace('SEND = False', 'SEND = True'), ns)
+    assert permission.used == 0 and len(session.records) == 1
+
+
+def test_manual_morning_and_final_explanations_remain_separate(tmp_path):
+    """実際の00セルで朝→午後→朝を操作し、最初の説明と保存ファイルを保持する。"""
+    ns = {'ROOT': ROOT}
+    choose = code_cell('00_setup.ipynb', 'record_stage =')
+    save = code_cell('00_setup.ipynb', 'annotations =').replace('SAVE = False', 'SAVE = True')
+    exec(choose, ns)
+    ns['ROOT'] = tmp_path
+    exec(save.replace("'student_explanation': None", "'student_explanation': '朝の人工記録'"), ns)
+    initial_paths = ns['paths']
+    initial_bytes = [p.read_bytes() for p in initial_paths]
+    morning = deepcopy(ns['offline_record'])
+    ns['ROOT'] = ROOT
+    exec(choose.replace("record_stage = '朝：AIなしで読む'", "record_stage = '午後：説明し直す'"), ns)
+    ns['ROOT'] = tmp_path
+    exec(save.replace("'student_explanation': None", "'student_explanation': '午後の人工記録'"), ns)
+    records = list(ns['manual_records'].values())
+    assert records[0] == morning
+    assert [r['phase'] for r in records] == ['R0', 'R3']
+    assert records[0]['run_id'] != records[1]['run_id']
+    assert all(r['response_raw'] is None and r['service'] == 'none' for r in records)
+    assert all(ns['load_records'](p) == records for p in ns['paths'])
+    assert [p.read_bytes() for p in initial_paths] == initial_bytes
+    ns['ROOT'] = ROOT
+    exec(choose, ns)
+    assert ns['offline_record'] == morning
+
+
+def test_invalid_manual_stage_does_not_replace_morning_record():
+    ns = {'ROOT': ROOT}
+    choose = code_cell('00_setup.ipynb', 'record_stage =')
+    exec(choose, ns)
+    before = deepcopy(ns['manual_records'])
+    with pytest.raises(ValueError, match='記録する段階'):
+        exec(choose.replace("record_stage = '朝：AIなしで読む'", "record_stage = 'unknown'"), ns)
+    assert ns['manual_records'] == before
