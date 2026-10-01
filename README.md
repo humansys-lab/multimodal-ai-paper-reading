@@ -1,6 +1,6 @@
 # マルチモーダルAIの活用方法と限界を知る
 
-京都大学 2026年度 機械システム学セミナーの教材。共通論文Paper2Agentの図1・2を使い、自分の説明とAIの説明を比べ、根拠を確かめます。
+京都大学 2026年度 機械システム学セミナーの教材。Paper2Agentの図1・2とMethodsで読み方を学び、The AI Scientistへ応用します。共通初読・再読は同じPaper2Agentの版・範囲・3問です。
 
 ## 学生向けの入口
 
@@ -47,3 +47,7 @@ uv run python scripts/check_public_release.py
 配布準備は別に `uv run python scripts/check_course.py --mode readiness` で確認します。未検証項目があれば終了コード1です。
 
 [授業の仕様](PLAN.md)は教員の正本から学生向けの節を抜粋しています。原資料、解答付きスライド、内部運用履歴、秘密設定は公開対象外です。[利用条件](LICENSES.md)を確認してください。
+
+## 2報版への改訂
+
+[演習カード](activities/day1.md)、[Methods](materials/papers/paper2agent_methods.md)、[別論文への応用](materials/papers/ai_scientist.md)、[説明と原著論文の対応](docs/lecture_references.md)。新しい範囲・設問は教員確認前。現在の固定Colabリンクは旧Notebookです。Notebookの改訂と固定版取得は次の変更で更新します。

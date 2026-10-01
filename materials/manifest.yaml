@@ -139,7 +139,7 @@ materials:
     - Fig.1 caption (p3)
     - Fig.2 caption (p4)
     text_sections:
-    - 'Overview and MCP components and testing (p2)'
+    - Overview and MCP components and testing (p2)
     - 'AlphaGenome agent: example and benchmark (p3 right column to p5 opening)'
   evidence_status: agent_verified_user_delegated
   evidence_review:
@@ -178,3 +178,73 @@ materials:
     slide_reproduction: unconfirmed
   source_version: null
   assigned_scope: null
+- id: P02
+  role: transfer_paper
+  bibliography:
+    authors:
+    - Chris Lu
+    - Cong Lu
+    - Robert Tjarko Lange
+    - et al.
+    title: Towards end-to-end automation of AI research
+    journal: Nature
+    year: 2026
+    volume: 651
+    pages: 914–919
+  doi: 10.1038/s41586-026-10265-5
+  source_url: https://www.nature.com/articles/s41586-026-10265-5
+  source_version: Nature Version of Record 2026-03-25
+  adoption: adopted
+  adoption_evidence: user_2026-10-01_timetable
+  evidence_status: agent_draft
+  scope_status: proposed
+  assigned_scope:
+    text_sections:
+    - Abstract (PDF p1)
+    - Generating manuscripts (PDF p2)
+    - Human evaluation results (PDF p3–4)
+    - Limitations (PDF p4–5)
+    figures:
+    - Fig.1a
+    - Fig.1b
+    - Fig.1c
+    pdf_pages:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    printed_pages:
+    - 914
+    - 915
+    - 916
+    - 917
+    - 918
+  question_set_id: Q_TRANSFER_3
+  guide: materials/papers/ai_scientist.md
+  file_hash: a75e0d93447f400179136bf18d909df29e0c8ccaeba076a1dfb1beeef0e0e10d
+  open_access: true
+  publication_status: published
+  article_type: research
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+  rights:
+    view: confirmed
+    classroom: unconfirmed
+    ai_input: unconfirmed
+    redistribution: unconfirmed
+    slide_reproduction: unconfirmed
+  pdf_url: https://www.nature.com/articles/s41586-026-10265-5.pdf
+  pdf_page_count: 9
+- id: M01
+  role: methods_case
+  source_ref: P01
+  scope_status: proposed
+  assigned_scope:
+    text_sections:
+    - Methods
+    scope_id: P01_METHODS_DRAFT
+  question_set_id: Q_METHODS_5
+  evidence_status: agent_draft
+  guide: materials/papers/paper2agent_methods.md

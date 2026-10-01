@@ -24,7 +24,9 @@ def test_positive_readiness_uses_only_artificial_fixture(adopted):
 
 def test_delegated_evidence_does_not_approve_rights_or_live_tests(course, manifest):
     errors = check_course(course, manifest, ROOT, "readiness")
-    assert not any("根拠表" in error for error in errors)
+    assert not any("根拠表" in error and any(f'{mid}の' in error for mid in ('P01', 'V01', 'V02')) for error in errors)
+    assert any('P02の根拠表' in error for error in errors)
+    assert any('M01の根拠表' in error for error in errors)
     assert any("AI入力権利" in error for error in errors)
     assert any("not_run" in error for error in errors)
 

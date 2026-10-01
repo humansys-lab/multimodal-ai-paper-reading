@@ -1,7 +1,6 @@
 schema_version: 1
 title: マルチモーダルAIの活用方法と限界を知る
-version: 0.2.0-draft
-# 学生向け文章・コードのGitHub公開は許可済み。原図・解答付きPPTX・教材ライセンスは別管理。
+version: 0.3.0-draft
 publication: student_text_and_code_approved
 public_repository: https://github.com/humansys-lab/multimodal-ai-paper-reading
 participants:
@@ -11,7 +10,6 @@ participants:
 staffing:
   ta_count_status: confirmed
   ta_count: 1
-# 学生向け運用方針。実キーやサーバ設定・実測の完了を表すものではない。
 course_api_policy:
   status: confirmed
   available_until_date: '2026-11-14'
@@ -21,7 +19,6 @@ course_api_policy:
   budget_period: whole_course
   budget_secured: instructor_confirmed
   total_usage_limit: instructor_confirmed_fixed
-  # 全体上限の実値は非公開運営設定で確認する。
   recurring_budget_reset: false
   credential_upload_allowed: false
   student_guide: docs/api_usage.md
@@ -51,6 +48,16 @@ question_sets:
   - この研究の主要な主張は何か。
   - それを支える根拠は何か。指定した本文・図と対応付けて説明する。
   - まだ理解できていない点、追加で確認したい点は何か。
+  Q_METHODS_5:
+  - ツールを取り出す前に、元のtutorialを実行する目的は何か。
+  - 自動テストは何を照合し、失敗が続いたツールをどう扱うか。
+  - AlphaGenomeの3条件の比較では、使える道具・情報がどう違うか。
+  - 自由記述の回答は、誰がどのような基準で評価したか。
+  - 論文の範囲外の質問を、どのように作り、何を評価したか。
+  Q_TRANSFER_3:
+  - 研究のどの工程を自動化し、人がどこに関与しているか。
+  - 図1の処理の流れと評価結果を区別して説明できるか。
+  - 今回の評価で示されたことと、まだ保証されていないことは何か。
 activities:
   P0:
     day: 1
@@ -63,32 +70,30 @@ activities:
   P1:
     day: 1
     kind: exercise
-    duration_minutes: 15
+    duration_minutes: 10
     segments_minutes:
-    - 5
-    - 5
-    - 5
+    - 7
+    - 3
     material_choice: false
     phase: R1
     reading_ref: common_reading
   L1:
     day: 1
     kind: exercise
-    duration_minutes: 15
+    duration_minutes: 12
     segments_minutes:
-    - 5
-    - 5
-    - 5
+    - 8
+    - 4
     material_choice: false
     phase: null
     reading_ref: common_reading
   L2:
     day: 1
     kind: exercise
-    duration_minutes: 15
+    duration_minutes: 20
     segments_minutes:
-    - 5
-    - 5
+    - 8
+    - 7
     - 5
     material_choice: false
     phase: null
@@ -96,11 +101,10 @@ activities:
   V1:
     day: 1
     kind: exercise
-    duration_minutes: 15
+    duration_minutes: 10
     segments_minutes:
-    - 5
-    - 5
-    - 5
+    - 7
+    - 3
     material_choice: false
     phase: null
     material_id: V01
@@ -116,7 +120,7 @@ activities:
     phase: null
     material_id: V02
   V3:
-    day: 1
+    day: null
     kind: exercise
     duration_minutes: 15
     segments_minutes:
@@ -126,8 +130,9 @@ activities:
     material_choice: false
     phase: null
     material_id: V01
+    legacy_optional: true
   V4:
-    day: 1
+    day: null
     kind: exercise
     duration_minutes: 15
     segments_minutes:
@@ -137,19 +142,20 @@ activities:
     material_choice: false
     phase: null
     material_id: V02
+    legacy_optional: true
   P2a:
     day: 1
     kind: exercise
-    duration_minutes: 15
+    duration_minutes: 30
     segments_minutes:
-    - 5
-    - 5
+    - 10
+    - 15
     - 5
     material_choice: false
     phase: R2
     reading_ref: common_reading
   P2b:
-    day: 1
+    day: null
     kind: exercise
     duration_minutes: 15
     segments_minutes:
@@ -159,6 +165,7 @@ activities:
     material_choice: false
     phase: R3
     reading_ref: common_reading
+    legacy_optional: true
   P3:
     day: 1
     kind: peer_explanation
@@ -226,6 +233,25 @@ activities:
     material_choice: false
     phase: homework
     reading_ref: common_reading
+  TRANSFER:
+    day: 1
+    kind: exercise
+    duration_minutes: 25
+    segments_minutes:
+    - 15
+    - 5
+    - 5
+    material_choice: false
+    material_id: P02
+    phase: transfer
+  METHODS:
+    day: null
+    kind: practice
+    duration_minutes: null
+    segments_minutes: null
+    material_choice: false
+    material_id: M01
+    phase: null
 days:
 - day: 1
   date: '2026-10-03'
@@ -235,7 +261,7 @@ days:
   blocks:
   - start: '10:00'
     end: '10:15'
-    title: 導入・接続確認
+    title: 導入・自己紹介・接続確認
     kind: teaching
   - start: '10:15'
     end: '11:00'
@@ -254,30 +280,30 @@ days:
     title: 昼休憩
     kind: lunch
   - start: '13:30'
-    end: '14:30'
-    title: Paper2Agentの図をVLMで読む
+    end: '14:00'
+    title: Paper2Agentの本文/図/PNG版を読む
     kind: teaching
-  - start: '14:30'
-    end: '14:40'
-    title: 休憩
-    kind: break
-  - start: '14:40'
-    end: '15:50'
+  - start: '14:00'
+    end: '15:00'
     title: VLM・PDF処理を学ぶ
     kind: teaching
-  - start: '15:50'
-    end: '16:00'
+  - start: '15:00'
+    end: '15:10'
     title: 休憩
     kind: break
-  - start: '16:00'
-    end: '16:30'
+  - start: '15:10'
+    end: '16:00'
     title: 朝の論文を読み直す
     kind: teaching
-  - start: '16:30'
-    end: '16:50'
-    title: 理解した内容を説明し合う
+  - start: '16:00'
+    end: '16:10'
+    title: 休憩
+    kind: break
+  - start: '16:10'
+    end: '17:00'
+    title: 新たな論文（The AI Scientist）を用いた演習
     kind: teaching
-  - start: '16:50'
+  - start: '17:00'
     end: '17:20'
     title: 全体の振り返り
     kind: teaching
@@ -289,7 +315,6 @@ days:
     end: '18:00'
     title: 相談・予備枠
     kind: consultation
-    attendance: optional
   timeline:
   - start: '10:00'
     end: '10:15'
@@ -298,72 +323,66 @@ days:
     end: '10:25'
     activity_id: P0
   - start: '10:25'
-    end: '10:40'
+    end: '10:35'
     activity_id: P1
-  - start: '10:40'
+  - start: '10:35'
     end: '11:00'
     activity_id: null
   - start: '11:00'
     end: '11:10'
     activity_id: null
   - start: '11:10'
-    end: '11:30'
-    activity_id: null
-  - start: '11:30'
     end: '11:45'
-    activity_id: L1
-  - start: '11:45'
-    end: '12:05'
     activity_id: null
-  - start: '12:05'
-    end: '12:20'
+  - start: '11:45'
+    end: '11:57'
+    activity_id: L1
+  - start: '11:57'
+    end: '12:17'
     activity_id: L2
-  - start: '12:20'
+  - start: '12:17'
     end: '12:30'
     activity_id: null
   - start: '12:30'
     end: '13:30'
     activity_id: null
   - start: '13:30'
-    end: '13:45'
+    end: '13:40'
     activity_id: V1
-  - start: '13:45'
+  - start: '13:40'
     end: '14:00'
     activity_id: null
   - start: '14:00'
-    end: '14:15'
+    end: '14:20'
+    activity_id: null
+  - start: '14:20'
+    end: '14:35'
     activity_id: V2
-  - start: '14:15'
-    end: '14:30'
-    activity_id: null
-  - start: '14:30'
-    end: '14:40'
-    activity_id: null
-  - start: '14:40'
+  - start: '14:35'
     end: '15:00'
     activity_id: null
   - start: '15:00'
-    end: '15:15'
-    activity_id: V3
-  - start: '15:15'
-    end: '15:35'
+    end: '15:10'
     activity_id: null
-  - start: '15:35'
-    end: '15:50'
-    activity_id: V4
-  - start: '15:50'
-    end: '16:00'
-    activity_id: null
-  - start: '16:00'
-    end: '16:15'
+  - start: '15:10'
+    end: '15:40'
     activity_id: P2a
-  - start: '16:15'
-    end: '16:30'
-    activity_id: P2b
-  - start: '16:30'
-    end: '16:50'
+  - start: '15:40'
+    end: '16:00'
     activity_id: P3
-  - start: '16:50'
+  - start: '16:00'
+    end: '16:10'
+    activity_id: null
+  - start: '16:10'
+    end: '16:15'
+    activity_id: null
+  - start: '16:15'
+    end: '16:40'
+    activity_id: TRANSFER
+  - start: '16:40'
+    end: '17:00'
+    activity_id: null
+  - start: '17:00'
     end: '17:20'
     activity_id: null
   - start: '17:20'
@@ -512,20 +531,21 @@ readiness:
   proxy_budget_db_stop: not_run
   concurrent_access: not_run
   latency_and_cost: not_run
-  # v14: PDFとPowerPointスライドショーの全54ページをエージェントが確認。教員試読は別項目。
-  pptx_visual_and_powerpoint: pass
+  pptx_visual_and_powerpoint: not_run
   hw2_requirement_decided: pass
   report_requirements_decided: pass
-  # 提出方法・形式の設計決定。Slackへの実アップロード試験とは区別する。
   submission_details_decided: pass
   consultation_attendance_decided: pass
-  # 利用期限の設計決定。実キーの期限設定・停止試験とは区別する。
   key_expiry_decided: pass
   common_scope_decided: pass
   figure_learning_scope_decided: pass
   homework_journals_decided: pass
+  common_question_format_decided: not_run
+  methods_required_count_decided: not_run
+  homework_second_paper_decided: not_run
+  colab_t4: not_run
+  second_api_model: not_run
 day1_source_paper_id: P01
-# 論文選定条件はHW1に適用する。HW2は下の独立した課題設定を参照。
 homework_policy:
   status: confirmed
   common_doi: 10.1038/s41586-026-11044-y
@@ -586,4 +606,6 @@ submission_policy:
   destination_type: channel
   channel_reference: 受講者が参加済みの教員指定チャンネル
   file_format: PDF
-  # 実際のチャンネル名・URL・IDは公開設定に含めない。
+day1_paper_ids:
+- P01
+- P02

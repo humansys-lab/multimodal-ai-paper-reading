@@ -171,8 +171,8 @@ def check_course(course: dict, manifest: dict, root: Path, mode: str = "structur
     for material in items:
         if not (root / material.get("guide", "missing")).is_file():
             errors.append(f"素材ガイド欠落: {material.get('id')}")
-    if course.get('day1_source_paper_id') != 'P01':
-        errors.append('第1日の題材はP01の1報です。')
+    if course.get('day1_source_paper_id') != 'P01' or course.get('day1_paper_ids') != ['P01', 'P02']:
+        errors.append('第1日の題材はPaper2AgentとThe AI Scientistの2報、図演習はPaper2Agentです。')
     common = next((m for m in items if m.get('id') == 'P01'), {})
     if course.get('homework_policy', {}).get('common_doi') != common.get('doi'):
         errors.append('Homeworkの除外DOIが共通P01と一致しません。')
@@ -185,6 +185,15 @@ def check_course(course: dict, manifest: dict, root: Path, mode: str = "structur
         except ValidationError as exc:
             errors.append(str(exc))
     activities = course.get("activities", {})
+    transfer = activities.get('TRANSFER', {})
+    if transfer.get('material_id') != 'P02' or transfer.get('phase') != 'transfer' or transfer.get('material_choice') is not False:
+        errors.append('別論文への応用はP02固定のtransfer記録です。')
+    methods = activities.get('METHODS', {})
+    if methods.get('material_id') != 'M01' or methods.get('phase') is not None or methods.get('material_choice') is not False:
+        errors.append('Methodsの追加問題は共通3問と別に記録してください。')
+    for key, count in [('Q_METHODS_5', 5), ('Q_TRANSFER_3', 3)]:
+        if len(course.get('question_sets', {}).get(key, [])) != count:
+            errors.append(f'{key}: 設問数が不正です。')
     for aid in COMMON:
         a = activities.get(aid, {})
         if a.get("reading_ref") != "common_reading" or a.get("material_choice") is not False:
@@ -192,8 +201,13 @@ def check_course(course: dict, manifest: dict, root: Path, mode: str = "structur
         if any(k in a for k in ("material_id", "source_version", "assigned_scope", "question_set_id")):
             errors.append(f"{aid}: 共通契約の重複・上書きを禁止します。")
     for aid, a in activities.items():
-        if a.get("kind") == "exercise" and a.get("segments_minutes") != [5, 5, 5]:
-            errors.append(f"{aid}: 演習は5＋5＋5です。")
+        segments = a.get('segments_minutes')
+        if segments is not None and (not isinstance(segments, list) or not segments
+                or any(type(n) is not int or n <= 0 for n in segments)
+                or sum(segments) != a.get('duration_minutes')):
+            errors.append(f'{aid}: 活動時間と内訳が一致しません。')
+        if a.get('day') == 2 and a.get('kind') == 'exercise' and segments != [5, 5, 5]:
+            errors.append(f'{aid}: 第2日の演習は5＋5＋5です。')
         if a.get("phase") != PHASES.get(aid) and aid in PHASES:
             errors.append(f"{aid}: 記録段階がPLANと異なります。")
         if a.get("material_id") and a["material_id"] not in ids:
@@ -236,8 +250,8 @@ def check_course(course: dict, manifest: dict, root: Path, mode: str = "structur
         expected = {k for k, v in activities.items() if v.get("day") == day["day"]}
         if seen != expected:
             errors.append("詳細進行に活動の不足があります。")
-        anchors = ({"P0": "10:15", "P1": "10:25", "L1": "11:30", "L2": "12:05", "V1": "13:30", "V2": "14:00",
-                    "V3": "15:00", "V4": "15:35", "P2a": "16:00", "P2b": "16:15", "P3": "16:30"}
+        anchors = ({"P0": "10:15", "P1": "10:25", "L1": "11:45", "L2": "11:57", "V1": "13:30", "V2": "14:20",
+                    "P2a": "15:10", "P3": "15:40", "TRANSFER": "16:15"}
                    if day["day"] == 1 else {"D2T1": "14:20", "D2T2": "14:50", "D2W1": "15:30", "D2W2": "16:10"})
         for event in timeline:
             if event.get("activity_id") and anchors.get(event["activity_id"]) != event["start"]:
@@ -249,7 +263,7 @@ def check_course(course: dict, manifest: dict, root: Path, mode: str = "structur
         adopted = [m for m in items if m.get("role") == "common_paper" and m.get("adoption") == "adopted"]
         if len(adopted) != 1:
             errors.append("配布未準備: 共通論文の採用数が1ではありません。")
-        for mid in ("P01", "V01", "V02"):
+        for mid in ("P01", "V01", "V02", "M01", "P02"):
             try:
                 m = resolve_material(course, manifest, mid)
             except ValidationError:

@@ -47,6 +47,9 @@ def validate_record(record: dict) -> None:
         raise ValidationError("R0～R3は対応するP01共通課題専用です。")
     if aid == "HW1" and phase != "homework":
         raise ValidationError("HW1はhomework記録として保存してください。")
+    fixed = {'METHODS': ('M01', None, 'Q_METHODS_5'), 'TRANSFER': ('P02', 'transfer', 'Q_TRANSFER_3')}
+    if aid in fixed and (record['material_id'], phase, record['question_set_id']) != fixed[aid]:
+        raise ValidationError('Methodsと別論文への応用は、それぞれ固定した素材・段階・設問で保存してください。')
     if phase == "R0" and (record["response_raw"] is not None or record["service"] not in {None, "none"}):
         raise ValidationError("R0はAIなしの記録です。")
     if record["cost_kind"] == "unknown" and record["cost_value"] is not None:

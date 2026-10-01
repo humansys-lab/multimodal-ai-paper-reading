@@ -41,7 +41,7 @@ def adopted(course, manifest):
         if m.get("source_ref"):
             m.update(evidence_status="human_verified", scope_status="confirmed")
             continue
-        m.update(adoption="adopted", evidence_status="human_verified", bibliography={"title": "TEST FIXTURE ONLY"})
+        m.update(adoption="adopted", evidence_status="human_verified", scope_status="confirmed", bibliography={"title": "TEST FIXTURE ONLY"})
         m["rights"]["ai_input"] = "confirmed"
         if m["id"] != "P01":
             m.update(source_version="fixture-v1", assigned_scope={"pages": [1]})
