@@ -141,6 +141,19 @@ def test_repeated_run_is_rejected_before_asking_for_key(adopted, runtime, monkey
     assert permission.used == 0 and len(session.records) == 1
 
 
+@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+def test_save_after_rejected_duplicate_never_changes_previous_answer(tmp_path, name):
+    """送信セルがresultを消した後、同じ番号の古い記録へ説明を付けない。"""
+    record = {'run_id': 'used', 'student_explanation': '前の問いについての説明'}
+    ns = dict(session=SimpleNamespace(records=[record]), run_id='used', result=None, ROOT=tmp_path)
+    source = code_cell(name, 'annotations =').replace('SAVE = False', 'SAVE = True')
+    source = source.replace("'student_explanation': None", "'student_explanation': '送れなかった新しい問いの説明'")
+    with pytest.raises(ValueError, match='今回の実行記録'):
+        exec(source, ns)
+    assert record['student_explanation'] == '前の問いについての説明'
+    assert not (tmp_path / 'outputs').exists()
+
+
 def test_manual_morning_and_final_explanations_remain_separate(tmp_path):
     """実際の00セルで朝→午後→朝を操作し、最初の説明と保存ファイルを保持する。"""
     ns = {'ROOT': ROOT}
@@ -176,3 +189,46 @@ def test_invalid_manual_stage_does_not_replace_morning_record():
     with pytest.raises(ValueError, match='記録する段階'):
         exec(choose.replace("record_stage = '朝：AIなしで読む'", "record_stage = 'unknown'"), ns)
     assert ns['manual_records'] == before
+
+
+def test_repeated_continue_stops_when_success_changed_the_preview(adopted, runtime, monkeypatch):
+    """継続に成功すると履歴が増える。古いプレビューの再送もキー入力前に拒否する。"""
+    from test_client_records import FakeTransport
+    course, manifest = adopted
+    permission = LivePermission('teacher', 'synthetic', runtime['route'], runtime['model'], 'test', 1, 2)
+    session = Session()
+    context = material_context(course, manifest, 'L2')
+    session.run(runtime=runtime, context=context, prompt='最初の問い', inputs=[], mode='new',
+                parameters={'max_output_tokens':100}, run_id='initial', transport=FakeTransport())
+    ns = dict(course=course, manifest=manifest, runtime=runtime, activity_id='L2', session=session,
+              question='続ける問い', inputs=[], conversation_mode='continue', parameters={'max_output_tokens':100},
+              permission=permission, material_context=material_context,
+              preview_text=preview_text, deepcopy=deepcopy, run_id='continued')
+    exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+    session.run(runtime=runtime, context=context, prompt=ns['question'], inputs=[], mode='continue',
+                parameters=ns['parameters'], run_id='continued', transport=FakeTransport())
+    before = deepcopy(session.records)
+    monkeypatch.setattr('getpass.getpass', lambda *_: pytest.fail('古いプレビューならキー入力へ進まない'))
+    with pytest.raises(ValueError, match='プレビュー'):
+        exec(code_cell('01_dialogue_lab.ipynb', 'SEND =').replace('SEND = False', 'SEND = True'), ns)
+    assert permission.used == 0 and session.records == before and ns['result'] is None
+
+
+@pytest.mark.parametrize('case', ['ai_free_activity', 'unconfirmed_input'])
+def test_local_paper_generation_checks_activity_before_computing(adopted, monkeypatch, case):
+    """ローカル推論も、AIなしの段階や未確認資料を生成後の保存で初めて拒否しない。"""
+    import seminar_lab.config as config
+    import seminar_lab.open_weight as local
+    course, approved = adopted
+    selected_manifest = deepcopy(approved)
+    if case == 'unconfirmed_input':
+        next(m for m in selected_manifest['materials'] if m['id'] == 'P01')['rights']['ai_input'] = 'unconfirmed'
+    monkeypatch.setattr(config, 'load_yaml', lambda path: course if path.name == 'course.yaml' else selected_manifest)
+    monkeypatch.setattr(local, 'generate', lambda *a, **kw: pytest.fail('禁止された活動では推論を始めない'))
+    ns = dict(ROOT=ROOT, PROMPT='人工的な操作確認', previewed_prompt='人工的な操作確認',
+              source_excerpt='', source_location='', activity_id='P0' if case == 'ai_free_activity' else 'METHODS',
+              tokenizer=object(), model=object(), result={'old': True})
+    expected = 'AIなし' if case == 'ai_free_activity' else '確認待ち'
+    with pytest.raises(ValueError, match=expected):
+        exec(code_cell('03_open_weight_lab.ipynb', 'RUN =').replace('RUN = False', 'RUN = True'), ns)
+    assert ns['result'] is None

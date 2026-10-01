@@ -273,3 +273,26 @@ def test_malformed_display_output_is_explicit_error(raw):
     from seminar_lab.client import output_text
     with pytest.raises(ValidationError):
         output_text({'response_raw': raw})
+
+
+def test_interrupted_request_is_recorded_without_retry(runtime, adopted, tmp_path):
+    """Colab/Jupyterの停止操作も、課金不明の失敗として保存できる。"""
+    session = Session()
+    run(session, runtime, adopted, FakeTransport())
+    history = session.history
+    interrupted = FakeTransport(KeyboardInterrupt('synthetic-private-interrupt-message'))
+    try:
+        record = run(session, runtime, adopted, interrupted, mode='continue', run_id='interrupted')
+    except KeyboardInterrupt:
+        pytest.fail('送信中断の実行記録が作られず、保存できない')
+    assert record['status'] == 'failed' and record['error_type'] == 'interrupted'
+    assert record['cost_value'] is None and record['cost_kind'] == 'unknown'
+    assert record['retry_count'] == 0 and len(interrupted.calls) == 1
+    assert session.history == history and len(session.records) == 2
+    assert 'synthetic-private' not in json.dumps(record)
+    with pytest.raises(ValidationError, match='実行済み'):
+        run(session, runtime, adopted, interrupted, run_id='interrupted')
+    path = tmp_path / 'interrupted.jsonl'
+    save_records(session.records, path)
+    assert load_records(path) == session.records
+    assert run(session, runtime, adopted, FakeTransport(), mode='continue')['prior_turn_count'] == 1

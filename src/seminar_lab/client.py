@@ -21,6 +21,7 @@ ERRORS = {
     "invalid_input": "入力または設定を受け付けられませんでした。範囲・形式・対応機能を確認してください。",
     "service_unavailable": "経路または予算基盤が利用できません。送信を止めて教員へ連絡してください。",
     "network": "通信できませんでした。処理・課金状態は不明です。接続を確認してください。",
+    "interrupted": "送信を中断しました。サーバ側の処理・課金状態は不明です。この記録を保存し、再送前に教員へ確認してください。",
     "unknown": "問い合わせに失敗しました。詳細を公開せず教員へ確認してください。",
     "incomplete": "回答が完了していません。部分出力を記録しました。成功した履歴には追加していません。",
     "invalid_response": "想定した文章の応答形式ではありません。生応答を保存し、成功した履歴には追加していません。",
@@ -207,6 +208,9 @@ class Session:
                     self._history = deepcopy(payload["input"]) + deepcopy(raw["output"])
                     self._turn_count = (self._turn_count if mode == "continue" else 0) + 1
                     self._context, self._runtime = identity, deepcopy(runtime)
+            except KeyboardInterrupt:
+                # 停止ボタンでも、送信した可能性のある問い合わせを記録から落とさない。
+                record.update(status="failed", error_type="interrupted", error_message=ERRORS["interrupted"])
             except Exception as exc:
                 kind = exc.kind if isinstance(exc, TransportError) else "unknown"
                 record.update(status="failed", error_type=kind, error_message=ERRORS[kind])

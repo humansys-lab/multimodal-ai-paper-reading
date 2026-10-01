@@ -169,9 +169,8 @@ def reading_record(result: dict, context: dict, source_location: str) -> dict:
 
 def save_result(result: dict, annotations: dict, root: Path) -> tuple[dict, list[Path]]:
     """生の生成結果と本人の説明を一度で保存する。既存ファイルは上書きしない。"""
-    import json
     from copy import deepcopy
-    from .records import validate_record
+    from .records import record_json, validate_record
     from .ui import save_pair
 
     if (not isinstance(result, dict) or not isinstance(result.get('run_id'), str)
@@ -200,7 +199,7 @@ def save_result(result: dict, annotations: dict, root: Path) -> tuple[dict, list
     destination = folder / (saved['run_id'] + '-' + uuid4().hex[:8] + '.json')
     if destination.resolve().parent != folder.resolve():
         raise ValueError('保存する実行番号に不正なパスが含まれています。')
-    content = json.dumps(saved, ensure_ascii=False, indent=2, allow_nan=False)
+    content = record_json(saved, indent=2)
     folder.mkdir(parents=True, exist_ok=True)
     with destination.open('x', encoding='utf-8') as handle:
         handle.write(content)

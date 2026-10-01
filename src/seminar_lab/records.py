@@ -105,6 +105,17 @@ def _read_json(content: str) -> Any:
         raise ValidationError("JSONを読み込めません。元の記録ファイルを確認してください。") from None
 
 
+def record_json(value: Any, *, indent: int | None = None) -> str:
+    """保存で型や項目が変わる値を、ファイル作成前に拒否する。"""
+    try:
+        content = json.dumps(value, ensure_ascii=False, indent=indent, allow_nan=False)
+    except (TypeError, ValueError):
+        raise ValidationError("記録にJSONで保存できない値があります。文字列・数値・null・リスト・辞書を使ってください。") from None
+    if _read_json(content) != value:
+        raise ValidationError("保存すると記録の型が変わります。辞書のキーは文字列、配列はリストにしてください。")
+    return content
+
+
 def _readable_response(raw: Any) -> str:
     """壊れた応答も保存できるよう、表示可能な文章だけを一覧へ取り出す。"""
     if isinstance(raw, str):
@@ -135,7 +146,7 @@ def save_records(records: list[dict], path: str | Path) -> None:
     if p.suffix not in {".jsonl", ".md"}:
         raise ValidationError("保存形式は.mdまたは.jsonlです。")
     if p.suffix == ".jsonl":
-        content = "".join(json.dumps(r, ensure_ascii=False, allow_nan=False) + "\n" for r in records)
+        content = "".join(record_json(r) + "\n" for r in records)
     else:
         lines = ["# 個人の読解記録", "", "生出力と本人の説明を区別。共有前に内容を確認してください。", ""]
         for number, r in enumerate(records, 1):
@@ -165,7 +176,7 @@ def save_records(records: list[dict], path: str | Path) -> None:
                     lines += ['### ' + label, '', _text_block(r[field]), '']
             lines += ['### AIの生回答', '', _text_block(_readable_response(r['response_raw'])), '']
         lines += ["## 再読込み用の全項目", "", '<details>', '<summary>入力・履歴・添付を含む全項目（再読込み時はこの部分を変更しない）</summary>', '',
-                  "<!-- SEMINAR_RECORDS -->", "```json", json.dumps(records, ensure_ascii=False, indent=2, allow_nan=False),
+                  "<!-- SEMINAR_RECORDS -->", "```json", record_json(records, indent=2),
                   "```", "<!-- END_SEMINAR_RECORDS -->", '', '</details>', '']
         content = "\n".join(lines)
     p.parent.mkdir(parents=True, exist_ok=True)

@@ -95,3 +95,17 @@ def test_ai_free_cost_is_not_reported_as_unknown(tmp_path, adopted):
     assert '費用: 外部APIなし' in path.read_text()
     assert '記録 1: 最初の読解（AIなし）' in path.read_text()
     assert load_records(path) == [record]
+
+
+@pytest.mark.parametrize('extension', [{1: 'page'}, {'tuple': (1, 2)}, {'mixed': {1: 'a', '1': 'b'}}])
+@pytest.mark.parametrize('suffix', ['.jsonl', '.md'])
+def test_save_rejects_metadata_that_json_would_change(tmp_path, adopted, extension, suffix):
+    """YAMLの整数キー等をJSON保存で黙って文字列へ変えない。"""
+    from seminar_lab.config import material_context
+    from seminar_lab.records import new_record, save_records
+    record = new_record(material_context(*adopted, 'P0'))
+    record['extra_metadata'] = extension
+    destination = tmp_path / ('record' + suffix)
+    with pytest.raises(ValueError):
+        save_records([record], destination)
+    assert not destination.exists()

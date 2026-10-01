@@ -73,3 +73,23 @@ def test_model_save_rejects_other_or_missing_generation(tmp_path, model_result, 
     with pytest.raises(ValueError):
         save_result({**model_result, **changed}, {}, tmp_path)
     assert not (tmp_path / 'outputs').exists()
+
+
+def test_methods_local_result_preserves_full_context_in_all_save_formats(adopted, tmp_path, model_result):
+    """実データにあるページ対応表も、生成結果の追加項目として欠落・型変更させない。"""
+    import json
+    from seminar_lab.open_weight import save_result
+    context = material_context(*adopted, 'METHODS')
+    assert context['pdf_to_printed_pages']['3'] == 3
+    result = {**model_result, 'reading_context': context, 'source_location': 'TEST FIXTURE p1'}
+    saved, paths = save_result(result, {}, tmp_path)
+    assert json.loads(paths[0].read_text()) == result == saved
+    assert load_records(paths[1]) == load_records(paths[2])
+    assert load_records(paths[1])[0]['open_weight_result'] == saved
+
+
+def test_model_save_rejects_integer_metadata_key_before_writing(tmp_path, model_result):
+    from seminar_lab.open_weight import save_result
+    with pytest.raises(ValueError, match='型が変わり'):
+        save_result({**model_result, 'extra': {1: 'page'}}, {}, tmp_path)
+    assert not (tmp_path / 'outputs').exists()
