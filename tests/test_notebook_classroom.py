@@ -34,7 +34,8 @@ def test_document_resize_previews_exact_sent_pixels(tmp_path):
     path = tmp_path / 'artificial.png'
     Image.new('RGB', (100, 60), 'blue').save(path)
     source = code_cell('02_document_lab.ipynb', 'PREPARE_INPUT =')
-    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_kind = 'image'", "input_kind = 'resized_image'")
+    assert "input_kind = 'pdf'" in source
+    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_kind = 'pdf'", "input_kind = 'resized_image'")
     source = source.replace("local_path = ''", f'local_path = {str(path)!r}').replace("source_location = ''", "source_location = 'synthetic'").replace('width = 600', 'width = 50')
     namespace = {}
     exec(source, namespace)

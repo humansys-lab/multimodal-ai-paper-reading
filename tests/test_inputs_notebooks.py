@@ -146,3 +146,10 @@ def test_huge_pixel_dimensions_stop_before_image_decode(tmp_path, width, height)
     path.write_bytes(data)
     with pytest.raises(ValidationError, match='画素'):
         image_input(path, 'test fixture')
+
+
+def test_png_selected_as_pdf_has_actionable_error(tmp_path):
+    path = tmp_path / 'wrong-input.png'
+    Image.new('RGB', (10, 10), 'blue').save(path)
+    with pytest.raises(ValidationError, match='input_kind'):
+        pdf_input(path, [1])

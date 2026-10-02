@@ -78,7 +78,8 @@ def test_actual_document_example_resize_pdf_and_invalid_input(tmp_path,monkeypat
     with pytest.raises(ValueError,match='作成済み'): exec(create,ns)
     assert png.read_bytes()==before
     ns['inputs']=[small]
-    prepare=action(nb,'PREPARE_INPUT =').replace('PREPARE_INPUT = False','PREPARE_INPUT = True').replace("input_kind = 'image'","input_kind = 'pdf'").replace("local_path = ''",f'local_path = {str(pdf)!r}').replace('pdf_pages = []','pdf_pages = [0]')
+    prepare=action(nb,'PREPARE_INPUT =').replace('PREPARE_INPUT = False','PREPARE_INPUT = True').replace("local_path = ''",f'local_path = {str(pdf)!r}').replace('pdf_pages = [1, 2, 3]','pdf_pages = [0]')
+    assert 'pdf_pages = [0]' in prepare
     with pytest.raises(ValueError,match='1始まり'): exec(prepare,ns)
     assert ns['inputs']==[]
 
