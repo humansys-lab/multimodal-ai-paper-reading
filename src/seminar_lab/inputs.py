@@ -54,6 +54,8 @@ def _pdf_reader(data: bytes) -> PdfReader:
     from pypdf.errors import PdfReadError
     if len(data) > 20_000_000:
         raise ValidationError("演習用のPDF上限20MBを超えています。")
+    if not data.startswith(b'%PDF-'):
+        raise ValidationError("PDF形式ではありません。input_kindと選んだファイルを確認してください。")
     try:
         reader = PdfReader(BytesIO(data), strict=True)
         if reader.is_encrypted:

@@ -9,8 +9,8 @@
 | Notebook | 使う場面 | 追加する直接の依存 |
 |---|---|---|
 | [00 準備と記録](../notebooks/00_setup.ipynb) | 朝と相互説明後の自分の説明を保存 | 不要（Python標準ライブラリだけ） |
-| [01 対話](../notebooks/01_dialogue_lab.ipynb) | 質問方法の比較・再読・Methods・別論文 | PyYAML、OpenAI SDK |
-| [02 画像・PDF](../notebooks/02_document_lab.ipynb) | 元画像と縮小画像の比較、選択ページのPDF | 01にPillow、pypdfを追加 |
+| [01 対話](../notebooks/01_dialogue_lab.ipynb) | Methodsの段落と対話・任意のテキスト比較 | PyYAML、OpenAI SDK |
+| [02 画像・PDF](../notebooks/02_document_lab.ipynb) | 朝のPDF読解・質問比較・図2・再読・別論文 | 01にPillow、pypdfを追加 |
 | [03 小型モデルの観察](../notebooks/03_open_weight_lab.ipynb) | トークン→数値→候補確率→生成 | PyTorch、Transformers |
 
 SDK等が内部で使う依存は一緒に入ります。例えば01の新規Mac環境には計17パッケージが入りました。Pillow・pypdf・PyTorch・Transformersは01には入りません。03にはaccelerate・量子化・エージェントのライブラリを追加していません。
@@ -21,9 +21,10 @@ SDK等が内部で使う依存は一緒に入ります。例えば01の新規Mac
 |---|---|---|
 | `connection.local.yaml` | 01・02 | 教員が記入した接続先・モデル・利用枠。各NotebookのColabランタイムへアップロードし、コピーしたパスを`connection_path`へ入れる |
 | 個別APIキー（文字列） | 01・02 | 接続ファイルとは別に受け取る。送信セルの実行時に出る伏字入力欄にだけ入力する |
-| `Paper2Agent_Nature.pdf` | 00・01・02の論文演習 | 教員が案内するNature掲載版。00は手元で読む。01は必要な文章を貼り付ける。02でPDF入力する場合だけColabにもアップロードする |
-| `paper2agent_page4.png` | 02の論文演習 | 教員が用意する、掲載版PDF p4（図2・図注）全体の画像。アップロードしてパスを`local_path`へ入れる |
-| `ai_scientist_nature.pdf` | 別論文への応用 | 教員が案内するThe AI ScientistのNature掲載版。01へ必要な文章を貼り付け、共通読解と別の記録にする |
+| `Paper2Agent_Nature.pdf` | 00・01・02の論文演習 | 教員が案内するNature掲載版。00は手元で読む。01は必要な文章を貼り付ける。02では朝からColabへアップロードし、送信するページを指定する |
+| `fig2_full.png` | 02の論文演習 | 教員が用意する、掲載版PDF p4（図2・図注）全体の画像。アップロードしてパスを`local_path`へ入れる |
+| `ai_scientist_nature.pdf` | 別論文への応用 | The AI ScientistのNature掲載版。02でPDF p1–5を指定し、共通読解と別の記録にする |
+| `fig2_quarter.png` | 02の画像比較 | 元のp4全体画像を400×532画素に縮小したPNG。Aを保存後、同じ質問・新規会話で比較する |
 
 これは配布用の標準名です。受け取り場所は教員が別途案内します。接続設定・キーは公開GitHubにはありません。未受領なら教員・TAへ確認してください。原論文の配布・取得方法とAI入力の可否も教員の案内に従います。
 
@@ -80,21 +81,21 @@ Macの取得済み環境では`INSTALL=False`を維持します。Colab T4実機
 
 ### 02の入力方式
 
-教員が案内した`paper2agent_page4.png`をColabのFiles欄にアップロードし、パスを`local_path`へ入れます（例：`'/content/paper2agent_page4.png'`）。`connection_path`は接続設定用なので変更しません。`source_location`には`'Paper2Agent、Nature掲載版、PDF p4、Fig.2と図注'`と原位置を書き、`PREPARE_INPUT=True`で準備します。画像と画素数が表示されたことを確認してください。
+教員が案内した`fig2_full.png`をColabのFiles欄にアップロードし、パスを`local_path`へ入れます（例：`'/content/fig2_full.png'`）。`connection_path`は接続設定用なので変更しません。`source_location`には`'Paper2Agent、Nature掲載版、PDF p4、Fig.2と図注'`と原位置を書き、`PREPARE_INPUT=True`で準備します。画像と画素数が表示されたことを確認してください。
 
-縮小画像は同じ元PNGからNotebookで作ります。別の配布ファイルは不要です。PDF入力を試す場合は、全体の`Paper2Agent_Nature.pdf`をアップロードし、例えば`pdf_pages=[4]`なら「送信1ページ → 原本PDF4ページ」となることを確認します。1ページだけに分けた配布PDFでは`[1]`になるので、教員のページ対応案内と照合します。
+スライド46–47の画像比較は、配布した`fig2_full.png`（1600×2126）と`fig2_quarter.png`（400×532）を両方`image`で読みます。Notebook内での縮小は追加実験です。PDFは朝から使い、全体の`Paper2Agent_Nature.pdf`に`pdf_pages=[1,2,3]`を指定します。1ページだけに分けた配布PDFでは`[1]`になるので、教員のページ対応案内と照合します。
 
 | `input_kind` | 記入する欄 | 確認すること |
 |---|---|---|
 | `image` | `local_path`, `source_location` | 表示された元画像と画素数 |
 | `resized_image` | 上記と`width` | 指定幅に縮小された送信画像・元の画素数 |
-| `pdf`（発展） | `local_path`, `pdf_pages` | 送信ページと原本の物理ページの対応。1始まり |
+| `pdf`（朝・質問比較・再読・別論文） | `local_path`, `pdf_pages` | 送信ページと原本の物理ページの対応。1始まり |
 
 準備が失敗したら以前の入力を消して停止します。元画像の結果を保存してから、次の番号・新規会話で縮小画像に切り替えます。PDFが読めない場合も別形式へ自動変更しません。
 
 ### 活動を切り替えるとき
 
-接続設定セルの`activity_id`を変え、保存後に新しい番号を作り、`new`で始めます。`L2`＝質問方法の比較、`P2a`＝再読、`METHODS`＝Methods、`TRANSFER`＝The AI Scientist、`V1`＝元画像、`V2`＝縮小画像です。画面に論文・版・範囲を表示します。共通読解に論文選択欄はありません。
+接続設定セルの`activity_id`を変え、保存後に新しい番号を作り、`new`で始めます。`P1`＝最初のAI読解、`L2`＝質問方法の比較、`P2a`＝再読、`METHODS`＝Methods、`TRANSFER`＝The AI Scientist、`V1`＝元画像、`V2`＝縮小画像です。画面に論文・版・範囲を表示します。共通読解に論文選択欄はありません。
 
 Homeworkは01・02それぞれの末尾にある任意の切替セルを使います。以前の記録を保持し、新規会話・別段階として保存します。素材の出典・対象誌・入力条件の確認が必要です。
 
@@ -119,7 +120,7 @@ Homeworkは01・02それぞれの末尾にある任意の切替セルを使い�
 | 実行を途中で止めた | `interrupted`の記録を保存し、教員へ相談。通信先で処理が続く可能性があり、費用を0とは扱わない。ランタイムの強制終了まで記録を保証するものではない |
 | もう一度送れない | 二重課金を避けるため同じ番号は拒否。保存後に「次の実行番号」。タイムアウト時は課金が不明なので先に教員へ相談 |
 | ファイルを置いたのに見つからない | 実行中のNotebookのColab Files欄でパスをコピー。自分のPCのパスや、別ランタイムのファイルは使えない |
-| 配布ファイルが手元にない | 01・02は`connection.local.yaml`と個別キーを教員・TAへ確認。02の論文画像は`paper2agent_page4.png`。公開の空見本を改名しても使えない |
+| 配布ファイルが手元にない | 01・02は`connection.local.yaml`と個別キーを教員・TAへ確認。02の論文画像は`fig2_full.png`。公開の空見本を改名しても使えない |
 | 許可・設定エラーが出る | 配布設定のパス、活動、モデル、送信許可を確認。公開見本は空。設定確認前にキーを貼らない |
 | 改訂したNotebookへ切り替えるには？ | 記録を保存・ダウンロードし、新しいランタイムで冒頭から実行する。以前の変数や関数の定義が残った状態を引き継がない |
 | 保存後に自分の説明を直したい | Notebookの`annotations`へ記入して保存し直す。以前のファイルは残る。Markdownの表示部分だけを編集しても、末尾の再読込み用データには反映されない |

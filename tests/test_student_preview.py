@@ -26,6 +26,7 @@ def test_preview_does_not_dump_image_bytes_or_change_request():
 
 def test_activity_description_displays_fixed_scope_and_three_questions(course, manifest):
     text = activity_description(course, manifest, 'P0')
-    assert '最初の読解（AIなし）' in text and 'PDFのページ: 1 / 3' in text
+    assert '最初の読解（AIなし）' in text and 'PDFのページ: 1 / 2 / 3' in text
+    assert 'We implemented Paper2Agent' in text
     assert all(question in text for question in course['question_sets']['Q_COMMON_3'])
     assert '選択' not in text
