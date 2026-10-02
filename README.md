@@ -16,14 +16,14 @@
 
 ## Colabで開く
 
-最初に使う順に並べています。00は相互説明後、01は再読と別論文への応用でも再利用します。番号はファイルの識別用です。
+最初に使う順に並べています。00は相互説明後、02は再読と別論文への応用でも再利用します。番号はファイルの識別用です。
 
 | 使う時間・目的 | Notebook | 固定版へのリンク |
 |---|---|---|
 | 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/00_setup.ipynb) |
+| 10:25以降：PDF読解、質問比較、図2、再読、別論文 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/02_document_lab.ipynb) |
 | 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/03_open_weight_lab.ipynb) |
 | 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/01_dialogue_lab.ipynb) |
-| 10:25以降：PDF読解、質問比較、図2、再読、別論文 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/02_document_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
 2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。
