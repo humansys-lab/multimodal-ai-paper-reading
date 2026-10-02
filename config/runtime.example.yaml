@@ -1,0 +1,22 @@
+schema_version: 1
+route: course_proxy
+api: responses
+model: null
+base_url: null
+allowed_base_urls: []
+sdk_version: null
+proxy_version: null
+timeout_seconds: 30
+max_retries: 0
+capabilities:
+  input_kinds: []
+  parameters: {}
+  manual_history: false
+audit:
+  verified_at: null
+  evidence_id: null
+  route_test: not_run
+  budget_fail_closed: not_run
+  retention_review: not_run
+# 実値は公開領域に入れない。講義用個別キーはgetpass等で入力。
+# この空の設定では送信できない。初回の経路監査は別途許可されたM2の試験で行う。

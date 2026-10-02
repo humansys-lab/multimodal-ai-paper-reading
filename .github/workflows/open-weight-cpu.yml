@@ -1,0 +1,40 @@
+name: Open weight notebook on Linux CPU
+on:
+  push:
+    branches: [main, course/notebook-classroom-checks, course/notebook-self-contained]
+    paths:
+      - notebooks/03_open_weight_lab.ipynb
+      - src/seminar_lab/open_weight.py
+      - requirements-open-weight.txt
+      - scripts/check_open_weight_notebook.py
+      - .github/workflows/open-weight-cpu.yml
+permissions:
+  contents: read
+jobs:
+  model-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PIP_CACHE_DIR: ${{ github.workspace }}/build/pip-cache
+      TMPDIR: ${{ github.workspace }}/build/tmp
+      PYTHONDONTWRITEBYTECODE: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      HF_HUB_DISABLE_IMPLICIT_TOKEN: '1'
+      OMP_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the two model libraries
+        run: |
+          mkdir -p build/tmp
+          python3.12 -m venv build/model-venv
+          build/model-venv/bin/python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+          build/model-venv/bin/python -m pip install -r requirements-open-weight.txt
+      - name: Run the actual notebook cells with an artificial input
+        run: build/model-venv/bin/python scripts/check_open_weight_notebook.py --device cpu --allow-download
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: open-weight-cpu-check
+          path: build/open-weight-notebook-check/
+          if-no-files-found: error
+          retention-days: 7

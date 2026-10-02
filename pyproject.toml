@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "seminar-lab"
+version = "0.1.0"
+description = "科学論文読解の対話・入力・記録を支える講義用最小コード"
+requires-python = ">=3.11"
+dependencies = ["PyYAML>=6,<7", "openai>=2,<3", "pypdf>=6,<7", "Pillow>=11,<13"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "nbformat>=5,<6", "nbclient>=0.10,<1", "ipykernel>=6,<8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--basetemp=build/pytest-tmp"
+markers = ["live: 明示許可・認証・上限が必要な外部実機試験"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/seminar_lab"]

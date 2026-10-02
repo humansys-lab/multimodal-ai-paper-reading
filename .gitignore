@@ -1,16 +1,27 @@
 .env
 .env.*
+!.env.example
+.DS_Store
 .venv/
 .uv-cache/
+.cache/
 __pycache__/
+*.py[cod]
 .pytest_cache/
+.ruff_cache/
 .ipynb_checkpoints/
 outputs/
+local_inputs/
 build/
 tmp/
-private/
-local_inputs/
+*.egg-info/
 config/runtime.local.yaml
-*.log
+config/connection.local.yaml
+# 受講者へ渡す接続設定は、保存場所を問わず公開対象外
+connection.local.yaml
+design-base.pptx
+2026_seminar_implementation_plan_v3.md
+# 原資料・個人記録は公開候補に含めない
+private/
 *.sqlite*
-.DS_Store
+*.log

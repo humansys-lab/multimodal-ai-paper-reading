@@ -1,0 +1,131 @@
+{
+  "kind": "measured_teacher_example",
+  "source_record_sha256": "8503d93ec9e60da4425748284dba1b6b610c91567cfa5c53cc19eb901f53d7e0",
+  "record": {
+    "at": "2026-10-01T02:53:08.127145+09:00",
+    "environment": "local Mac CPU, explicit selection; not Colab",
+    "network": "blocked",
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "load_seconds": 2.892,
+    "observation": {
+      "text": "京都の名物は",
+      "ids": [
+        115806,
+        15767,
+        13072,
+        52853,
+        15322
+      ],
+      "tokens": [
+        "äº¬éĥ½",
+        "ãģ®",
+        "åĲį",
+        "çī©",
+        "ãģ¯"
+      ],
+      "decoded_tokens": [
+        "京都",
+        "の",
+        "名",
+        "物",
+        "は"
+      ],
+      "embedding_shape": [
+        5,
+        1024
+      ],
+      "embedding_first4": [
+        [
+          0.0025787353515625,
+          -0.055419921875,
+          0.0159912109375,
+          0.04248046875
+        ],
+        [
+          -0.013671875,
+          -0.0074462890625,
+          -0.004547119140625,
+          -0.00592041015625
+        ],
+        [
+          -0.0115966796875,
+          -0.036865234375,
+          -0.022705078125,
+          -0.0029449462890625
+        ],
+        [
+          -0.04296875,
+          -0.055908203125,
+          -0.0361328125,
+          0.0361328125
+        ],
+        [
+          0.0034332275390625,
+          -0.0157470703125,
+          -0.0107421875,
+          0.0003986358642578125
+        ]
+      ],
+      "note": "文脈を処理する前の入力埋め込み。先頭4要素だけから意味は判断できない。"
+    },
+    "next_tokens": [
+      {
+        "token_id": 5373,
+        "text": "、",
+        "probability": 0.17027497291564941
+      },
+      {
+        "token_id": 124532,
+        "text": "あります",
+        "probability": 0.10961021482944489
+      },
+      {
+        "token_id": 11319,
+        "text": "？",
+        "probability": 0.07804526388645172
+      },
+      {
+        "token_id": 26850,
+        "text": "？\n\n",
+        "probability": 0.05478031188249588
+      },
+      {
+        "token_id": 94432,
+        "text": "？\n",
+        "probability": 0.03888823837041855
+      }
+    ],
+    "generation": {
+      "run_id": "8ad4d731-8504-41bb-875f-5afd4d4928b2",
+      "timestamp": "2026-09-30T17:53:08.126659+00:00",
+      "model": "Qwen/Qwen3-0.6B",
+      "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+      "route": "open_weight_local",
+      "device": "cpu",
+      "dtype": "torch.float32",
+      "prompt": "日本の首都を都市名だけで答えてください。",
+      "visible_template": "<|im_start|>user\n日本の首都を都市名だけで答えてください。<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+      "conversation_mode": "new",
+      "seed": 42,
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "max_new_tokens": 32,
+        "enable_thinking": false
+      },
+      "input_tokens": 22,
+      "output_tokens": 10,
+      "response_raw": "日本の首都は、**东京**です。",
+      "status": "completed",
+      "elapsed_seconds": 0.637,
+      "api_cost_usd": 0,
+      "student_explanation": null,
+      "unresolved_point": null
+    },
+    "execution_status": "pass",
+    "response_correctness": "not_scored",
+    "cpu_used_as_fallback": false
+  }
+}

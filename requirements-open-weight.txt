@@ -1,0 +1,4 @@
+# Separate observation environment. Mac arm64 resolved and tested locally.
+# Colab CUDA installation and T4 execution require their own verification.
+torch==2.8.0
+transformers==4.57.6
