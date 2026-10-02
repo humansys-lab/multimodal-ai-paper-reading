@@ -57,7 +57,7 @@ def run(root: Path, output: Path, device: str, allow_download: bool) -> dict:
     shape = list(namespace["vectors"].shape)
     parameters = sum(p.numel() for p in namespace["model"].parameters())
     checks = {
-        "nine_code_cells": len(executed) == 9,
+        "all_code_cells": len(executed) == sum(c["cell_type"] == "code" for c in notebook["cells"]),
         "selected_device": namespace["model"].device.type == device,
         "parameter_count": parameters == 596049920,
         "embedding_shape": shape == [len(namespace["ids"]), 1024],

@@ -4,6 +4,8 @@ import contextlib
 import io
 from pathlib import Path
 import socket
+import sys
+from types import ModuleType
 from unittest.mock import patch
 import nbformat
 
@@ -13,7 +15,8 @@ def inspect_notebook(path: Path, execute: bool = False) -> list[str]:
     errors = []
     nb = nbformat.read(path, as_version=4)
     nbformat.validate(nb)
-    namespace = {"__name__": "__notebook_offline__"}
+    module = ModuleType("__notebook_offline__")
+    namespace = module.__dict__
     for n, cell in enumerate(nb.cells):
         if cell.cell_type != "code":
             continue
@@ -21,7 +24,7 @@ def inspect_notebook(path: Path, execute: bool = False) -> list[str]:
             errors.append(f"{path.name}:{n}: 公開用出力が残っています。")
         code = compile(cell.source, f"{path.name}:{n}", "exec")
         if execute:
-            with patch.object(socket.socket, "connect", side_effect=RuntimeError("offline test: network forbidden")), contextlib.redirect_stdout(io.StringIO()):
+            with patch.dict(sys.modules, {module.__name__: module}), patch.object(socket.socket, "connect", side_effect=RuntimeError("offline test: network forbidden")), contextlib.redirect_stdout(io.StringIO()):
                 exec(code, namespace)
     return errors
 

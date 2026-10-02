@@ -29,18 +29,22 @@ common_reading:
   assigned_scope:
     pdf_pages:
     - 1
+    - 2
     - 3
     printed_pages:
     - 1
+    - 2
     - 3
     text_sections:
     - Abstract (p1)
+    - 'Overview of Paper2Agent (p2 right column): paragraph from "We implemented Paper2Agent..."
+      through "...across multiple papers simultaneously."'
     figures:
     - Fig.1a
     - Fig.1b
     captions:
     - Fig.1 caption (p3)
-    scope_id: P01_COMMON_v1
+    scope_id: P01_COMMON_v2_FINAL_SLIDES
   question_set_id: Q_COMMON_3
   scope_status: confirmed
 question_sets:

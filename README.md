@@ -6,6 +6,8 @@
 
 ## 最初に開くもの
 
+**[当日の短い手順書](docs/student_quickstart.md)**に、最終スライドに対応するNotebook・入力ファイル・操作順・提出方法をまとめました。学生向けZIPは教員から配布します。接続設定と個別キーは別途受け取ってください。
+
 - [事前学習](docs/prework.md) → [当日の進め方](docs/start_here.md) → [演習カード](activities/day1.md)
 - [GUIの使い方](docs/gui_guide.md)・[Notebookの操作とFAQ](docs/notebook_guide.md)・[困ったとき](docs/troubleshooting.md)
 - [読解の記録](worksheets/reading_record.md)・[Methodsと別論文の記録](worksheets/methods_and_transfer.md)
@@ -14,27 +16,27 @@
 
 ## Colabで開く
 
-最初に使う順に並べています。00は相互説明後、01は再読と別論文への応用でも再利用します。番号はファイルの識別用です。
+最初に使う順に並べています。00は相互説明後、02は再読と別論文への応用でも再利用します。番号はファイルの識別用です。
 
 | 使う時間・目的 | Notebook | 固定版へのリンク |
 |---|---|---|
-| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/00_setup.ipynb) |
-| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/03_open_weight_lab.ipynb) |
-| 11:57・15:10・16:15：質問の比較、再読、別論文 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/01_dialogue_lab.ipynb) |
-| 13:30・14:20：図2、元画像と縮小画像を比較 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/02_document_lab.ipynb) |
+| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/00_setup.ipynb) |
+| 10:25以降：PDF読解、質問比較、図2、再読、別論文 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/02_document_lab.ipynb) |
+| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/03_open_weight_lab.ipynb) |
+| 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/01_dialogue_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
-2. 冒頭の準備セルで`PREPARE_COLAB`をONにして実行します。固定版の教材と必要なライブラリを取得します。APIは呼びません。
-3. 01・02は教員が配布する設定ファイルを読み込みます。質問と入力を確認してから送信し、キーは専用の入力欄で扱います。
+2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。
+3. 01・02は教員から`connection.local.yaml`と個別APIキーを別々に受け取ります。02の論文画像は`fig2_full.png`と`fig2_quarter.png`です。各Notebook冒頭に、ファイル一覧・Colabへのアップロード・記入欄・実行順を載せています。キーは送信時の専用入力欄にだけ入れます。公開の`connection.example.yaml`は学生用の接続設定ではありません。
 4. 保存セルを実行し、Files欄から`outputs/`の記録をダウンロードします。Colabのランタイムが削除されると、そこに保存したファイルも消えます。
 
-朝の最初のAI利用は教員が案内するGUIです。03は初回のモデル取得に時間がかかるため、教員の案内に合わせて演習前に準備します。操作の詳細は[Notebookガイド](docs/notebook_guide.md)にあります。
+朝の最初のAI利用は、最終スライド5に合わせてNotebook 02で論文PDFの1–3ページを送ります。03は初回のモデル取得に時間がかかるため、教員の案内に合わせて演習前に準備します。操作の詳細は[Notebookガイド](docs/notebook_guide.md)にあります。
 
 ## 実行状態・費用・提出
 
 教材とNotebookは検査したコミットに固定し、mainの未検証更新を自動では取り込みません。公開の接続見本は空で、送信できません。直接APIとMacでの実測、新規Colab・講義用中継の未確認項目は[検証記録](docs/verification.md)に示します。
 
-共通GUIはGemini for Education。個人の有料契約は必須ではありません。講義用APIは期間全体で1人10 USD分を確保し、学生全体にも使用量上限があります。利用期限は11月14日23:59（日本時間）。キーと接続情報は共有・アップロードせず、[利用案内](docs/api_usage.md)を確認してください。
+共通GUIはGemini for Education。個人の有料契約は必須ではありません。講義用APIは期間全体で1人10 USD分を確保し、学生全体にも使用量上限があります。利用期限は11月14日23:59（日本時間）。キーと接続情報は他者へ共有せず、接続ファイルは自分の講義用Colabでのみ使い、[利用案内](docs/api_usage.md)を確認してください。
 
 HW1とHW2は両方必須。第2日は各5分の発表と5分の質疑、合わせて10枚以下です。発表資料は10月30日23:59、最終レポートは11月14日23:59までに、指定SlackチャンネルへPDFを提出します。個人記録は手元に保存し、自動収集・自動採点は行いません。
 
@@ -45,6 +47,7 @@ uv sync --frozen
 uv run pytest -q -m "not live"
 uv run python scripts/check_course.py --mode structure
 uv run python scripts/check_notebooks.py --execute-offline
+uv run python scripts/embed_notebook_support.py --check
 uv run python scripts/check_public_release.py
 ```
 

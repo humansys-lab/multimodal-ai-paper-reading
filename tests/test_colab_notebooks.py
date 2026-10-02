@@ -1,58 +1,65 @@
-"""短い取得セルの固定版と、取得後に実行するコードの検証境界。"""
-from hashlib import sha256
+"""各Notebookを単独配布できることと、埋込み処理の追跡可能性。"""
 from pathlib import Path
+import ast
 import json
-import re
-from io import BytesIO
-from unittest.mock import patch
+import os
+import subprocess
+import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+BOOKS = sorted(p.name for p in (ROOT / 'notebooks').glob('0*.ipynb'))
 
 
-def test_every_notebook_pins_same_archive_and_bootstrap():
-    digest = sha256((ROOT / 'scripts/colab_bootstrap.py').read_bytes()).hexdigest()
-    pins = set()
-    for path in (ROOT / 'notebooks').glob('0*.ipynb'):
-        nb = json.loads(path.read_text())
-        cell = ''.join(nb['cells'][1]['source'])
-        assert f'BOOTSTRAP_SHA256 = "{digest}"' in cell
-        assert len(cell.splitlines()) <= 32
-        commit = re.search(r'^RELEASE_COMMIT = (.+)$', cell, re.M).group(1).split(' #')[0]
-        archive = re.search(r'^RELEASE_SHA256 = (.+)$', cell, re.M).group(1)
-        assert re.fullmatch(r'"[0-9a-f]{40}"', commit)
-        assert re.fullmatch(r'"[0-9a-f]{64}"', archive)
-        pins.add((commit, archive))
-        assert 'PREPARE_COLAB = False' in cell
-    assert len(pins) == 1
+@pytest.mark.parametrize('filename', BOOKS)
+def test_notebook_runs_alone_without_repository(filename, tmp_path):
+    """ipynbだけを空フォルダへコピー。repo importと通信を禁止して全既定セルを実行。"""
+    target = tmp_path / filename
+    target.write_bytes((ROOT / 'notebooks' / filename).read_bytes())
+    script = '''import builtins, json, pathlib, socket
+original_import = builtins.__import__
+def guarded(name, *args, **kwargs):
+    if name.startswith('seminar_lab'):
+        raise AssertionError('repository import forbidden')
+    return original_import(name, *args, **kwargs)
+builtins.__import__ = guarded
+def blocked(*args, **kwargs):
+    raise AssertionError('network forbidden')
+socket.socket.connect = blocked
+for cell in json.loads(pathlib.Path(%r).read_text())['cells']:
+    if cell['cell_type'] == 'code':
+        exec(compile(''.join(cell['source']), 'isolated notebook cell', 'exec'), globals())
+print('standalone pass')
+''' % filename
+    # 00はsite-packagesも使わない。ほかの冊子は環境に導入済みの通常ライブラリを使う。
+    command = [sys.executable, '-I'] + (['-S'] if filename.startswith('00') else []) + ['-c', script]
+    completed = subprocess.run(command, cwd=tmp_path, capture_output=True, text=True, timeout=30)
+    assert completed.returncode == 0, completed.stderr
+    assert 'standalone pass' in completed.stdout
+    assert not (tmp_path / 'src').exists() and not (tmp_path / 'config').exists()
 
 
-def test_changed_download_never_executes():
-    nb = json.loads((ROOT / 'notebooks/01_dialogue_lab.ipynb').read_text())
-    cell = ''.join(nb['cells'][1]['source'])
-    cell = cell.replace('PREPARE_COLAB = False', 'PREPARE_COLAB = True')
-    cell = re.sub(r'^RELEASE_COMMIT = .+$', 'RELEASE_COMMIT = "' + 'a'*40 + '"', cell, flags=re.M)
-    cell = re.sub(r'^RELEASE_SHA256 = .+$', 'RELEASE_SHA256 = "' + 'b'*64 + '"', cell, flags=re.M)
-    with patch('urllib.request.urlopen', return_value=BytesIO(b'raise AssertionError("must not execute")')):
-        with pytest.raises(RuntimeError, match='ハッシュ'):
-            exec(cell, {})
+def test_embedded_support_matches_verified_source():
+    sys.path.insert(0, str(ROOT / 'scripts'))
+    from embed_notebook_support import refresh
+    assert all(not refresh(ROOT / 'notebooks' / name, check=True) for name in BOOKS)
 
 
-def test_minimal_profiles_exclude_unneeded_libraries():
-    def dependencies(filename):
-        return set(re.findall(r'^([a-z][a-z0-9-]*)==', (ROOT / filename).read_text(), re.M))
-    assert dependencies('requirements-records.txt') == {'pyyaml'}
-    dialogue = dependencies('requirements-dialogue.txt')
-    assert {'openai', 'pyyaml'} <= dialogue
-    assert not {'pillow', 'pypdf', 'torch', 'transformers'} & dialogue
-@pytest.mark.parametrize('filename', ['00_setup.ipynb', '01_dialogue_lab.ipynb', '02_document_lab.ipynb', '03_open_weight_lab.ipynb'])
-def test_setup_rejects_shared_code_from_another_checkout(filename, tmp_path, monkeypatch):
-    """新しい固定版を開いたときに、旧版のimportを黙って再利用しない。"""
-    import sys
-    from types import SimpleNamespace
-    foreign = SimpleNamespace(__file__=str(tmp_path / 'previous-course/src/seminar_lab/config.py'))
-    monkeypatch.setitem(sys.modules, 'seminar_lab.previous_version_fixture', foreign)
-    notebook = json.loads((ROOT / 'notebooks' / filename).read_text())
-    first = next(c for c in notebook['cells'] if c['cell_type'] == 'code')
-    with pytest.raises(RuntimeError, match='再起動'):
-        exec(''.join(first['source']), {'ROOT': ROOT})
+@pytest.mark.parametrize('filename', BOOKS)
+def test_no_hidden_code_download_or_import(filename):
+    nb = json.loads((ROOT / 'notebooks' / filename).read_text())
+    code = '\n'.join(''.join(c['source']) for c in nb['cells'] if c['cell_type'] == 'code')
+    tree = ast.parse(code)
+    assert not any(isinstance(n, ast.ImportFrom) and ((n.module or '').startswith('seminar_lab') or n.level) for n in ast.walk(tree))
+    assert not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in {'exec', 'eval', '__import__'} for n in ast.walk(tree))
+    for hidden in ('RELEASE_COMMIT', 'urlopen', 'sys.path.insert', "ROOT / 'config/", "ROOT / 'requirements-"):
+        assert hidden not in code
+    assert any(c.get('id') == 'input-output-examples' for c in nb['cells'])
+
+
+def test_only_required_external_libraries():
+    code = lambda name: '\n'.join(''.join(c['source']) for c in json.loads((ROOT/'notebooks'/name).read_text())['cells'] if c['cell_type']=='code')
+    assert 'import yaml' not in code('00_setup.ipynb')
+    assert 'import yaml' not in code('03_open_weight_lab.ipynb')
+    first = next(c for c in json.loads((ROOT/'notebooks/01_dialogue_lab.ipynb').read_text())['cells'] if c['cell_type']=='code')
+    assert "packages = ['openai==2.54.0', 'pyyaml==6.0.3']" in ''.join(first['source'])

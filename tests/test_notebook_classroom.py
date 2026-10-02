@@ -34,7 +34,8 @@ def test_document_resize_previews_exact_sent_pixels(tmp_path):
     path = tmp_path / 'artificial.png'
     Image.new('RGB', (100, 60), 'blue').save(path)
     source = code_cell('02_document_lab.ipynb', 'PREPARE_INPUT =')
-    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_kind = 'image'", "input_kind = 'resized_image'")
+    assert "input_kind = 'pdf'" in source
+    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_kind = 'pdf'", "input_kind = 'resized_image'")
     source = source.replace("local_path = ''", f'local_path = {str(path)!r}').replace("source_location = ''", "source_location = 'synthetic'").replace('width = 600', 'width = 50')
     namespace = {}
     exec(source, namespace)
@@ -70,14 +71,14 @@ def test_failed_local_generation_cannot_save_old_answer(tmp_path):
         exec(code_cell('03_open_weight_lab.ipynb', 'RUN =').replace('RUN = False', 'RUN = True'), ns)
     assert ns['result'] is None
     with pytest.raises(ValueError, match='生成結果'):
-        exec(code_cell('03_open_weight_lab.ipynb', 'from seminar_lab.open_weight import save_result').replace('SAVE = False', 'SAVE = True'), ns)
+        exec(code_cell('03_open_weight_lab.ipynb', "save_result(globals().get('result'), annotations, ROOT)").replace('SAVE = False', 'SAVE = True'), ns)
     assert not (tmp_path / 'outputs').exists()
 
 
 def test_local_save_keeps_student_explanation_and_raw_output(tmp_path, model_result):
     result = {**model_result, 'response_raw':'raw','student_explanation':'mine','unresolved_point':'unknown'}
     ns = dict(ROOT=tmp_path, result=result.copy())
-    exec(code_cell('03_open_weight_lab.ipynb', 'from seminar_lab.open_weight import save_result').replace('SAVE = False', 'SAVE = True'), ns)
+    exec(code_cell('03_open_weight_lab.ipynb', "save_result(globals().get('result'), annotations, ROOT)").replace('SAVE = False', 'SAVE = True'), ns)
     path, = (tmp_path / 'outputs/open-weight').glob('*.json')
     assert json.loads(path.read_text()) == result
     assert ns['result'] == result
@@ -85,7 +86,7 @@ def test_local_save_keeps_student_explanation_and_raw_output(tmp_path, model_res
 
 def test_unassigned_local_observation_cannot_become_paper_record(tmp_path, model_result):
     ns = dict(ROOT=tmp_path, result={**model_result, 'response_raw': 'fixture', 'reading_context': None})
-    exec(code_cell('03_open_weight_lab.ipynb', 'from seminar_lab.open_weight import save_result').replace('SAVE = False', 'SAVE = True'), ns)
+    exec(code_cell('03_open_weight_lab.ipynb', "save_result(globals().get('result'), annotations, ROOT)").replace('SAVE = False', 'SAVE = True'), ns)
     assert len(ns['paths']) == 1 and ns['paths'][0].suffix == '.json'
     assert not list((tmp_path / 'outputs').glob('*.jsonl'))
 
