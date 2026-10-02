@@ -18,13 +18,13 @@
 
 | 使う時間・目的 | Notebook | 固定版へのリンク |
 |---|---|---|
-| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/00_setup.ipynb) |
-| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/03_open_weight_lab.ipynb) |
-| 11:57・15:10・16:15：質問の比較、再読、別論文 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/01_dialogue_lab.ipynb) |
-| 13:30・14:20：図2、元画像と縮小画像を比較 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/4e949eb8c509330bfb9dfb243def7e7b48917808/notebooks/02_document_lab.ipynb) |
+| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/a330f4cfb335c67c4092e564c75f26e8b1baca6c/notebooks/00_setup.ipynb) |
+| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/a330f4cfb335c67c4092e564c75f26e8b1baca6c/notebooks/03_open_weight_lab.ipynb) |
+| 11:57・15:10・16:15：質問の比較、再読、別論文 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/a330f4cfb335c67c4092e564c75f26e8b1baca6c/notebooks/01_dialogue_lab.ipynb) |
+| 13:30・14:20：図2、元画像と縮小画像を比較 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/a330f4cfb335c67c4092e564c75f26e8b1baca6c/notebooks/02_document_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
-2. 冒頭の準備セルで`PREPARE_COLAB`をONにして実行します。固定版の教材と必要なライブラリを取得します。APIは呼びません。
+2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。
 3. 01・02は教員が配布する設定ファイルを読み込みます。質問と入力を確認してから送信し、キーは専用の入力欄で扱います。
 4. 保存セルを実行し、Files欄から`outputs/`の記録をダウンロードします。Colabのランタイムが削除されると、そこに保存したファイルも消えます。
 
@@ -45,6 +45,7 @@ uv sync --frozen
 uv run pytest -q -m "not live"
 uv run python scripts/check_course.py --mode structure
 uv run python scripts/check_notebooks.py --execute-offline
+uv run python scripts/embed_notebook_support.py --check
 uv run python scripts/check_public_release.py
 ```
 
