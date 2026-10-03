@@ -27,5 +27,5 @@ runtime:
 # 利用額・回数のhard limitは教員がAPI側で管理。Notebook内の許可ID・回数枠は不要。
 
 # OpenAI直接接続のモデルはNotebookのmodel欄で採用3種から選ぶ。
-# gpt-6-luna / gpt-6.1-sol / gpt-4.1-mini。モデルごとの実測はdocs/capability_audit.md。
+# gpt-6-luna / gpt-6-sol / gpt-4.1-mini。モデルごとの実測はdocs/capability_audit.md。
 # 中継の場合は選んだモデルと一致する、経路で確認した接続設定が必要。

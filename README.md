@@ -32,7 +32,7 @@ Paper2Agentの図1・2とMethodsで論文の読み方を学び、The AI Scientis
 3. 01・02は教員から`connection.local.yaml`と個別APIキーを別々に受け取ります。02の論文画像は`fig2_full.png`と`fig2_quarter.png`です。各Notebook冒頭に、ファイル一覧・Colabへのアップロード・記入欄・実行順を載せています。キーは送信時の専用入力欄にだけ入れます。公開の`connection.example.yaml`は学生用の接続設定ではありません。
 4. 保存セルを実行し、Files欄から`outputs/`の記録をダウンロードします。Colabのランタイムが削除されると、そこに保存したファイルも消えます。
 
-01・02では接続セルの`model`で、`gpt-6-luna`・`gpt-6.1-sol`・`gpt-4.1-mini`を選べます。質問セルに対応する設定例があり、モデル変更時は新規会話にします。[モデルの仕様・実測状態](docs/capability_audit.md)を参照してください。
+01・02では接続セルの`model`で、`gpt-6-luna`・`gpt-6-sol`・`gpt-4.1-mini`を選べます。質問セルに対応する設定例があり、モデル変更時は新規会話にします。[モデルの仕様・実測状態](docs/capability_audit.md)を参照してください。
 
 朝の最初のAI利用は、最終スライド5に合わせてNotebook 02で論文PDFの1–3ページを送ります。03は初回のモデル取得に時間がかかるため、教員の案内に合わせて演習前に準備します。操作の詳細は[Notebookガイド](docs/notebook_guide.md)にあります。
 

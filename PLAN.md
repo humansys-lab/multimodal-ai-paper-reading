@@ -1,5 +1,9 @@
 # 授業の仕様（学生向け公開抜粋）
 
+## 2026-10-03追記：許可モデルIDの訂正
+
+教員の最新の指定は、小文字の`gpt-6-sol`、`gpt-4.1-mini`、`gpt-6-luna`。従来の`gpt-6.1-sol`を通常Notebookの選択肢から置き換える。GPT-6 Solはnoneの推論設定にも対応する。既定はLunaのnone、Solを選ぶ場合はlowとする。以前のGPT-6.1 Solの実測をGPT-6 Solの試験結果として扱わない。
+
 ## 2026-10-03：授業用OpenAIモデルを3種類に確定
 
 - 教員がGPT-6 Luna (`gpt-6-luna`)、GPT-6.1 Sol (`gpt-6.1-sol`)、GPT-4.1 mini (`gpt-4.1-mini`)を採用し、APIプラットフォームでこの3モデルのみ許可したと申告。Lunaのブロック解除も申告。API側の設定内容・金額のhard limitの停止動作をエージェントが検証済みとはしない。
