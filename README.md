@@ -34,6 +34,8 @@ Paper2Agentの図1・2とMethodsで論文の読み方を学び、The AI Scientis
 
 01・02では接続セルの`model`で、`gpt-6-luna`・`gpt-6-sol`・`gpt-4.1-mini`を選べます。質問セルに対応する設定例があり、モデル変更時は新規会話にします。[モデルの仕様・実測状態](docs/capability_audit.md)を参照してください。
 
+2026-10-03 15:17 JSTに`gpt-6-luna`の直接APIで文章送信が成功しました（HTTP 200／completed）。画像・PDF・継続などの確認範囲は[検証記録](docs/verification.md)に記載しています。
+
 朝の最初のAI利用は、最終スライド5に合わせてNotebook 02で論文PDFの1–3ページを送ります。03は初回のモデル取得に時間がかかるため、教員の案内に合わせて演習前に準備します。操作の詳細は[Notebookガイド](docs/notebook_guide.md)にあります。
 
 ## 実行状態・費用・提出
