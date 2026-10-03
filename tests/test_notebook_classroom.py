@@ -22,27 +22,8 @@ def test_permission_preview_does_not_consume_or_reset(runtime):
     assert permission.used == 1
 
 
-def test_document_preparation_failure_clears_old_image(tmp_path):
-    source = code_cell('02_document_lab.ipynb', 'PREPARE_INPUT =').replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True')
-    source = form_values(source, file_source='パスを指定する（PCで実行）')
-    namespace = {'inputs': ['previous image']}
-    with pytest.raises(ValueError):
-        exec(source, namespace)
-    assert namespace['inputs'] == []
 
 
-def test_document_resize_previews_exact_sent_pixels(tmp_path):
-    path = tmp_path / 'artificial.png'
-    Image.new('RGB', (100, 60), 'blue').save(path)
-    source = code_cell('02_document_lab.ipynb', 'PREPARE_INPUT =')
-    assert "input_type = 'PDF'" in source
-    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_type = 'PDF'", "input_type = '画像を縮小'")
-    source = source.replace("local_path = ''", f'local_path = {str(path)!r}').replace("source_location = ''", "source_location = 'synthetic'").replace('width = 600', 'width = 50')
-    source = form_values(source, file_source='パスを指定する（PCで実行）')
-    namespace = {}
-    exec(source, namespace)
-    assert namespace['inputs'][0].provenance['pixels'] == [50, 30]
-    assert namespace['inputs'][0].provenance['original_pixels'] == [100, 60]
 
 
 def test_changed_question_requires_preview_before_key_prompt(adopted, runtime):
@@ -140,11 +121,6 @@ def test_homework_blank_form_never_replaces_common_state(adopted):
     assert ns['activity_id'] == 'P2a' and ns['run_id'] == 'keep'
 
 
-def test_failed_document_send_clears_previous_result_before_key_input():
-    ns = {'inputs': [], 'result': {'response_raw': 'previous'}}
-    with pytest.raises(ValueError, match='画像またはPDF'):
-        exec(code_cell('02_document_lab.ipynb', 'SEND =').replace('SEND = False', 'SEND = True'), ns)
-    assert ns['result'] is None
 
 
 def test_homework_without_selection_explains_setup_before_preview(runtime):
@@ -173,7 +149,7 @@ def test_repeated_run_is_rejected_before_asking_for_key(adopted, runtime, monkey
     assert permission.used == 0 and len(session.records) == 1
 
 
-@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb'])
 def test_save_after_rejected_duplicate_never_changes_previous_answer(tmp_path, name):
     """送信セルがresultを消した後、同じ番号の古い記録へ説明を付けない。"""
     record = {'run_id': 'used', 'student_explanation': '前の問いについての説明'}

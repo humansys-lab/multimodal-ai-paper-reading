@@ -12,7 +12,7 @@ from seminar_lab.ui import parse_pdf_pages, upload_one_file
 from test_notebook_state import form_values
 from test_standalone_workflows import book_namespace, action
 
-BOOKS = ['01_dialogue_lab.ipynb', '02_document_lab.ipynb']
+BOOKS = ['01_dialogue_lab.ipynb']
 
 
 def colab_files(monkeypatch, upload=None, download=None):
@@ -80,36 +80,12 @@ def test_connection_upload_reuse_and_cancel(filename, tmp_path, monkeypatch, run
     assert ns['runtime'] is None and ns['connection_file'] is None
 
 
-def test_document_upload_reuse_and_cancel(tmp_path, monkeypatch):
-    ns, nb = book_namespace('02_document_lab.ipynb', tmp_path, monkeypatch)
-    calls = []
-    def upload(*, target_dir):
-        calls.append(target_dir)
-        p = Path(target_dir) / 'figure (1).png'
-        p.parent.mkdir(parents=True, exist_ok=True)
-        Image.new('RGB', (20, 10), 'blue').save(p)
-        return {str(p): p.read_bytes()}
-    boundary = colab_files(monkeypatch, upload=upload)
-    prepare = action(nb, 'PREPARE_INPUT =')
-    exec(form_values(prepare, PREPARE_INPUT=True, input_type='画像', source_location='人工図'), ns)
-    assert ns['document_file'].name == 'figure (1).png'
-    assert ns['inputs'][0].provenance['pixels'] == [20, 10]
-    exec(form_values(prepare, PREPARE_INPUT=True, file_source='前と同じファイル', input_type='画像を縮小', source_location='人工図', width=10), ns)
-    assert ns['inputs'][0].provenance['pixels'] == [10, 5] and len(calls) == 1
-    boundary.upload = lambda **_: {}
-    with pytest.raises(ValueError, match='1つだけ'):
-        exec(form_values(prepare, PREPARE_INPUT=True), ns)
-    assert ns['inputs'] == [] and ns['document_file'] is None
 
 
 @pytest.mark.parametrize('filename', BOOKS)
 def test_question_prepares_next_run_without_counter_cell(filename, tmp_path, monkeypatch, runtime):
     ns, nb = book_namespace(filename, tmp_path, monkeypatch)
     ns.update(runtime=runtime, model=runtime['model'], activity_id='PRACTICE')
-    if filename.startswith('02'):
-        p = tmp_path / 'figure.png'
-        Image.new('RGB', (10, 10)).save(p)
-        ns['inputs'] = [ns['image_input'](p, '人工図')]
     question = action(nb, 'previewed_request = None')
     exec(form_values(question, question='最初の質問', max_output_tokens=100), ns)
     first_id = ns['run_id']

@@ -34,7 +34,7 @@ def test_old_connection_does_not_limit_classroom_requests(tmp_path, runtime):
             validate_runtime(loaded, {'pdf'}, {'max_output_tokens': limit})
 
 
-@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb'])
 @pytest.mark.parametrize('outcome', ['completed', 'incomplete', 'budget'])
 def test_actual_cells_reload_and_send_without_permission(name, outcome, tmp_path, runtime, monkeypatch):
     """API境界だけ人工応答。準備セル再定義後も記録と継続履歴を保持する。"""
@@ -96,10 +96,6 @@ def test_actual_cells_reload_and_send_without_permission(name, outcome, tmp_path
     session = ns['session']
     ns.update(question='人工資料についての質問', parameters={'max_output_tokens': 2048},
               conversation_mode='new', inputs=[])
-    if name.startswith('02'):
-        image_path = tmp_path / 'synthetic.png'
-        Image.new('RGB', (8, 8), 'white').save(image_path)
-        ns['inputs'] = [ns['image_input'](image_path, '試験用の人工画像')]
     exec(form_values(cell('previewed_request = None'), question='人工資料についての質問'), ns)
     exec(cell('SEND =').replace('SEND = False', 'SEND = True'), ns)
     assert ns['result']['status'] == 'success'

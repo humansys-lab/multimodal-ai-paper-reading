@@ -31,7 +31,7 @@ if 'manifest' not in globals(): manifest = _config.load_yaml(Path({str(ROOT)!r})
     return prelude + cells[0]
 
 
-@pytest.mark.parametrize('name', ['00_setup.ipynb', '01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+@pytest.mark.parametrize('name', ['00_setup.ipynb', '01_dialogue_lab.ipynb'])
 def test_save_off_reexecution_preserves_student_explanation(name):
     record = {'student_explanation': '学生が記入した説明', 'unresolved_point': 'まだ残る問い'}
     original = record.copy()

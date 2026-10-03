@@ -91,6 +91,9 @@ def data_cell() -> str:
 
 
 def support_cells(notebook) -> list:
+    # 02は公式SDKを直接使う小さな実習。記録用の共通処理・授業設定は不要。
+    if notebook.metadata.get('standalone_api_lesson'):
+        return []
     definitions, imports = catalog()
     source = '\n'.join(c.source for c in notebook.cells if c.cell_type == 'code' and not c.metadata.get('embedded_support'))
     needed = global_reads(source) & definitions.keys()

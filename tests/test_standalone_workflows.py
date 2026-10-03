@@ -50,7 +50,7 @@ def test_manual_examples_save_without_repository(tmp_path, monkeypatch):
     assert all(r['response_raw'] is None for r in records)
 
 
-@pytest.mark.parametrize('filename',['01_dialogue_lab.ipynb','02_document_lab.ipynb','03_open_weight_lab.ipynb'])
+@pytest.mark.parametrize('filename',['01_dialogue_lab.ipynb','03_open_weight_lab.ipynb'])
 def test_embedded_common_contract_and_transfer_separation(filename,tmp_path,monkeypatch):
     ns,_=book_namespace(filename,tmp_path,monkeypatch)
     context=lambda aid,**kw: ns['material_context'](ns['course'],ns['manifest'],aid,for_input=False,**kw)
@@ -66,27 +66,6 @@ def test_embedded_common_contract_and_transfer_separation(filename,tmp_path,monk
     assert context('PRACTICE')['material_id']!='P01'
 
 
-def test_actual_document_example_resize_pdf_and_invalid_input(tmp_path,monkeypatch):
-    ns,nb=book_namespace('02_document_lab.ipynb',tmp_path,monkeypatch)
-    create=action(nb,'CREATE_EXAMPLE =').replace('CREATE_EXAMPLE = False','CREATE_EXAMPLE = True')
-    exec(create,ns)
-    png=tmp_path/'outputs/input-example/notebook-example.png'
-    pdf=png.with_suffix('.pdf')
-    assert ns['image_input'](png,'自作図').provenance['pixels']==[1200,600]
-    small=ns['resized_image_input'](png,'自作図',600)
-    assert small.provenance['pixels']==[600,300]
-    selected=ns['pdf_input'](pdf,[1])
-    selected.validate()
-    assert selected.provenance['page_mapping'][0]['source_pdf_page']==1
-    before=png.read_bytes()
-    with pytest.raises(ValueError,match='作成済み'): exec(create,ns)
-    assert png.read_bytes()==before
-    ns['inputs']=[small]
-    prepare=action(nb,'PREPARE_INPUT =').replace('PREPARE_INPUT = False','PREPARE_INPUT = True').replace("local_path = ''",f'local_path = {str(pdf)!r}').replace("pages = '1-3'", "pages = '0'")
-    prepare = form_values(prepare, file_source='パスを指定する（PCで実行）')
-    assert "pages = '0'" in prepare
-    with pytest.raises(ValueError,match='1始まり'): exec(prepare,ns)
-    assert ns['inputs']==[]
 
 
 def test_embedded_dialogue_history_and_failure_are_not_normalized(tmp_path,monkeypatch,runtime):
@@ -114,7 +93,7 @@ def test_embedded_dialogue_history_and_failure_are_not_normalized(tmp_path,monke
     assert ns['load_records'](paths[0])==ns['load_records'](paths[1])==session.records
 
 
-@pytest.mark.parametrize('filename', ['01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+@pytest.mark.parametrize('filename', ['01_dialogue_lab.ipynb'])
 @pytest.mark.parametrize('activity', ['P1', 'P2a', 'V1', 'V2', 'METHODS', 'TRANSFER'])
 def test_actual_adopted_papers_can_prepare_input(filename, activity, tmp_path, monkeypatch):
     """配布版の設定を使う。試験側で入力確認を上書きして不具合を隠さない。"""
@@ -131,19 +110,3 @@ def test_actual_adopted_papers_can_prepare_input(filename, activity, tmp_path, m
         ns['material_context'](ns['course'], ns['manifest'], activity)
 
 
-@pytest.mark.parametrize('activity', ['P1', 'V1', 'V2', 'P2a', 'TRANSFER'])
-@pytest.mark.parametrize('kind', ['image', 'pdf'])
-def test_document_step_five_with_actual_material_settings(activity, kind, tmp_path, monkeypatch, runtime):
-    """実Notebookの手順5を通信なしで実行。入力画像だけ人工例を使う。"""
-    ns, nb = book_namespace('02_document_lab.ipynb', tmp_path, monkeypatch)
-    exec(action(nb, 'CREATE_EXAMPLE =').replace('CREATE_EXAMPLE = False', 'CREATE_EXAMPLE = True'), ns)
-    path = tmp_path / 'outputs/input-example/notebook-example.png'
-    inputs = [ns['image_input'](path, 'TEST FIXTURE: input preparation only')] if kind == 'image' else [ns['pdf_input'](path.with_suffix('.pdf'), [1])]
-    ns.update(activity_id=activity, model=runtime['model'], runtime=runtime, permission=object(), inputs=inputs,
-              question='TEST FIXTURE: preview only', parameters={'max_output_tokens': 100}, conversation_mode='new')
-    with contextlib.redirect_stdout(io.StringIO()):
-        exec(form_values(action(nb, 'previewed_request = None'), question='TEST FIXTURE: preview only', max_output_tokens=100), ns)
-    context, payload, provenance = ns['previewed_request']
-    assert context['material_id'] == ('P02' if activity == 'TRANSFER' else 'V01' if activity == 'V1' else 'V02' if activity == 'V2' else 'P01')
-    assert payload['model'] == runtime['model'] and payload['store'] is False
-    assert provenance and ns['session'].history == []

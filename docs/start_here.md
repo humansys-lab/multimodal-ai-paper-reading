@@ -4,7 +4,7 @@
 
 第1日は本編を17:30までに終える。17:30–18:00の相談・予備枠は任意参加（希望者のみ）で、新しい必修内容は扱わない。
 
-1. [当日の短い手順書](student_quickstart.md)を開く。最終スライドに合わせ、朝のAI読解はNotebook 02でPDFを使う。GUIを使う場合は教員の案内と[GUIガイド](gui_guide.md)を参照する。
+1. [当日の短い手順書](student_quickstart.md)を開く。02はOpenAI APIの入門実習に使う。朝の読解は教員の案内と[GUIガイド](gui_guide.md)を参照する。
 2. 当日は[第1日カード](../activities/day1.md)と[個人記録](../worksheets/reading_record.md)を開く。最初は全員が同じPaper2Agent論文の指定範囲をAIなしで読む。
 3. 16:10からはThe AI Scientistへ読み方を使い、別の記録へ保存する。その後は[HW1・HW2](../assignments/homework.md)へ。どちらも必須。HW1ではNature／Science本誌2誌から共通論文と別の掲載済み原著・Open Access論文を選び、研究内容と理解の過程を説明する。HW2では日常業務・学業・研究から選んだ用途でのAI活用を説明する。第2日の発表は各5分＋質疑5分、合計10枚以下。
 
@@ -22,4 +22,4 @@
 
 [準備・質問・確認・保存の操作ガイド](notebook_guide.md)に、変更する欄と保存の手順をまとめています。
 
-[READMEのColabリンク](../README.md#colabで開く)から、目的に合うNotebookを開いてください。各Notebookに入出力例・関数・授業設定が含まれています。00は追加ライブラリ不要。01・02の冒頭と03のモデル準備にあるINSTALLは、初回にライブラリが必要なときだけTrueにします。送信は後のセルで自分が明示したときだけです。
+[READMEのColabリンク](../README.md#colabで開く)から、目的に合うNotebookを開いてください。各Notebookは単独で実行でき、入出力例を含みます。02では各自のメモ帳に記録し、Activityの指定や保存セルはありません。00は追加ライブラリ不要。01・02の冒頭と03のモデル準備にあるINSTALLは、初回にライブラリが必要なときだけTrueにします。送信は後のセルで自分が明示したときだけです。
