@@ -113,6 +113,14 @@ def support_cells(notebook) -> list:
             chunk.append(text); names.append(name); length += len(text.splitlines())
         if chunk:
             blocks.append((f'{module}-{group}', LABELS[module] + '：' + ', '.join(names), '\n\n\n'.join(chunk)))
+    if notebook.metadata.get('compact_support'):
+        code = '\n\n'.join('# ' + title + '\n' + body for _, title, body in blocks)
+        cell = nbformat.v4.new_code_cell(
+            '# @title 1b. 関数を準備する（▶を1回押す。コードは開いて読めます）\n'
+            'from __future__ import annotations\n' + code + '\n\nprint("関数の準備ができました。2へ進んでください。")',
+            metadata={'embedded_support': 'all', 'jupyter': {'source_hidden': True}, 'cellView': 'form'})
+        cell.id = 'support-all'
+        return [cell]
     guide = nbformat.v4.new_markdown_cell('### 準備用の関数を定義する\n\n以下も上から順に実行します。この段階ではAPI送信・モデル取得・回答の生成は行いません。折りたたみを開くと、記録、入力、送信などの関数を読めます。授業中に変更する欄は、この後の番号付きの手順にあります。', metadata={'embedded_support': 'guide'})
     guide.id = 'support-guide'
     cells = [guide]

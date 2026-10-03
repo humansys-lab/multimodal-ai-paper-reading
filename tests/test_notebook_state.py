@@ -1,4 +1,5 @@
 """教材セルの再実行で学生の記入や保存済み記録を失わないことを確認する。"""
+import ast
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,6 +13,9 @@ def code_cell(name: str, marker: str) -> str:
     nb = json.loads((ROOT / 'notebooks' / name).read_text())
     cells = [''.join(c['source']) for c in nb['cells'] if c['cell_type'] == 'code' and not c.get('metadata', {}).get('embedded_support') and marker in ''.join(c['source'])]
     assert len(cells) == 1
+    if marker == 'previewed_request = None':
+        entry = next(''.join(c['source']) for c in nb['cells'] if c.get('id') == 'question-input')
+        cells[0] = entry + '\n' + cells[0]  # 記入→確認の実セルを順に実行
     # 操作セル単体の試験では共通実装を供給する。埋込みの同一性と単独実行は別に検査。
     prelude = f"""from seminar_lab import config as _config, records as _records, ui as _ui, inputs as _inputs, client as _client, open_weight as _local, connection as _connection
 for _module in (_config, _records, _ui, _inputs, _client, _local, _connection):
@@ -55,3 +59,18 @@ def test_open_weight_annotation_revision_keeps_previous_record(tmp_path, model_r
     assert len(saved) == 2
     assert {json.loads(p.read_text())['response_raw'] for p in saved} == {'fixture'}
     assert namespace['result']['student_explanation'] == '追記した説明'
+
+
+def form_values(source: str, **values) -> str:
+    """Colabのフォーム入力を、実セルの代入値の置換として再現する。"""
+    lines = source.splitlines(keepends=True)
+    replacements = []
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            name = node.targets[0].id
+            if name in values:
+                replacements.append((node.lineno - 1, node.end_lineno, f'{name} = {values.pop(name)!r}\n'))
+    assert not values, f'フォーム項目がありません: {values}'
+    for start, end, text in reversed(replacements):
+        lines[start:end] = [text]
+    return ''.join(lines)
