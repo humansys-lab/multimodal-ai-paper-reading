@@ -22,10 +22,10 @@ Paper2Agentの図1・2とMethodsで論文の読み方を学び、The AI Scientis
 
 | 使う時間・目的 | Notebook | 固定版へのリンク |
 |---|---|---|
-| 任意：自分の説明をNotebookで保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/e40e8d57e6a964db5be3f8aac378597806114740/notebooks/00_setup.ipynb) |
-| OpenAI APIの使い方：文章→画像・PDF | [02 API入門](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/e40e8d57e6a964db5be3f8aac378597806114740/notebooks/02_document_lab.ipynb) |
-| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/e40e8d57e6a964db5be3f8aac378597806114740/notebooks/03_open_weight_lab.ipynb) |
-| 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/e40e8d57e6a964db5be3f8aac378597806114740/notebooks/01_dialogue_lab.ipynb) |
+| 任意：自分の説明をNotebookで保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/5957354d27a6a3f75054467bcd5f334c99470996/notebooks/00_setup.ipynb) |
+| OpenAI APIの使い方：文章→画像・PDF | [02 API入門](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/5957354d27a6a3f75054467bcd5f334c99470996/notebooks/02_document_lab.ipynb) |
+| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/5957354d27a6a3f75054467bcd5f334c99470996/notebooks/03_open_weight_lab.ipynb) |
+| 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/5957354d27a6a3f75054467bcd5f334c99470996/notebooks/01_dialogue_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
 2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。**03は導入後に必ずランタイムを再起動**し、`INSTALL=False`に戻して冒頭の保存先・関数定義セルを再実行してから「2」へ進みます。
