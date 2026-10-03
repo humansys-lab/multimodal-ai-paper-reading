@@ -47,6 +47,9 @@ def test_actual_cells_reload_and_send_without_permission(name, outcome, tmp_path
                    if c['cell_type'] == 'code' and not c['metadata'].get('embedded_support')
                    and marker in ''.join(c['source'])]
         assert len(matches) == 1
+        if marker == 'previewed_request = None':
+            entry = next(''.join(c['source']) for c in notebook['cells'] if c.get('id') == 'question-input')
+            return entry + '\n' + matches[0]
         return matches[0]
 
     config_path = tmp_path / 'connection.yaml'

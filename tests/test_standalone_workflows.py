@@ -29,6 +29,9 @@ def book_namespace(filename, folder, monkeypatch):
 def action(notebook, marker):
     cells = [''.join(c['source']) for c in notebook['cells'] if c['cell_type']=='code' and not c.get('metadata',{}).get('embedded_support') and marker in ''.join(c['source'])]
     assert len(cells) == 1
+    if marker == 'previewed_request = None':
+        entry = next(''.join(c['source']) for c in notebook['cells'] if c.get('id') == 'question-input')
+        return entry + '\n' + cells[0]
     return cells[0]
 
 

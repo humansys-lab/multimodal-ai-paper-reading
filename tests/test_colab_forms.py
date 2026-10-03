@@ -146,3 +146,18 @@ def test_save_forms_and_download_keep_raw_response(filename, tmp_path, monkeypat
     exec(form_values(save, SAVE=True), ns)  # 空欄の再保存で説明を消さない。
     assert record['student_explanation'] == '自分の説明'
     assert downloads[0].read_bytes() == first
+
+
+def test_multiline_question_and_excerpt_survive_actual_cells(tmp_path, monkeypatch, runtime):
+    ns, nb = book_namespace('01_dialogue_lab.ipynb', tmp_path, monkeypatch)
+    ns.update(runtime=runtime, model=runtime['model'], activity_id='PRACTICE')
+    question = 'What differs?\nPlease give the evidence.'
+    excerpt = 'The value of A was 2.\nThe value of B was 5.'
+    entry = action(nb, 'source_excerpt =')
+    assert '# @param' not in entry
+    exec(form_values(entry, question=question, source_excerpt=excerpt, source_location='人工資料'), ns)
+    confirm = next(''.join(c['source']) for c in nb['cells'] if c.get('id') == 'cell-09')
+    exec(form_values(confirm, max_output_tokens=100), ns)
+    payload = ns['previewed_request'][1]
+    text_parts = [part['text'] for message in payload['input'] for part in message['content'] if 'text' in part]
+    assert question in text_parts and excerpt in text_parts

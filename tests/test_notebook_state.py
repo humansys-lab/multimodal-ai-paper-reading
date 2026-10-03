@@ -13,6 +13,9 @@ def code_cell(name: str, marker: str) -> str:
     nb = json.loads((ROOT / 'notebooks' / name).read_text())
     cells = [''.join(c['source']) for c in nb['cells'] if c['cell_type'] == 'code' and not c.get('metadata', {}).get('embedded_support') and marker in ''.join(c['source'])]
     assert len(cells) == 1
+    if marker == 'previewed_request = None':
+        entry = next(''.join(c['source']) for c in nb['cells'] if c.get('id') == 'question-input')
+        cells[0] = entry + '\n' + cells[0]  # 記入→確認の実セルを順に実行
     # 操作セル単体の試験では共通実装を供給する。埋込みの同一性と単独実行は別に検査。
     prelude = f"""from seminar_lab import config as _config, records as _records, ui as _ui, inputs as _inputs, client as _client, open_weight as _local, connection as _connection
 for _module in (_config, _records, _ui, _inputs, _client, _local, _connection):
