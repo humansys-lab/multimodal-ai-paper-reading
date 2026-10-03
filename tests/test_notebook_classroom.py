@@ -4,7 +4,6 @@ from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 import pytest
-from PIL import Image
 from seminar_lab.client import Session, LivePermission
 from seminar_lab.config import material_context
 from seminar_lab.ui import preview_text
@@ -20,10 +19,6 @@ def test_permission_preview_does_not_consume_or_reset(runtime):
     permission.consume(runtime)
     assert permission.used == 1
     assert permission.used == 1
-
-
-
-
 
 
 def test_changed_question_requires_preview_before_key_prompt(adopted, runtime):
@@ -119,8 +114,6 @@ def test_homework_blank_form_never_replaces_common_state(adopted):
     with pytest.raises(ValueError, match='素材を明示'):
         exec(code_cell('01_dialogue_lab.ipynb', 'START_HOMEWORK =').replace('START_HOMEWORK = False', 'START_HOMEWORK = True'), ns)
     assert ns['activity_id'] == 'P2a' and ns['run_id'] == 'keep'
-
-
 
 
 def test_homework_without_selection_explains_setup_before_preview(runtime):

@@ -6,7 +6,6 @@ import sys
 
 import pytest
 import yaml
-from PIL import Image
 
 from seminar_lab.ui import parse_pdf_pages, upload_one_file
 from test_notebook_state import form_values
@@ -78,8 +77,6 @@ def test_connection_upload_reuse_and_cancel(filename, tmp_path, monkeypatch, run
     with pytest.raises(ValueError, match='1つだけ'):
         exec(form_values(connection, UPLOAD_CONNECTION=True), ns)
     assert ns['runtime'] is None and ns['connection_file'] is None
-
-
 
 
 @pytest.mark.parametrize('filename', BOOKS)

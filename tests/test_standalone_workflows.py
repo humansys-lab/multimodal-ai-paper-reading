@@ -66,8 +66,6 @@ def test_embedded_common_contract_and_transfer_separation(filename,tmp_path,monk
     assert context('PRACTICE')['material_id']!='P01'
 
 
-
-
 def test_embedded_dialogue_history_and_failure_are_not_normalized(tmp_path,monkeypatch,runtime):
     """人工応答はこの試験内だけ。公開Notebookは実際の送信経路だけを持つ。"""
     ns,_=book_namespace('01_dialogue_lab.ipynb',tmp_path,monkeypatch)
@@ -108,5 +106,3 @@ def test_actual_adopted_papers_can_prepare_input(filename, activity, tmp_path, m
     source['rights']['ai_input'] = 'unconfirmed'
     with pytest.raises(ValueError, match='AI入力の確認待ち'):
         ns['material_context'](ns['course'], ns['manifest'], activity)
-
-

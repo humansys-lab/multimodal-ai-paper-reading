@@ -6,7 +6,6 @@ from types import SimpleNamespace
 
 import httpx
 import openai
-from PIL import Image
 import pytest
 import yaml
 
