@@ -1,5 +1,26 @@
 # APIとモデルの対応確認
 
+## 採用モデル（2026-10-03）
+
+教員は次の3モデルを採用し、API側の許可を設定したと申告。通常Notebookの選択肢をこの3つに限定します。料金はUSD／100万トークン、通常処理・短い入力・キャッシュなし。実費は利用量、推論量、画像/PDF処理で変わります。
+
+| モデル・公式仕様 | 入力／出力料金 | Notebookの初期設定 | 直接APIの実測 |
+|---|---|---|---|
+| [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) | 0.10／0.50 | reasoning.effort=none | blocked：許可更新後も403 model_not_found |
+| [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) | 2.00／10.00 | reasoning.effort=low | pass：文章・継続・PNG・PDF、保存往復 |
+| [GPT-4.1 mini](https://developers.openai.com/api/docs/models/gpt-4.1-mini) | 0.40／1.60 | reasoningなし | pass：文章・継続・PNG・PDF、temperature=0.7、保存往復 |
+
+OpenAI SDK 2.54.0／Responses API／store=False／自動再試行0。モデル名が返す実際の名前も記録します。GPT-4.1 miniはgpt-4.1-mini-2025-04-14が返ることを確認しました。別のモデルや未知の版を同じものとして受理しません。
+
+- [推論設定の仕様](https://developers.openai.com/api/docs/guides/deployment-checklist)：Lunaはnoneを含む、Solはlow以上。推論有効時にtemperature・top_pは使えません。対応しない設定を黙って削除せず、エラーにします。
+- [推論と使用量](https://developers.openai.com/api/docs/guides/reasoning)：推論トークンも出力上限・出力料金に含む。store=Falseでの継続用に暗号化データを受け取りますが、内部思考本文を表示する機能ではありません。
+- [PDF入力](https://developers.openai.com/api/docs/guides/file-inputs)：PDFの本文とページ画像を扱う。detail未指定のautoはGPT-5.6以降でhigh、以前でlow。モデル比較には処理条件の差も含まれます。
+- [旧モデルのPredicted Outputs](https://developers.openai.com/api/docs/guides/predicted-outputs)：GPT-4.1 mini等で既知文章の部分修正を速める機能。Chat Completions専用のため、このNotebookには実装せず参考メモとして紹介します。
+
+高額なGPT-6 AstraやProモードは選択肢へ追加していません。回数・金額のhard limitは教員がAPI側で管理します。学生のキーでの利用可否、Colabや講義中継はこの直接試験とは別です。[今回の検証](verification.md)。
+
+以下は過去の検証記録です。GPT-4.1（miniでないもの）は現在の採用モデルに含みません。
+
 更新：2026-10-02。公式資料で確認した仕様と、経路を通した実測を区別します。[検証記録](verification.md)に試験条件・費用・残項目をまとめています。
 
 | 対象 | 公式の仕様・一次資料 | この教材での実測 | 未確認 |

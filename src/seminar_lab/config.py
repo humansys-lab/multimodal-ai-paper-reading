@@ -13,6 +13,17 @@ import yaml
 COMMON = {"P0", "P1", "P2a", "P2b", "P3", "L1", "L2"}
 PHASES = {"P0": "R0", "P1": "R1", "P2a": "R2", "P2b": "R3", "P3": "R3"}
 
+# 教員が2026-10-03に採用。料金・機能の出典と実測はdocs/capability_audit.md。
+# 別モデルへの自動切替はしない。API側の利用可否・金額上限とは別の選択肢。
+COURSE_MODELS = {
+    "gpt-6-luna": {"reasoning_efforts": ["none", "low", "medium", "high", "xhigh", "max"],
+                   "sampling": True, "reported_models": ["gpt-6-luna"]},
+    "gpt-6.1-sol": {"reasoning_efforts": ["low", "medium", "high", "xhigh", "max"],
+                    "sampling": False, "reported_models": ["gpt-6.1-sol"]},
+    "gpt-4.1-mini": {"reasoning_efforts": [], "sampling": True,
+                     "reported_models": ["gpt-4.1-mini", "gpt-4.1-mini-2025-04-14"]},
+}
+
 
 ACTIVITY_NAMES = {
     'PRACTICE': 'Notebookの操作練習（自作例）',
@@ -407,3 +418,7 @@ def validate_runtime(runtime: dict, kinds: set[str], parameters: dict) -> None:
             raise ValidationError("設定値が確認済みの範囲外です。")
         if "min" in rule and (type(val) not in (float, int) or val < rule["min"] or ("max" in rule and val > rule["max"])):
             raise ValidationError("設定値が確認済みの範囲外です。")
+    if runtime["model"] in {"gpt-6-luna", "gpt-6.1-sol"}:
+        effort = parameters.get("reasoning", {}).get("effort", "medium")
+        if effort != "none" and {"temperature", "top_p"} & parameters.keys():
+            raise ValidationError("推論が有効なモデルではtemperature・top_pを併用できません。設定を明示的に変更してください。")

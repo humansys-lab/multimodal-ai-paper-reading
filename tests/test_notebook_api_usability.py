@@ -49,8 +49,10 @@ def test_actual_cells_reload_and_send_without_permission(name, outcome, tmp_path
         return matches[0]
 
     config_path = tmp_path / 'connection.yaml'
+    runtime.update(route='direct_openai', base_url='https://api.openai.com/v1', model='gpt-4.1-mini')
     config_path.write_text(yaml.safe_dump({'runtime': runtime}))
     config_cell = cell('connection_path =').replace("connection_path = ''", f'connection_path = {str(config_path)!r}')
+    config_cell = config_cell.replace("model = 'gpt-6-luna'", "model = 'gpt-4.1-mini'")
     calls, clients = [], []
     replies = ['completed', outcome]
 

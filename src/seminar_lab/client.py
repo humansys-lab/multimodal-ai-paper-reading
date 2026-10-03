@@ -9,7 +9,7 @@ from time import monotonic
 from typing import Any, Protocol
 from uuid import uuid4
 
-from .config import ValidationError, validate_runtime
+from .config import COURSE_MODELS, ValidationError, validate_runtime
 from .inputs import PreparedInput
 from .records import new_record
 
@@ -27,6 +27,7 @@ ERRORS = {
     "invalid_response": "想定した文章の応答形式ではありません。生応答を保存し、成功した履歴には追加していません。",
     "refusal": "モデルが回答を拒否しました。成功した対話として扱わず、入力を確認してください。",
     "model_mismatch": "応答のモデルが指定したモデルと一致しません。経路の設定を確認してください。",
+    "model_access": "選択したモデルをこのAPIキーで利用できません。モデル名と、このキーが属するプロジェクトのモデル許可を教員へ確認してください。別モデルへは自動で切り替えません。",
 }
 
 
@@ -114,6 +115,8 @@ class OpenAITransport:
             kind = {401: "authentication", 403: "authentication", 400: "invalid_input", 413: "invalid_input", 422: "invalid_input", 429: "rate_limit", 503: "service_unavailable"}.get(exc.status_code, "unknown")
             if code in {"insufficient_quota", "budget_exceeded", "budget_exceeded_error"}:
                 kind = "budget"
+            elif code in {"model_not_found", "model_not_available", "model_access_denied"}:
+                kind = "model_access"
             raise TransportError(kind) from None
         except Exception:
             raise TransportError("unknown") from None
@@ -154,8 +157,12 @@ class Session:
                                       for k in ("route", "api", "model", "base_url")):
             raise ValidationError("継続途中のモデル・経路変更は新規会話で行ってください。")
         content = [deepcopy(i.content) for i in inputs] + [{"type": "input_text", "text": prompt}]
-        return {"model": runtime["model"], "input": (self.history if mode == "continue" else []) + [{"role": "user", "content": content}],
-                "store": False, "truncation": "disabled", **deepcopy(parameters)}
+        payload = {"model": runtime["model"], "input": (self.history if mode == "continue" else []) + [{"role": "user", "content": content}],
+                   "store": False, "truncation": "disabled", **deepcopy(parameters)}
+        if runtime["model"] in {"gpt-6-luna", "gpt-6.1-sol"}:
+            # store=Falseでも継続できる暗号化データ。内部の思考本文は取得・表示しない。
+            payload["include"] = ["reasoning.encrypted_content"]
+        return payload
 
     def run(self, *, runtime: dict, context: dict, prompt: str, inputs: list[PreparedInput],
             mode: str, parameters: dict, run_id: str, transport: Transport) -> dict:
@@ -250,7 +257,8 @@ def output_text(record: dict) -> str:
 
 def validate_response(raw: dict, requested_model: str) -> None:
     """文章だけを求めた経路の成功条件。拒否・ツール呼出し・別モデルは成功にしない。"""
-    if raw.get("model") != requested_model:
+    accepted = COURSE_MODELS.get(requested_model, {}).get("reported_models", [requested_model])
+    if raw.get("model") not in accepted:
         raise TransportError("model_mismatch")
     output = raw.get("output")
     if not isinstance(output, list) or not output:
