@@ -75,7 +75,7 @@ def data_cell() -> str:
     course = {k: course[k] for k in ('common_paper_id', 'day1_source_paper_id', 'common_reading', 'homework_policy', 'activities', 'question_sets')}
     course['activities'] = {aid: {k: v for k, v in a.items() if k in {'reading_ref', 'material_choice', 'material_id', 'phase'}} for aid, a in course['activities'].items()}
     keep = {'id', 'role', 'source_ref', 'bibliography', 'doi', 'source_url', 'source_version', 'assigned_scope',
-            'question_set_id', 'adoption', 'rights', 'file_hash', 'publication_status', 'article_type', 'open_access', 'license'}
+            'question_set_id', 'adoption', 'rights', 'ai_input_review', 'file_hash', 'publication_status', 'article_type', 'open_access', 'license'}
     manifest = yaml.safe_load((ROOT / 'materials/manifest.yaml').read_text())
     manifest = {'materials': [{k: v for k, v in m.items() if k in keep} for m in manifest['materials']]}
     course['activities']['PRACTICE'] = {'material_choice': False, 'material_id': 'PRACTICE', 'phase': 'practice'}

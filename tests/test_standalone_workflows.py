@@ -107,3 +107,38 @@ def test_embedded_dialogue_history_and_failure_are_not_normalized(tmp_path,monke
     assert session.history==history
     paths=ns['save_pair'](session.records,tmp_path/'records')
     assert ns['load_records'](paths[0])==ns['load_records'](paths[1])==session.records
+
+
+@pytest.mark.parametrize('filename', ['01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+@pytest.mark.parametrize('activity', ['P1', 'P2a', 'V1', 'V2', 'METHODS', 'TRANSFER'])
+def test_actual_adopted_papers_can_prepare_input(filename, activity, tmp_path, monkeypatch):
+    """配布版の設定を使う。試験側で入力確認を上書きして不具合を隠さない。"""
+    ns, _ = book_namespace(filename, tmp_path, monkeypatch)
+    context = ns['material_context'](ns['course'], ns['manifest'], activity)
+    assert context['adoption'] == 'adopted'
+    assert context['rights']['ai_input'] == 'confirmed'
+    assert context['ai_input_review']['decision_id'] == 'classroom_ai_reading_2026-10-03'
+    assert context['source_material_id'] == ('P02' if activity == 'TRANSFER' else 'P01')
+    # 未確認へ戻した場合は、同じ配布版の処理が送信を止める。
+    source = next(m for m in ns['manifest']['materials'] if m['id'] == context['source_material_id'])
+    source['rights']['ai_input'] = 'unconfirmed'
+    with pytest.raises(ValueError, match='AI入力の確認待ち'):
+        ns['material_context'](ns['course'], ns['manifest'], activity)
+
+
+@pytest.mark.parametrize('activity', ['P1', 'V1', 'V2', 'P2a', 'TRANSFER'])
+@pytest.mark.parametrize('kind', ['image', 'pdf'])
+def test_document_step_five_with_actual_material_settings(activity, kind, tmp_path, monkeypatch, runtime):
+    """実Notebookの手順5を通信なしで実行。入力画像だけ人工例を使う。"""
+    ns, nb = book_namespace('02_document_lab.ipynb', tmp_path, monkeypatch)
+    exec(action(nb, 'CREATE_EXAMPLE =').replace('CREATE_EXAMPLE = False', 'CREATE_EXAMPLE = True'), ns)
+    path = tmp_path / 'outputs/input-example/notebook-example.png'
+    inputs = [ns['image_input'](path, 'TEST FIXTURE: input preparation only')] if kind == 'image' else [ns['pdf_input'](path.with_suffix('.pdf'), [1])]
+    ns.update(activity_id=activity, runtime=runtime, permission=object(), inputs=inputs,
+              question='TEST FIXTURE: preview only', parameters={'max_output_tokens': 100}, conversation_mode='new')
+    with contextlib.redirect_stdout(io.StringIO()):
+        exec(action(nb, 'previewed_request = None'), ns)
+    context, payload, provenance = ns['previewed_request']
+    assert context['material_id'] == ('P02' if activity == 'TRANSFER' else 'V01' if activity == 'V1' else 'V02' if activity == 'V2' else 'P01')
+    assert payload['model'] == runtime['model'] and payload['store'] is False
+    assert provenance and ns['session'].history == []

@@ -23,6 +23,8 @@ def test_positive_readiness_uses_only_artificial_fixture(adopted):
 
 
 def test_delegated_evidence_does_not_approve_rights_or_live_tests(course, manifest):
+    # 根拠表の確認だけでは、明示的に未確認の入力条件を解除しない。
+    next(m for m in manifest["materials"] if m["id"] == "P01")["rights"]["ai_input"] = "unconfirmed"
     errors = check_course(course, manifest, ROOT, "readiness")
     assert not any("根拠表" in error and any(f'{mid}の' in error for mid in ('P01', 'V01', 'V02')) for error in errors)
     assert any('P02の根拠表' in error for error in errors)
@@ -73,6 +75,7 @@ def test_common_contract_is_single_and_has_no_choice(adopted, aid):
 
 
 def test_unconfirmed_input_rights_rejected(course, manifest):
+    next(m for m in manifest["materials"] if m["id"] == "P01")["rights"]["ai_input"] = "unconfirmed"
     with pytest.raises(ValidationError):
         material_context(course, manifest, "P1")
 
