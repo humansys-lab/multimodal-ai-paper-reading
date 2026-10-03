@@ -9,6 +9,7 @@ from types import ModuleType
 from unittest.mock import patch
 from uuid import uuid4
 import pytest
+from test_notebook_state import form_values
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -78,8 +79,9 @@ def test_actual_document_example_resize_pdf_and_invalid_input(tmp_path,monkeypat
     with pytest.raises(ValueError,match='作成済み'): exec(create,ns)
     assert png.read_bytes()==before
     ns['inputs']=[small]
-    prepare=action(nb,'PREPARE_INPUT =').replace('PREPARE_INPUT = False','PREPARE_INPUT = True').replace("local_path = ''",f'local_path = {str(pdf)!r}').replace('pdf_pages = [1, 2, 3]','pdf_pages = [0]')
-    assert 'pdf_pages = [0]' in prepare
+    prepare=action(nb,'PREPARE_INPUT =').replace('PREPARE_INPUT = False','PREPARE_INPUT = True').replace("local_path = ''",f'local_path = {str(pdf)!r}').replace("pages = '1-3'", "pages = '0'")
+    prepare = form_values(prepare, file_source='パスを指定する（PCで実行）')
+    assert "pages = '0'" in prepare
     with pytest.raises(ValueError,match='1始まり'): exec(prepare,ns)
     assert ns['inputs']==[]
 
@@ -134,10 +136,10 @@ def test_document_step_five_with_actual_material_settings(activity, kind, tmp_pa
     exec(action(nb, 'CREATE_EXAMPLE =').replace('CREATE_EXAMPLE = False', 'CREATE_EXAMPLE = True'), ns)
     path = tmp_path / 'outputs/input-example/notebook-example.png'
     inputs = [ns['image_input'](path, 'TEST FIXTURE: input preparation only')] if kind == 'image' else [ns['pdf_input'](path.with_suffix('.pdf'), [1])]
-    ns.update(activity_id=activity, runtime=runtime, permission=object(), inputs=inputs,
+    ns.update(activity_id=activity, model=runtime['model'], runtime=runtime, permission=object(), inputs=inputs,
               question='TEST FIXTURE: preview only', parameters={'max_output_tokens': 100}, conversation_mode='new')
     with contextlib.redirect_stdout(io.StringIO()):
-        exec(action(nb, 'previewed_request = None'), ns)
+        exec(form_values(action(nb, 'previewed_request = None'), question='TEST FIXTURE: preview only', max_output_tokens=100), ns)
     context, payload, provenance = ns['previewed_request']
     assert context['material_id'] == ('P02' if activity == 'TRANSFER' else 'V01' if activity == 'V1' else 'V02' if activity == 'V2' else 'P01')
     assert payload['model'] == runtime['model'] and payload['store'] is False

@@ -8,7 +8,7 @@ from PIL import Image
 from seminar_lab.client import Session, LivePermission
 from seminar_lab.config import material_context
 from seminar_lab.ui import preview_text
-from test_notebook_state import code_cell
+from test_notebook_state import code_cell, form_values
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +24,7 @@ def test_permission_preview_does_not_consume_or_reset(runtime):
 
 def test_document_preparation_failure_clears_old_image(tmp_path):
     source = code_cell('02_document_lab.ipynb', 'PREPARE_INPUT =').replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True')
+    source = form_values(source, file_source='パスを指定する（PCで実行）')
     namespace = {'inputs': ['previous image']}
     with pytest.raises(ValueError):
         exec(source, namespace)
@@ -34,9 +35,10 @@ def test_document_resize_previews_exact_sent_pixels(tmp_path):
     path = tmp_path / 'artificial.png'
     Image.new('RGB', (100, 60), 'blue').save(path)
     source = code_cell('02_document_lab.ipynb', 'PREPARE_INPUT =')
-    assert "input_kind = 'pdf'" in source
-    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_kind = 'pdf'", "input_kind = 'resized_image'")
+    assert "input_type = 'PDF'" in source
+    source = source.replace('PREPARE_INPUT = False', 'PREPARE_INPUT = True').replace("input_type = 'PDF'", "input_type = '画像を縮小'")
     source = source.replace("local_path = ''", f'local_path = {str(path)!r}').replace("source_location = ''", "source_location = 'synthetic'").replace('width = 600', 'width = 50')
+    source = form_values(source, file_source='パスを指定する（PCで実行）')
     namespace = {}
     exec(source, namespace)
     assert namespace['inputs'][0].provenance['pixels'] == [50, 30]
@@ -47,10 +49,10 @@ def test_changed_question_requires_preview_before_key_prompt(adopted, runtime):
     course, manifest = adopted
     permission = LivePermission('teacher', 'synthetic', runtime['route'], runtime['model'], 'test', 1, 2)
     ns = dict(course=course, manifest=manifest, runtime=runtime, activity_id='L2', session=Session(),
-              question='before', inputs=[], conversation_mode='new', parameters={'max_output_tokens':100},
+              model=runtime['model'], question='before', inputs=[], conversation_mode='new', parameters={'max_output_tokens':100},
               permission=permission, LivePermission=LivePermission, material_context=material_context,
               preview_text=preview_text, deepcopy=deepcopy, run_id='synthetic')
-    exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+    exec(form_values(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), question=ns['question'], conversation='前の会話を続ける' if ns['conversation_mode'] == 'continue' else '新しく始める', max_output_tokens=100), ns)
     ns['question'] = 'after'
     with pytest.raises(ValueError, match='プレビュー'):
         exec(code_cell('01_dialogue_lab.ipynb', 'SEND =').replace('SEND = False', 'SEND = True'), ns)
@@ -146,9 +148,9 @@ def test_failed_document_send_clears_previous_result_before_key_input():
 
 
 def test_homework_without_selection_explains_setup_before_preview(runtime):
-    ns = dict(question='問い', runtime=runtime, permission=object(), activity_id='HW1')
+    ns = dict(model=runtime['model'], question='問い', runtime=runtime, permission=object(), activity_id='HW1', conversation_mode='new')
     with pytest.raises(ValueError, match='Homeworkの論文情報'):
-        exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+        exec(form_values(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), question=ns['question'], conversation='前の会話を続ける' if ns['conversation_mode'] == 'continue' else '新しく始める', max_output_tokens=100), ns)
 
 
 def test_repeated_run_is_rejected_before_asking_for_key(adopted, runtime, monkeypatch):
@@ -160,10 +162,11 @@ def test_repeated_run_is_rejected_before_asking_for_key(adopted, runtime, monkey
     session.run(runtime=runtime, context=context, prompt='問い', inputs=[], mode='new',
                 parameters={'max_output_tokens':100}, run_id='used', transport=FakeTransport())
     ns = dict(course=course, manifest=manifest, runtime=runtime, activity_id='L2', session=session,
-              question='問い', inputs=[], conversation_mode='new', parameters={'max_output_tokens':100},
+              model=runtime['model'], question='問い', inputs=[], conversation_mode='new', parameters={'max_output_tokens':100},
               permission=permission, material_context=material_context,
               preview_text=preview_text, deepcopy=deepcopy, run_id='used')
-    exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+    exec(form_values(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), question=ns['question'], conversation='前の会話を続ける' if ns['conversation_mode'] == 'continue' else '新しく始める', max_output_tokens=100), ns)
+    ns['run_id'] = 'used'
     monkeypatch.setattr('getpass.getpass', lambda *_: pytest.fail('実行済みならキー入力へ進まない'))
     with pytest.raises(ValueError, match='実行済み'):
         exec(code_cell('01_dialogue_lab.ipynb', 'SEND =').replace('SEND = False', 'SEND = True'), ns)
@@ -230,10 +233,10 @@ def test_repeated_continue_stops_when_success_changed_the_preview(adopted, runti
     session.run(runtime=runtime, context=context, prompt='最初の問い', inputs=[], mode='new',
                 parameters={'max_output_tokens':100}, run_id='initial', transport=FakeTransport())
     ns = dict(course=course, manifest=manifest, runtime=runtime, activity_id='L2', session=session,
-              question='続ける問い', inputs=[], conversation_mode='continue', parameters={'max_output_tokens':100},
+              model=runtime['model'], question='続ける問い', inputs=[], conversation_mode='continue', parameters={'max_output_tokens':100},
               permission=permission, material_context=material_context,
               preview_text=preview_text, deepcopy=deepcopy, run_id='continued')
-    exec(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), ns)
+    exec(form_values(code_cell('01_dialogue_lab.ipynb', 'previewed_request = None'), question=ns['question'], conversation='前の会話を続ける' if ns['conversation_mode'] == 'continue' else '新しく始める', max_output_tokens=100), ns)
     session.run(runtime=runtime, context=context, prompt=ns['question'], inputs=[], mode='continue',
                 parameters=ns['parameters'], run_id='continued', transport=FakeTransport())
     before = deepcopy(session.records)

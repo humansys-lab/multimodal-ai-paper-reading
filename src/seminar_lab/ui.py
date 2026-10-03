@@ -3,8 +3,10 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime, timezone
 import json
+import re
 from pathlib import Path
 from uuid import uuid4
+from zipfile import ZipFile, ZIP_DEFLATED
 from .config import ACTIVITY_NAMES, material_context
 from .records import save_records
 
@@ -87,3 +89,46 @@ def save_pair(records: list[dict], directory: str | Path = "outputs") -> tuple[P
     for path in paths:
         save_records(records, path)
     return paths
+
+
+def upload_one_file(directory: str | Path, extensions: set[str]) -> Path:
+    """Colab標準の選択画面で1ファイルを受け取る。本文や秘密設定は表示しない。"""
+    from google.colab import files
+    directory = Path(directory).resolve()
+    uploaded = files.upload(target_dir=str(directory))
+    if len(uploaded) != 1:
+        raise ValueError('ファイルを1つだけ選んでください。キャンセルした場合は再実行してください。')
+    path = Path(next(iter(uploaded))).resolve()
+    if not path.is_relative_to(directory) or not path.is_file():
+        raise ValueError('アップロード先を確認できません。もう一度ファイルを選んでください。')
+    if path.suffix.lower() not in extensions:
+        raise ValueError('この欄では ' + ' / '.join(sorted(extensions)) + ' のファイルを選んでください。')
+    return path
+
+
+def parse_pdf_pages(value: str) -> list[int]:
+    """1始まりのページ指定（1-3、1,3など）を、重複なしの昇順へ変換する。"""
+    pages = []
+    for part in value.split(','):
+        part = part.strip()
+        if not re.fullmatch(r'[1-9]\d*(?:\s*-\s*[1-9]\d*)?', part):
+            raise ValueError('PDFページは1始まりで、1-3 または 1,3 のように記入してください。')
+        bounds = [int(n) for n in part.split('-')]
+        first, last = bounds[0], bounds[-1]
+        if last < first or last - first > 10000:
+            raise ValueError('PDFページの範囲を確認してください。')
+        pages.extend(range(first, last + 1))
+    if pages != sorted(set(pages)):
+        raise ValueError('PDFページは小さい順に、重複なく記入してください。')
+    return pages
+
+
+def download_records(paths: tuple[Path, Path]) -> Path:
+    """記録2ファイルをZIPにまとめ、ColabからPCへのダウンロードを開始する。"""
+    from google.colab import files
+    archive = paths[0].with_suffix('.zip')
+    with ZipFile(archive, 'x', ZIP_DEFLATED) as bundle:
+        for path in paths:
+            bundle.write(path, path.name)
+    files.download(str(archive))
+    return archive

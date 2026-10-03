@@ -10,6 +10,7 @@ from PIL import Image
 import pytest
 import yaml
 
+from test_notebook_state import form_values
 from seminar_lab.config import ValidationError, validate_runtime
 from seminar_lab.connection import load_runtime
 
@@ -96,7 +97,7 @@ def test_actual_cells_reload_and_send_without_permission(name, outcome, tmp_path
         image_path = tmp_path / 'synthetic.png'
         Image.new('RGB', (8, 8), 'white').save(image_path)
         ns['inputs'] = [ns['image_input'](image_path, '試験用の人工画像')]
-    exec(cell('previewed_request = None'), ns)
+    exec(form_values(cell('previewed_request = None'), question='人工資料についての質問'), ns)
     exec(cell('SEND =').replace('SEND = False', 'SEND = True'), ns)
     assert ns['result']['status'] == 'success'
     first_history = deepcopy(session.history)
@@ -112,8 +113,7 @@ def test_actual_cells_reload_and_send_without_permission(name, outcome, tmp_path
     assert ns['session'] is session and session.history == first_history
     assert 'permissions' not in ns and 'permission' not in ns
     ns.update(question='続きの人工質問', conversation_mode='continue', parameters={'max_output_tokens': 4096})
-    exec(cell('START_NEXT_RUN =').replace('START_NEXT_RUN = False', 'START_NEXT_RUN = True'), ns)
-    exec(cell('previewed_request = None'), ns)
+    exec(form_values(cell('previewed_request = None'), question='続きの人工質問', conversation='前の会話を続ける', max_output_tokens=4096), ns)
     exec(cell('SEND =').replace('SEND = False', 'SEND = True'), ns)
     assert len(calls) == 2 and all(c.closed for c in clients)
     assert calls[1]['max_output_tokens'] == 4096

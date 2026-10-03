@@ -41,7 +41,7 @@ def test_notebook_model_picker_and_question_cells(name, model, runtime, tmp_path
     code = code.replace("model = 'gpt-6-luna'", f'model = {model!r}')
     exec(code, ns)
     session = ns['session']
-    exec(cell("parameters = {'max_output_tokens': 2048}"), ns)
+    exec(cell('max_output_tokens ='), ns)
     payload = session.preview(ns['runtime'], '人工質問', [], 'new', ns['parameters'])
     assert payload['model'] == model and payload['max_output_tokens'] == 2048
     assert payload['store'] is False and payload['truncation'] == 'disabled'
