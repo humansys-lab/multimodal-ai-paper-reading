@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 from dataclasses import fields
+from copy import deepcopy
 from pathlib import Path
 
 from .client import LivePermission
-from .config import ValidationError, load_yaml, validate_runtime
+from .config import COURSE_MODELS, ValidationError, load_yaml, validate_runtime
 
 
-def load_runtime(path: str | Path) -> dict:
+def load_runtime(path: str | Path, model: str | None = None) -> dict:
     """授業用接続を読む。利用額・回数の上限は教員がAPI側で管理する。
 
     旧ファイルのpermissionと出力トークンの範囲は授業では使用しない。
@@ -26,7 +27,29 @@ def load_runtime(path: str | Path) -> dict:
     # 旧版の512固定も解除。APIの技術的な上限・対応外設定はAPIエラーとして表示する。
     capabilities["parameters"]["max_output_tokens"] = {"min": 1}
     validate_runtime(runtime, {"text"}, {"max_output_tokens": 2048})
-    return runtime
+    return select_model(runtime, model) if model is not None else runtime
+
+
+def select_model(runtime: dict, model: str) -> dict:
+    """採用済みのモデルを明示選択する。直接APIの仕様を中継へ流用しない。"""
+    if model not in COURSE_MODELS:
+        raise ValidationError("モデルはgpt-6-luna / gpt-6.1-sol / gpt-4.1-miniから選んでください。")
+    selected = deepcopy(runtime)
+    if selected["route"] != "direct_openai":
+        if selected["model"] != model:
+            raise ValidationError("中継接続のモデル変更には、そのモデルで確認した接続ファイルが必要です。")
+        return selected
+    profile = COURSE_MODELS[model]
+    parameters = {"max_output_tokens": {"min": 1}}
+    if profile["sampling"]:
+        parameters.update(temperature={"min": 0, "max": 2}, top_p={"min": 0, "max": 1})
+    if profile["reasoning_efforts"]:
+        parameters["reasoning"] = {"values": [{"effort": value} for value in profile["reasoning_efforts"]]}
+    selected["model"] = model
+    selected["capabilities"]["parameters"] = parameters
+    # 接続先の確認記録は保持。モデルごとの実測状態をpassへ書換えない。
+    validate_runtime(selected, {"text"}, {"max_output_tokens": 2048})
+    return selected
 
 
 def load_connection(path: str | Path, permissions: dict[str, LivePermission]) -> tuple[dict, LivePermission]:
