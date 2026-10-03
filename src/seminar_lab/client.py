@@ -142,7 +142,7 @@ class Session:
     def check_run_id(self, run_id: str) -> None:
         """キー入力前にも、実行済み番号や空の番号を拒否できるようにする。"""
         if not isinstance(run_id, str) or not run_id.strip() or run_id in self._runs:
-            raise ValidationError("この実行番号は空か実行済みです。保存後に『次の実行番号』を実行してください。")
+            raise ValidationError("送信の準備が未完了か、この質問は実行済みです。記録を保存し、質問の記入・確認セルからやり直してください。")
 
     def preview(self, runtime: dict, prompt: str, inputs: list[PreparedInput], mode: str, parameters: dict) -> dict:
         """送信する全履歴を構築する。通信しない。"""
