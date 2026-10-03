@@ -67,7 +67,7 @@ materials:
   rights:
     view: confirmed
     classroom: unconfirmed
-    ai_input: unconfirmed
+    ai_input: confirmed
     redistribution: unconfirmed
     slide_reproduction: unconfirmed
   reading_ref: common_reading
@@ -85,6 +85,18 @@ materials:
     url: https://creativecommons.org/licenses/by-nc-nd/4.0/
     verified_from: publisher webpage Rights and permissions; PDF p9
   pdf_note: 表紙のPublished online欄はxx xx xxxx。日付は公式HTMLのPublished/Version of record欄から確認。ページ・ハッシュを固定し、プレプリントへ置換しない。
+  ai_input_review:
+    status: confirmed
+    reviewer: agent implementing instructor-authorized classroom use
+    reviewed_at: '2026-10-03'
+    decision_id: classroom_ai_reading_2026-10-03
+    scope: 採用済み掲載版を授業で非商用の読解・推論に入力する。原文・図の出典を保持し、生成結果の一般公開や学習用データ作成は含めない。
+    basis:
+    - 教員による2報のAI読解教材への採用、既存API利用指示、2026-10-03の送信停止解消依頼
+    - https://creativecommons.org/licenses/by-nc-nd/4.0/
+    - 掲載版PDF内のOpen Access表示と既存の用途別確認記録
+    verification_kind: instruction_and_source_review; not a new API test or human
+      legal review
 - id: V01
   role: vlm_case
   source_ref: P01
@@ -232,11 +244,23 @@ materials:
   rights:
     view: confirmed
     classroom: unconfirmed
-    ai_input: unconfirmed
+    ai_input: confirmed
     redistribution: unconfirmed
     slide_reproduction: unconfirmed
   pdf_url: https://www.nature.com/articles/s41586-026-10265-5.pdf
   pdf_page_count: 9
+  ai_input_review:
+    status: confirmed
+    reviewer: agent implementing instructor-authorized classroom use
+    reviewed_at: '2026-10-03'
+    decision_id: classroom_ai_reading_2026-10-03
+    scope: 採用済み掲載版を授業で非商用の読解・推論に入力する。原文・図の出典を保持し、生成結果の一般公開や学習用データ作成は含めない。
+    basis:
+    - 教員による2報のAI読解教材への採用、既存API利用指示、2026-10-03の送信停止解消依頼
+    - https://creativecommons.org/licenses/by/4.0/
+    - 掲載版PDF内のOpen Access表示と既存の用途別確認記録
+    verification_kind: instruction_and_source_review; not a new API test or human
+      legal review
 - id: M01
   role: methods_case
   source_ref: P01
