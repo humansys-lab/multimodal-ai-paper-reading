@@ -23,11 +23,11 @@ jobs:
       OMP_NUM_THREADS: '4'
     steps:
       - uses: actions/checkout@v4
-      - name: Install the two model libraries
+      - name: Install compatible model libraries
         run: |
           mkdir -p build/tmp
           python3.12 -m venv build/model-venv
-          build/model-venv/bin/python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+          build/model-venv/bin/python -m pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu
           build/model-venv/bin/python -m pip install -r requirements-open-weight.txt
       - name: Run the actual notebook cells with an artificial input
         run: build/model-venv/bin/python scripts/check_open_weight_notebook.py --device cpu --allow-download

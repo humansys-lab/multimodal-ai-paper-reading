@@ -115,12 +115,13 @@ def test_model_load_rejects_unverified_dependencies_before_loading(monkeypatch, 
             raise importlib.metadata.PackageNotFoundError(name)
         if case == 'different_version' and name == 'torch':
             return '2.9.0'
-        return {'torch': '2.8.0', 'transformers': '4.57.6'}[name]
+        return {'torch': '2.8.0', 'torchvision': '0.23.0', 'transformers': '4.57.6'}[name]
 
     monkeypatch.setattr(importlib.metadata, 'version', installed_version)
     monkeypatch.setattr(local, 'load_model', lambda *a, **kw: pytest.fail('未検証の依存ではモデルを取得・読込みしない'))
     if case == 'old_module_in_memory':
         monkeypatch.setitem(sys.modules, 'torch', SimpleNamespace(__version__='2.7.0'))
+        monkeypatch.setitem(sys.modules, 'torchvision', SimpleNamespace(__version__='0.23.0'))
         monkeypatch.setitem(sys.modules, 'transformers', SimpleNamespace(__version__='4.57.6'))
     source = code_cell('03_open_weight_lab.ipynb', 'LOAD_MODEL =').replace('LOAD_MODEL = False', 'LOAD_MODEL = True')
     ns = {'model': 'previous', 'tokenizer': 'previous'}

@@ -11,7 +11,7 @@
 | [00 準備と記録](../notebooks/00_setup.ipynb) | 朝と相互説明後の自分の説明を保存 | 不要（Python標準ライブラリだけ） |
 | [01 対話](../notebooks/01_dialogue_lab.ipynb) | Methodsの段落と対話・任意のテキスト比較 | PyYAML、OpenAI SDK |
 | [02 画像・PDF](../notebooks/02_document_lab.ipynb) | 朝のPDF読解・質問比較・図2・再読・別論文 | 01にPillow、pypdfを追加 |
-| [03 小型モデルの観察](../notebooks/03_open_weight_lab.ipynb) | トークン→数値→候補確率→生成 | PyTorch、Transformers |
+| [03 小型モデルの観察](../notebooks/03_open_weight_lab.ipynb) | トークン→数値→候補確率→生成 | PyTorch、torchvision、Transformers |
 
 SDK等が内部で使う依存は一緒に入ります。例えば01の新規Mac環境には計17パッケージが入りました。Pillow・pypdf・PyTorch・Transformersは01には入りません。03にはaccelerate・量子化・エージェントのライブラリを追加していません。
 
@@ -101,7 +101,7 @@ Homeworkは01・02それぞれの末尾にある任意の切替セルを使い�
 
 ## 03：中の計算を観察する
 
-1. `INSTALL=True`でモデル用依存を一度導入。`DEVICE='cuda'`はColab、`'mps'`はMac。初回取得は`ALLOW_DOWNLOAD=True`。`LOAD_MODEL=True`で、確認済みのライブラリ版を検査してから読み込む。機種や版が合わなければ停止する。
+1. `INSTALL=True`でtorch 2.8.0・torchvision 0.23.0・Transformers 4.57.6を一度導入し、**必ずランタイムを再起動**。`INSTALL=False`に戻し、冒頭の保存先・関数定義セルを再実行してから「2」へ進む。`DEVICE='cuda'`はColab、`'mps'`はMac。初回取得は`ALLOW_DOWNLOAD=True`。`LOAD_MODEL=True`で、確認済みのライブラリ版を検査してから読み込む。機種や版が合わなければ停止する。
 2. `OBSERVE=True`で、トークン→埋込み→softmaxによる次の候補確率を順に見る。計算コードは各セルにある。
 3. 生成設定の`temperature`・`top_k`・`top_p`・`seed`は固定。意味は[用語集](glossary.md#notebookの生成設定を読む)で確認できる。`PROMPT`へ自分の問いを書き、`PREVIEW=True`で会話テンプレートを確認。`RUN=True`で生成する。問いを変えたら再プレビューする。
 4. 本人の説明を`annotations`に記入し、`SAVE=True`で生回答と一緒にJSONへ保存する。保存OFFでは書き換わらず、同じ実行のファイルは上書きしない。
