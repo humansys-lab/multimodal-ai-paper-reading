@@ -389,11 +389,11 @@ def validate_runtime(runtime: dict, kinds: set[str], parameters: dict) -> None:
     if not isinstance(parameters, dict) or not isinstance(supported, dict) or set(supported) - known:
         raise ValidationError("パラメータの対応表が不正です。")
     for key, rule in supported.items():
-        if not isinstance(rule, dict) or set(rule) not in ({"min", "max"}, {"values"}):
+        if not isinstance(rule, dict) or set(rule) not in ({"min", "max"}, {"values"}, {"min"}):
             raise ValidationError("対応する設定値はmin/maxまたはvaluesで明示してください。")
         if "values" in rule and (not isinstance(rule["values"], list) or not rule["values"]):
             raise ValidationError("設定値の一覧を空にできません。")
-        if "min" in rule and (not all(type(rule[k]) in (int, float) and isfinite(rule[k]) for k in ("min", "max")) or rule["min"] > rule["max"]):
+        if "min" in rule and (not all(type(v) in (int, float) and isfinite(v) for v in rule.values()) or ("max" in rule and rule["min"] > rule["max"])):
             raise ValidationError("設定範囲が不正です。")
     if set(parameters) - {"max_output_tokens", "temperature", "top_p", "reasoning"} or set(parameters) - set(supported):
         raise ValidationError("未対応の設定です。設定を黙って変更することはありません。")
@@ -405,5 +405,5 @@ def validate_runtime(runtime: dict, kinds: set[str], parameters: dict) -> None:
             raise ValidationError("temperatureとtop_pは有限の数値で指定してください。真偽値や文字列は使えません。")
         if "values" in rule and val not in rule["values"]:
             raise ValidationError("設定値が確認済みの範囲外です。")
-        if "min" in rule and (type(val) not in (float, int) or not rule["min"] <= val <= rule["max"]):
+        if "min" in rule and (type(val) not in (float, int) or val < rule["min"] or ("max" in rule and val > rule["max"])):
             raise ValidationError("設定値が確認済みの範囲外です。")

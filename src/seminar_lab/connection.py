@@ -8,8 +8,29 @@ from .client import LivePermission
 from .config import ValidationError, load_yaml, validate_runtime
 
 
+def load_runtime(path: str | Path) -> dict:
+    """授業用接続を読む。利用額・回数の上限は教員がAPI側で管理する。
+
+    旧ファイルのpermissionと出力トークンの範囲は授業では使用しない。
+    回答長は質問セルで指定し、モデルの対応上限はAPIが判定する。
+    """
+    config = load_yaml(path)
+    if not isinstance(config, dict) or "runtime" not in config or set(config) - {"runtime", "permission"}:
+        raise ValidationError("接続ファイルにruntimeを記入してください。APIキーは含めません。")
+    runtime = config["runtime"]
+    if not isinstance(runtime, dict):
+        raise ValidationError("runtimeは接続設定の辞書にしてください。")
+    capabilities = runtime.get("capabilities")
+    if not isinstance(capabilities, dict) or not isinstance(capabilities.get("parameters"), dict):
+        raise ValidationError("接続設定に対応機能とparametersを記入してください。")
+    # 旧版の512固定も解除。APIの技術的な上限・対応外設定はAPIエラーとして表示する。
+    capabilities["parameters"]["max_output_tokens"] = {"min": 1}
+    validate_runtime(runtime, {"text"}, {"max_output_tokens": 2048})
+    return runtime
+
+
 def load_connection(path: str | Path, permissions: dict[str, LivePermission]) -> tuple[dict, LivePermission]:
-    """設定を検証し、同じ許可の再読込みでは消費済みの回数を保持する。"""
+    """教員用試験の明示した回数枠を読む。授業Notebookはload_runtimeを使う。"""
     config = load_yaml(path)
     if set(config) != {"runtime", "permission"}:
         raise ValidationError("接続ファイルにはruntimeとpermissionだけを記入してください。キーは含めません。")

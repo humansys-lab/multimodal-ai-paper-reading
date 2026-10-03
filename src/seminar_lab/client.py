@@ -73,7 +73,7 @@ class LivePermission:
 
 class OpenAITransport:
     """キーはメモリ内だけに置き、SDKの再試行を0回にする。"""
-    def __init__(self, runtime: dict, api_key: str, permission: LivePermission):
+    def __init__(self, runtime: dict, api_key: str, permission: "LivePermission | None" = None):
         try:
             rule = runtime["capabilities"]["parameters"]["max_output_tokens"]
             # 接続設定の検査用。実送信値はSession.previewで毎回別に検査する。
@@ -96,12 +96,13 @@ class OpenAITransport:
         self._client.close()
 
     def send(self, payload: dict) -> dict:
-        """許可枠を予約して1回だけ送る。例外本文・URL・HTTPヘッダーは返さない。"""
+        """1回だけ送る。教員用試験で許可枠を指定した場合だけ回数を管理する。"""
         from openai import APIConnectionError, APIStatusError, APITimeoutError
         if payload.get("model") != self._runtime["model"]:
             raise ValidationError("送信モデルが許可の対象と異なります。")
-        with self._lock:
-            self._permission.consume(self._runtime)
+        if self._permission is not None:
+            with self._lock:
+                self._permission.consume(self._runtime)
         try:
             return self._client.responses.create(**payload).model_dump(mode="json")
         except APITimeoutError:
@@ -149,7 +150,8 @@ class Session:
         validate_runtime(runtime, {"text"} | {i.kind for i in inputs}, parameters)
         if mode == "continue" and not self._history:
             raise ValidationError("継続する成功済み履歴がありません。新規を選んでください。")
-        if mode == "continue" and self._runtime != runtime:
+        if mode == "continue" and any((self._runtime or {}).get(k) != runtime.get(k)
+                                      for k in ("route", "api", "model", "base_url")):
             raise ValidationError("継続途中のモデル・経路変更は新規会話で行ってください。")
         content = [deepcopy(i.content) for i in inputs] + [{"type": "input_text", "text": prompt}]
         return {"model": runtime["model"], "input": (self.history if mode == "continue" else []) + [{"role": "user", "content": content}],
