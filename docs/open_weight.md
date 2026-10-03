@@ -12,7 +12,7 @@
 
 ## モデルと環境
 
-[Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B/blob/c1899de289a04d12100db370d81485cdf75e47ca/README.md)の公開重みを固定版で使います。実パラメータ数596,049,920。Apache 2.0、`trust_remote_code=False`、safetensors、思考モードOFF。追加する直接の依存はPyTorchとTransformersです。
+[Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B/blob/c1899de289a04d12100db370d81485cdf75e47ca/README.md)の公開重みを固定版で使います。実パラメータ数596,049,920。Apache 2.0、`trust_remote_code=False`、safetensors、思考モードOFF。導入するのはPyTorch 2.8.0、対応するtorchvision 0.23.0、Transformers 4.57.6です。
 
 | 環境 | 明示する設定 | 確認状況 |
 |---|---|---|
@@ -24,7 +24,7 @@
 
 ## 取得と保存
 
-初回はネット接続が必要です。今回のMacでは、新しいキャッシュへの取得から読込みまで約119秒でした。Colabや教室の回線の所要時間は未確認なので、12分の観察前に準備を終えます。教材の準備後に`INSTALL=True`で依存を導入し、`ALLOW_DOWNLOAD=True`で固定した重みを取得します。取得済みのローカル環境では両方をOFFにし、`LOAD_MODEL=True`で読み込みます。選んだ機種を使えない場合は停止します。
+初回はネット接続が必要です。今回のMacでは、新しいキャッシュへの取得から読込みまで約119秒でした。Colabや教室の回線の所要時間は未確認なので、12分の観察前に準備を終えます。教材の準備後に`INSTALL=True`で依存を導入した後、必ずランタイムを再起動します。`INSTALL=False`へ戻して冒頭の保存先・関数定義セルを再実行し、「2」で`ALLOW_DOWNLOAD=True`で固定した重みを取得します。取得済みのローカル環境では両方をOFFにし、`LOAD_MODEL=True`で読み込みます。選んだ機種を使えない場合は停止します。
 
 推論はモデルを読み込んだ計算機で行います。外部APIへの送信・API料金はありません。Colab自体の利用枠とは別です。
 

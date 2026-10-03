@@ -26,7 +26,7 @@
 | 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/58fec78f462aaf83a01e9fdf4ee80b1a46c71fc2/notebooks/01_dialogue_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
-2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。
+2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。**03は導入後に必ずランタイムを再起動**し、`INSTALL=False`に戻して冒頭の保存先・関数定義セルを再実行してから「2」へ進みます。
 3. 01・02は教員から`connection.local.yaml`と個別APIキーを別々に受け取ります。02の論文画像は`fig2_full.png`と`fig2_quarter.png`です。各Notebook冒頭に、ファイル一覧・Colabへのアップロード・記入欄・実行順を載せています。キーは送信時の専用入力欄にだけ入れます。公開の`connection.example.yaml`は学生用の接続設定ではありません。
 4. 保存セルを実行し、Files欄から`outputs/`の記録をダウンロードします。Colabのランタイムが削除されると、そこに保存したファイルも消えます。
 
