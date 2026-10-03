@@ -1,5 +1,5 @@
 # 教員・TA用の空様式。実際の設定は非公開で配布する。
-# 接続・予算・保持を検査後、記入済みの別ファイルをconnection.local.yamlとして個別配布する。
+# 接続・保持を検査し、API側の上限を教員が管理したうえで、記入済みの別ファイルをconnection.local.yamlとして個別配布する。
 # 学生はこの見本を改名して使わない。Notebook 01・02の冒頭に受取り・読込み手順がある。
 # APIキーはこのファイルにも書かず、Notebookの専用入力欄に入力する。
 # 未確認の項目をpassへ変更して試験を省略しない。
@@ -24,13 +24,4 @@ runtime:
     route_test: not_run
     budget_fail_closed: not_run
     retention_review: not_run
-permission:
-  id: null
-  approved_by: null
-  scope: null
-  route: course_proxy
-  model: null
-  authentication_route: null
-  usd_limit: 0
-  request_limit: 0
-# permissionは教員の許可内容を記録する。金額の強制停止は中継側で別途検証する。
+# 利用額・回数のhard limitは教員がAPI側で管理。Notebook内の許可ID・回数枠は不要。
