@@ -22,17 +22,17 @@ Paper2Agentの図1・2とMethodsで論文の読み方を学び、The AI Scientis
 
 | 使う時間・目的 | Notebook | 固定版へのリンク |
 |---|---|---|
-| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1bb1cd281b87b850b115f881f95fe57ec2b01d90/notebooks/00_setup.ipynb) |
-| 10:25以降：PDF読解、質問比較、図2、再読、別論文 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1bb1cd281b87b850b115f881f95fe57ec2b01d90/notebooks/02_document_lab.ipynb) |
-| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1bb1cd281b87b850b115f881f95fe57ec2b01d90/notebooks/03_open_weight_lab.ipynb) |
-| 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/1bb1cd281b87b850b115f881f95fe57ec2b01d90/notebooks/01_dialogue_lab.ipynb) |
+| 10:15・15:40後：自分の説明を朝と午後に保存 | [00 準備と記録](notebooks/00_setup.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/c50f26579d1c5401bd22d59fc130116b71a3cfe1/notebooks/00_setup.ipynb) |
+| 10:25以降：PDF読解、質問比較、図2、再読、別論文 | [02 画像・PDF](notebooks/02_document_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/c50f26579d1c5401bd22d59fc130116b71a3cfe1/notebooks/02_document_lab.ipynb) |
+| 11:45：トークン・数値・候補確率を観察 | [03 小型モデル](notebooks/03_open_weight_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/c50f26579d1c5401bd22d59fc130116b71a3cfe1/notebooks/03_open_weight_lab.ipynb) |
+| 15:20：Methodsの必要な段落と対話 | [01 質問と対話](notebooks/01_dialogue_lab.ipynb) | [Colabで開く](https://colab.research.google.com/github/humansys-lab/multimodal-ai-paper-reading/blob/c50f26579d1c5401bd22d59fc130116b71a3cfe1/notebooks/01_dialogue_lab.ipynb) |
 
 1. 00〜02はCPU、03は「ランタイムのタイプを変更」でT4 GPUを選びます。個人PCへのGPU導入は不要です。
 2. 各Notebookは1ファイルで実行できます。入出力例を読み、上からセルを実行します。00は追加ライブラリ不要。01・02は冒頭、03はモデル準備の`INSTALL=True`で必要なライブラリだけを入れます。教材コードのダウンロードやAPI送信は行いません。**03は導入後に必ずランタイムを再起動**し、`INSTALL=False`に戻して冒頭の保存先・関数定義セルを再実行してから「2」へ進みます。
 3. 01・02は教員から`connection.local.yaml`と個別APIキーを別々に受け取ります。02の論文画像は`fig2_full.png`と`fig2_quarter.png`です。各Notebook冒頭に、ファイル一覧・Colabへのアップロード・記入欄・実行順を載せています。キーは送信時の専用入力欄にだけ入れます。公開の`connection.example.yaml`は学生用の接続設定ではありません。
 4. 保存セルを実行し、Files欄から`outputs/`の記録をダウンロードします。Colabのランタイムが削除されると、そこに保存したファイルも消えます。
 
-01・02では接続セルの`model`で、`gpt-6-luna`・`gpt-6.1-sol`・`gpt-4.1-mini`を選べます。質問セルに対応する設定例があり、モデル変更時は新規会話にします。[モデルの仕様・実測状態](docs/capability_audit.md)を参照してください。
+01・02では接続セルの`model`で、`gpt-6-luna`・`gpt-6-sol`・`gpt-4.1-mini`を選べます。質問セルに対応する設定例があり、モデル変更時は新規会話にします。[モデルの仕様・実測状態](docs/capability_audit.md)を参照してください。
 
 朝の最初のAI利用は、最終スライド5に合わせてNotebook 02で論文PDFの1–3ページを送ります。03は初回のモデル取得に時間がかかるため、教員の案内に合わせて演習前に準備します。操作の詳細は[Notebookガイド](docs/notebook_guide.md)にあります。
 

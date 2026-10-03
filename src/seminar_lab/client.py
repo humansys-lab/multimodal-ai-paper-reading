@@ -159,7 +159,7 @@ class Session:
         content = [deepcopy(i.content) for i in inputs] + [{"type": "input_text", "text": prompt}]
         payload = {"model": runtime["model"], "input": (self.history if mode == "continue" else []) + [{"role": "user", "content": content}],
                    "store": False, "truncation": "disabled", **deepcopy(parameters)}
-        if runtime["model"] in {"gpt-6-luna", "gpt-6.1-sol"}:
+        if runtime["model"] in {"gpt-6-luna", "gpt-6-sol"}:
             # store=Falseでも継続できる暗号化データ。内部の思考本文は取得・表示しない。
             payload["include"] = ["reasoning.encrypted_content"]
         return payload

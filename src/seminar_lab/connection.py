@@ -33,7 +33,7 @@ def load_runtime(path: str | Path, model: str | None = None) -> dict:
 def select_model(runtime: dict, model: str) -> dict:
     """採用済みのモデルを明示選択する。直接APIの仕様を中継へ流用しない。"""
     if model not in COURSE_MODELS:
-        raise ValidationError("モデルはgpt-6-luna / gpt-6.1-sol / gpt-4.1-miniから選んでください。")
+        raise ValidationError("モデルはgpt-6-luna / gpt-6-sol / gpt-4.1-miniから選んでください。")
     selected = deepcopy(runtime)
     if selected["route"] != "direct_openai":
         if selected["model"] != model:

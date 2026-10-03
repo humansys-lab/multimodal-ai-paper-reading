@@ -45,7 +45,7 @@ def test_notebook_model_picker_and_question_cells(name, model, runtime, tmp_path
     payload = session.preview(ns['runtime'], '人工質問', [], 'new', ns['parameters'])
     assert payload['model'] == model and payload['max_output_tokens'] == 2048
     assert payload['store'] is False and payload['truncation'] == 'disabled'
-    expected = {'gpt-6-luna': 'none', 'gpt-6.1-sol': 'low', 'gpt-4.1-mini': None}[model]
+    expected = {'gpt-6-luna': 'none', 'gpt-6-sol': 'low', 'gpt-4.1-mini': None}[model]
     assert payload.get('reasoning', {}).get('effort') == expected
     assert ('include' in payload) == model.startswith('gpt-6')
     assert not session.records
@@ -53,7 +53,7 @@ def test_notebook_model_picker_and_question_cells(name, model, runtime, tmp_path
     assert ns['session'] is session
 
 
-@pytest.mark.parametrize('model', ['gpt-6-astra', 'gpt-4.1', 'gpt-4.1-mini-malicious', ''])
+@pytest.mark.parametrize('model', ['gpt-6-astra', 'gpt-6.1-sol', 'GPT-6-SOL', 'GPT-6-LUNA', 'GPT-4.1-MINI', 'gpt-4.1', 'gpt-4.1-mini-malicious', ''])
 def test_unselected_models_rejected(model, runtime):
     with pytest.raises(ValidationError, match='モデルは'):
         select_model(direct(runtime), model)
@@ -64,10 +64,11 @@ def test_unselected_models_rejected(model, runtime):
     ('gpt-6-luna', {'reasoning': {'effort': 'low'}, 'temperature': 0.7}, False),
     ('gpt-6-luna', {'top_p': 0.5}, False),
     ('gpt-6-luna', {'reasoning': {'effort': 'low'}}, True),
-    ('gpt-6.1-sol', {'reasoning': {'effort': 'none'}}, False),
-    ('gpt-6.1-sol', {'reasoning': {'effort': 'low'}, 'temperature': 0.7}, False),
-    ('gpt-6.1-sol', {'reasoning': {'effort': 'low', 'mode': 'pro'}}, False),
-    ('gpt-6.1-sol', {'reasoning': {'effort': 'high'}}, True),
+    ('gpt-6-sol', {'reasoning': {'effort': 'none'}}, True),
+    ('gpt-6-sol', {'reasoning': {'effort': 'none'}, 'temperature': 0.7}, True),
+    ('gpt-6-sol', {'reasoning': {'effort': 'low'}, 'temperature': 0.7}, False),
+    ('gpt-6-sol', {'reasoning': {'effort': 'low', 'mode': 'pro'}}, False),
+    ('gpt-6-sol', {'reasoning': {'effort': 'high'}}, True),
     ('gpt-4.1-mini', {'reasoning': {'effort': 'none'}}, False),
     ('gpt-4.1-mini', {'temperature': 0.7}, True),
     ('gpt-4.1-mini', {'top_p': 0.9}, True),
@@ -96,20 +97,20 @@ def test_alias_matches_only_its_observed_snapshot():
 
 def test_model_switch_requires_new_conversation(runtime):
     a = select_model(direct(runtime), 'gpt-4.1-mini')
-    b = select_model(direct(runtime), 'gpt-6.1-sol')
+    b = select_model(direct(runtime), 'gpt-6-sol')
     s = Session()
     s._history = [{'role': 'user', 'content': '人工履歴'}]
     s._runtime = a
     before = s.history
     with pytest.raises(ValidationError, match='新規会話'):
         s.preview(b, '質問', [], 'continue', {'max_output_tokens': 2048})
-    assert s.preview(b, '質問', [], 'new', {'max_output_tokens': 2048})['model'] == 'gpt-6.1-sol'
+    assert s.preview(b, '質問', [], 'new', {'max_output_tokens': 2048})['model'] == 'gpt-6-sol'
     assert s.history == before
 
 
 def test_proxy_capabilities_not_inferred_from_direct_api(runtime):
     with pytest.raises(ValidationError, match='中継'):
-        select_model(runtime, 'gpt-6.1-sol')
+        select_model(runtime, 'gpt-6-sol')
 
 
 def test_access_error_is_clear_and_not_retried(runtime, monkeypatch):
