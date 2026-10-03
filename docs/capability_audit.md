@@ -6,9 +6,11 @@
 
 | モデル・公式仕様 | 入力／出力料金 | Notebookの初期設定 | 直接APIの実測 |
 |---|---|---|---|
-| [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) | 0.10／0.50 | reasoning.effort=none | blocked：許可更新後も403 model_not_found |
+| [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) | 0.10／0.50 | reasoning.effort=none | pass：15:17 JSTの文章1回。画像・PDF・継続は未確認 |
 | [GPT-6 Sol](https://developers.openai.com/api/docs/models/gpt-6-sol) | 2.00／10.00 | reasoning.effort=low | pass：文章1回。継続・PNG・PDF・保存往復はこのモデルで未実施 |
 | [GPT-4.1 mini](https://developers.openai.com/api/docs/models/gpt-4.1-mini) | 0.40／1.60 | reasoningなし | pass：文章・継続・PNG・PDF、temperature=0.7、保存往復 |
+
+2026-10-03 15:17 JST、Lunaは直接APIの短い文章送信に成功（HTTP 200／completed、3.13秒）。以前の403は今回発生しませんでした。確認範囲は[検証記録](verification.md)に示します。
 
 最新の3モデル再確認はSDKを介さない直接HTTP／Responses API／store=False／再試行0。以前の画像・PDF試験はOpenAI SDK 2.54.0を使用。GPT-6.1 Solの以前の成功をGPT-6 Solへ流用しません。モデル名が返す実際の名前も記録します。GPT-4.1 miniはgpt-4.1-mini-2025-04-14が返ることを確認しました。別のモデルや未知の版を同じものとして受理しません。
 
