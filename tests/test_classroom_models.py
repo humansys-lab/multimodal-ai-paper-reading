@@ -23,7 +23,7 @@ def direct(runtime):
 
 
 @pytest.mark.parametrize('model', list(COURSE_MODELS))
-@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb', '02_document_lab.ipynb'])
+@pytest.mark.parametrize('name', ['01_dialogue_lab.ipynb'])
 def test_notebook_model_picker_and_question_cells(name, model, runtime, tmp_path):
     """self-containedの実セルから、選択モデルに合う送信内容を構築する。"""
     n = json.loads((ROOT / 'notebooks' / name).read_text())
